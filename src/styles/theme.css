@@ -1,0 +1,214 @@
+:root {
+  /* Light Theme (Default) */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f3f4f6; /* Gray-100 */
+  --color-bg-glass: rgba(255, 255, 255, 0.8);
+  
+  /* Text Colors */
+  --color-text-primary: #222222; /* Main Headings */
+  --color-text-secondary: #444444; /* Body Text */
+  --color-text-tertiary: #666666; /* Secondary/Auxiliary Text */
+  
+  --color-border: #eeeeee; /* Divider */
+  --color-icon: #555555;
+  
+  /* Accents (Hex) - Bright & Clear */
+  --color-accent-primary: #0284c7; /* Sky-600 */
+  --color-accent-secondary: #7c3aed; /* Violet-600 */
+  --color-accent-tertiary: #db2777; /* Pink-600 */
+
+  /* Accents (RGB for opacity) */
+  --color-accent-primary-rgb: 2, 132, 199;
+  --color-accent-secondary-rgb: 124, 58, 237;
+  
+  /* Shadows */
+  --shadow-color: rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  /* Forms */
+  --color-input-bg: #ffffff;
+  --color-input-border: #e0e0e0;
+  --color-input-text: #444444;
+  --color-input-placeholder: #999999;
+  --color-input-focus-ring: rgba(2, 132, 199, 0.2); /* Sky-600 20% */
+  --color-dropdown-bg: #f9f9f9;
+  --color-selection-bg: #e3f2fd;
+
+  /* Buttons (Light Mode Specific) */
+  --color-btn-primary-bg: #f5f5f5;
+  --color-btn-primary-text: #333333;
+  --color-btn-primary-border: #e0e0e0;
+  --color-btn-primary-hover-bg: #eeeeee;
+  --color-btn-primary-active-bg: #e0e0e0;
+  --color-btn-disabled-bg: #fafafa;
+
+  /* Cards & Surfaces */
+  --color-card-bg: rgba(255, 255, 255, 0.8);
+  --color-card-border: rgba(0, 0, 0, 0.05);
+  --color-card-hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  --color-mobile-menu-bg: rgba(255, 255, 255, 0.95);
+  --color-mobile-menu-gradient: radial-gradient(circle at 50% 50%, rgba(2, 132, 199, 0.05), transparent 70%);
+
+  /* Footer */
+  --color-footer-bg: #f9f9f9;
+  --color-footer-text: #666666;
+  --color-footer-heading: #222222;
+  --color-footer-border: #eeeeee;
+  --color-footer-overlay: rgba(255, 255, 255, 0.5);
+
+  /* Particles */
+  --particle-color-1: #f0f0f0;
+  --particle-color-2: #e6f7ff;
+  --particle-line-color: rgba(0, 0, 0, 0.1);
+  --particle-bg: radial-gradient(circle at center, #ffffff 0%, #f5f5f5 100%);
+  
+  /* Code Syntax Highlighting (Light) */
+  --color-code-string: #10b981;
+}
+
+/* Dark Theme Media Query - Ensures theme applies without JS */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-primary: #0f172a; /* Slate-900 */
+    --color-bg-secondary: #1e293b; /* Slate-800 */
+    --color-bg-glass: rgba(15, 23, 42, 0.7);
+    
+    --color-text-primary: #f8fafc; /* Slate-50 */
+    --color-text-secondary: #94a3b8; /* Slate-400 */
+    --color-text-tertiary: #64748b; /* Slate-500 */
+    
+    --color-border: rgba(255, 255, 255, 0.08);
+    --color-icon: #e2e8f0; /* Slate-200 */
+
+    /* Accents (Hex) - Neon & Vibrant */
+    --color-accent-primary: #38bdf8; /* Sky-400 */
+    --color-accent-secondary: #a78bfa; /* Violet-400 */
+    --color-accent-tertiary: #f472b6; /* Pink-400 */
+
+    /* Accents (RGB for opacity) */
+    --color-accent-primary-rgb: 56, 189, 248;
+    --color-accent-secondary-rgb: 167, 139, 250;
+    
+    /* Shadows */
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.4);
+
+    /* Forms */
+    --color-input-bg: #1e293b; /* Slate-800 */
+    --color-input-border: #334155; /* Slate-700 */
+    --color-input-text: #f8fafc;
+    --color-input-placeholder: #64748b; /* Slate-500 */
+    --color-input-focus-ring: rgba(56, 189, 248, 0.2); /* Sky-400 20% */
+    --color-dropdown-bg: #1e293b;
+    --color-selection-bg: rgba(56, 189, 248, 0.3);
+
+    /* Buttons (Dark Mode - Mapped to Accents) */
+    --color-btn-primary-bg: var(--color-accent-primary);
+    --color-btn-primary-text: #ffffff;
+    --color-btn-primary-border: transparent;
+    --color-btn-primary-hover-bg: var(--color-accent-primary); /* Filter handles brightness */
+    --color-btn-primary-active-bg: var(--color-accent-primary);
+    --color-btn-disabled-bg: rgba(255, 255, 255, 0.1);
+
+    /* Cards & Surfaces */
+    --color-card-bg: rgba(15, 15, 25, 0.6);
+    --color-card-border: rgba(255, 255, 255, 0.05);
+    --color-card-hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    --color-mobile-menu-bg: rgba(5, 5, 5, 0.95);
+    --color-mobile-menu-gradient: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.1), transparent 70%);
+
+    /* Footer */
+    --color-footer-bg: #1A1A1A;
+    --color-footer-text: #A1A1AA;
+    --color-footer-heading: #FFFFFF;
+    --color-footer-border: rgba(255, 255, 255, 0.1);
+    --color-footer-overlay: rgba(26, 26, 26, 0.7);
+
+    /* Particles */
+    --particle-color-1: #00f2ff;
+    --particle-color-2: #bd00ff;
+    --particle-line-color: rgba(255, 255, 255, 0.2);
+    --particle-bg: radial-gradient(circle at center, #1a1a2e 0%, #050505 100%);
+
+    /* Code Syntax Highlighting (Dark) */
+    --color-code-string: #34d399; /* Emerald-400 */
+  }
+}
+
+/* Dark Theme (Class-based for manual override if needed) */
+html.dark {
+  --color-bg-primary: #0f172a; /* Slate-900 */
+  --color-bg-secondary: #1e293b; /* Slate-800 */
+  --color-bg-glass: rgba(15, 23, 42, 0.7);
+  
+  --color-text-primary: #f8fafc; /* Slate-50 */
+  --color-text-secondary: #94a3b8; /* Slate-400 */
+  --color-text-tertiary: #64748b; /* Slate-500 */
+  
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-icon: #e2e8f0; /* Slate-200 */
+
+  /* Accents (Hex) - Neon & Vibrant */
+  --color-accent-primary: #38bdf8; /* Sky-400 */
+  --color-accent-secondary: #a78bfa; /* Violet-400 */
+  --color-accent-tertiary: #f472b6; /* Pink-400 */
+
+  /* Accents (RGB for opacity) */
+  --color-accent-primary-rgb: 56, 189, 248;
+  --color-accent-secondary-rgb: 167, 139, 250;
+  
+  /* Shadows */
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.4);
+
+  /* Forms */
+  --color-input-bg: #1e293b; /* Slate-800 */
+  --color-input-border: #334155; /* Slate-700 */
+  --color-input-text: #f8fafc;
+  --color-input-placeholder: #64748b; /* Slate-500 */
+  --color-input-focus-ring: rgba(56, 189, 248, 0.2); /* Sky-400 20% */
+  --color-dropdown-bg: #1e293b;
+  --color-selection-bg: rgba(56, 189, 248, 0.3);
+
+  /* Buttons (Dark Mode - Mapped to Accents) */
+  --color-btn-primary-bg: var(--color-accent-primary);
+  --color-btn-primary-text: #ffffff;
+  --color-btn-primary-border: transparent;
+  --color-btn-primary-hover-bg: var(--color-accent-primary); /* Filter handles brightness */
+  --color-btn-primary-active-bg: var(--color-accent-primary);
+  --color-btn-disabled-bg: rgba(255, 255, 255, 0.1);
+
+  /* Cards & Surfaces */
+  --color-card-bg: rgba(15, 15, 25, 0.6);
+  --color-card-border: rgba(255, 255, 255, 0.05);
+  --color-card-hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  --color-mobile-menu-bg: rgba(5, 5, 5, 0.95);
+  --color-mobile-menu-gradient: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.1), transparent 70%);
+
+  /* Footer */
+  --color-footer-bg: #1A1A1A;
+  --color-footer-text: #A1A1AA;
+  --color-footer-heading: #FFFFFF;
+  --color-footer-border: rgba(255, 255, 255, 0.1);
+  --color-footer-overlay: rgba(26, 26, 26, 0.7);
+
+  /* Particles */
+  --particle-color-1: #00f2ff;
+  --particle-color-2: #bd00ff;
+  --particle-line-color: rgba(255, 255, 255, 0.2);
+  --particle-bg: radial-gradient(circle at center, #1a1a2e 0%, #050505 100%);
+  
+  /* Code Syntax Highlighting (Dark) */
+  --color-code-string: #34d399; /* Emerald-400 */
+}
+
+body {
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global Transition for Theme Elements */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.3s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

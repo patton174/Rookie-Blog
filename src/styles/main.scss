@@ -1,0 +1,189 @@
+@use 'variables' as *;
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: $font-family-main;
+  background-color: $color-bg-primary;
+  color: $color-text-primary;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: $transition-base;
+}
+
+ul {
+  list-style: none;
+}
+
+// Smooth Scroll
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+// Responsive Media
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+// Text Wrapping
+body {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+// Selection
+::selection {
+  background: $color-selection-bg;
+  color: $color-text-primary;
+}
+
+// Custom Scrollbar
+::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 $spacing-lg;
+}
+
+// Utility Classes
+.text-gradient {
+  background: $gradient-primary;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// Form Elements
+input, select, textarea {
+  background-color: $color-input-bg;
+  border: 1px solid $color-input-border;
+  color: $color-input-text;
+  border-radius: $radius-md;
+  padding: 0.5rem 1rem;
+  transition: $transition-base;
+  
+  &::placeholder {
+    color: $color-input-placeholder;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-accent-primary;
+    box-shadow: 0 0 0 3px $color-input-focus-ring;
+  }
+}
+
+button {
+  cursor: pointer;
+  font-family: $font-family-main;
+}
+
+// Button Styles
+.btn-primary {
+  background: $color-btn-primary-bg;
+  color: $color-btn-primary-text;
+  border: 1px solid $color-btn-primary-border;
+  padding: 0.5rem 1.5rem;
+  border-radius: $radius-md;
+  font-weight: 600;
+  transition: $transition-base;
+
+  &:hover {
+    background: $color-btn-primary-hover-bg;
+    // box-shadow: 0 4px 12px $shadow-card; // Use card shadow or keep custom?
+    // Requirement says: "Hover status: background color changed to #EEEEEE, add slight shadow effect"
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+  }
+
+  &:active {
+    background: $color-btn-primary-active-bg;
+    transform: scale(0.98);
+  }
+  
+  &:disabled {
+    background: $color-btn-disabled-bg;
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: none; // Remove grayscale as we handle colors directly
+    border-color: transparent; 
+  }
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid $color-border;
+  color: $color-text-primary;
+  padding: 0.5rem 1.5rem;
+  border-radius: $radius-md;
+  font-weight: 500;
+  transition: $transition-base;
+
+  &:hover {
+    background: $color-bg-secondary;
+    border-color: $color-text-secondary;
+  }
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: $color-accent-primary;
+  padding: 0;
+  font-weight: 500;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.glass-panel {
+  background: $color-bg-glass;
+  backdrop-filter: blur($backdrop-blur);
+  -webkit-backdrop-filter: blur($backdrop-blur);
+  border: 1px solid $color-border;
+}
+
+// Animation classes
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-delay-1 { transition-delay: 0.1s; }
+.stagger-delay-2 { transition-delay: 0.2s; }
+.stagger-delay-3 { transition-delay: 0.3s; }
+
+// Page Transitions
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}

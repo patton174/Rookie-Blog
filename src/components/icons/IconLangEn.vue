@@ -1,0 +1,41 @@
+<template>
+  <svg xmlns="http://www.w3.org/2000/svg" :width="size" :height="size" viewBox="0 0 48 48" fill="none">
+    <defs>
+      <linearGradient id="en_gradient_v2" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#3b82f6" /> <!-- Blue 500 -->
+        <stop offset="100%" stop-color="#8b5cf6" /> <!-- Violet 500 -->
+      </linearGradient>
+    </defs>
+    
+    <!-- Minimalist "En" Monogram -->
+    <!-- E: Clean geometric lines -->
+    <path 
+      d="M10 14H22 M10 24H20 M10 34H22 M10 14V34" 
+      stroke="url(#en_gradient_v2)" 
+      stroke-width="3" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+    />
+    
+    <!-- n: Smooth curve -->
+    <path 
+      d="M28 20V34 M28 22C28 18 30 16 34 16C38 16 40 18 40 22V34" 
+      stroke="url(#en_gradient_v2)" 
+      stroke-width="3" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+    />
+    
+    <!-- Subtle accent dot for balance -->
+    <circle cx="40" cy="12" r="2" fill="url(#en_gradient_v2)" />
+  </svg>
+</template>
+
+<script setup lang="ts">
+defineProps({
+  size: {
+    type: [Number, String],
+    default: 48
+  }
+});
+</script>

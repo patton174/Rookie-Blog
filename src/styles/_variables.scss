@@ -1,0 +1,82 @@
+// Colors - Theme Variables
+$color-bg-primary: var(--color-bg-primary);
+$color-bg-secondary: var(--color-bg-secondary);
+$color-bg-glass: var(--color-bg-glass);
+$color-text-primary: var(--color-text-primary);
+$color-text-secondary: var(--color-text-secondary);
+$color-text-tertiary: var(--color-text-tertiary);
+$color-accent-primary: var(--color-accent-primary);
+$color-accent-secondary: var(--color-accent-secondary);
+$color-accent-tertiary: var(--color-accent-tertiary);
+$color-border: var(--color-border);
+$color-icon: var(--color-icon);
+
+// Forms
+$color-input-bg: var(--color-input-bg);
+$color-input-border: var(--color-input-border);
+$color-input-text: var(--color-input-text);
+$color-input-placeholder: var(--color-input-placeholder);
+$color-input-focus-ring: var(--color-input-focus-ring);
+$color-dropdown-bg: var(--color-dropdown-bg);
+$color-selection-bg: var(--color-selection-bg);
+
+// Buttons
+$color-btn-primary-bg: var(--color-btn-primary-bg);
+$color-btn-primary-text: var(--color-btn-primary-text);
+$color-btn-primary-border: var(--color-btn-primary-border);
+$color-btn-primary-hover-bg: var(--color-btn-primary-hover-bg);
+$color-btn-primary-active-bg: var(--color-btn-primary-active-bg);
+$color-btn-disabled-bg: var(--color-btn-disabled-bg);
+
+// Cards & Surfaces
+$color-card-bg: var(--color-card-bg);
+$color-card-border: var(--color-card-border);
+$color-card-hover-shadow: var(--color-card-hover-shadow);
+$color-mobile-menu-bg: var(--color-mobile-menu-bg);
+$color-mobile-menu-gradient: var(--color-mobile-menu-gradient);
+
+// Footer
+$color-footer-bg: var(--color-footer-bg);
+$color-footer-text: var(--color-footer-text);
+$color-footer-heading: var(--color-footer-heading);
+$color-footer-border: var(--color-footer-border);
+$color-footer-overlay: var(--color-footer-overlay);
+
+// Shadows
+$shadow-card: var(--shadow-card);
+$shadow-color: var(--shadow-color);
+
+// Gradients
+$gradient-primary: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary));
+$gradient-glow: radial-gradient(circle at center, rgba(var(--color-accent-primary-rgb), 0.2) 0%, transparent 70%);
+
+// Typography
+$font-family-main: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+$font-family-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+// Spacing
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 2rem;
+$spacing-xl: 4rem;
+$spacing-xxl: 8rem;
+
+// Breakpoints
+$breakpoint-mobile: 480px;
+$breakpoint-tablet: 768px;
+$breakpoint-desktop: 1024px;
+
+// Radius
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 16px;
+$radius-full: 9999px;
+
+// Effects
+$shadow-sm: 0 4px 6px var(--shadow-color);
+$shadow-lg: 0 10px 30px var(--shadow-color);
+$shadow-glow: 0 0 20px rgba(var(--color-accent-primary-rgb), 0.4);
+$backdrop-blur: 12px;
+$transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-smooth: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
