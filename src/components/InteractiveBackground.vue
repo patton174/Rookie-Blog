@@ -86,8 +86,21 @@ onMounted(() => {
     mouse.y = e.clientY - rect.top;
   };
 
+  // Optimization: Pause animation during scroll
+  let isScrolling = false;
+  let scrollTimer: number | null = null;
+
+  const handleScroll = () => {
+    isScrolling = true;
+    if (scrollTimer) clearTimeout(scrollTimer);
+    scrollTimer = window.setTimeout(() => {
+      isScrolling = false;
+    }, 150); // Resume after 150ms of no scroll
+  };
+
   window.addEventListener('resize', handleResize);
   window.addEventListener('mousemove', handleMouseMove);
+  window.addEventListener('scroll', handleScroll, { passive: true });
 
   // Init particles
   let currentColors = getThemeColors();
@@ -119,6 +132,9 @@ onMounted(() => {
 
   const animate = (timestamp: number) => {
     requestAnimationFrame(animate);
+
+    // Skip rendering if scrolling to improve performance
+    if (isScrolling) return;
 
     const delta = timestamp - lastTime;
     if (delta < interval) return;
@@ -185,6 +201,8 @@ onMounted(() => {
   onUnmounted(() => {
     window.removeEventListener('resize', handleResize);
     window.removeEventListener('mousemove', handleMouseMove);
+    window.removeEventListener('scroll', handleScroll);
+    if (scrollTimer) clearTimeout(scrollTimer);
   });
 });
 </script>

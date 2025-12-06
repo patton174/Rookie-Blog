@@ -1,0 +1,295 @@
+@use 'variables' as *;
+
+// Optimize article body rendering
+.article-body {
+  content-visibility: auto;
+  contain: layout paint;
+
+  // Restore standard list styling for markdown content
+  ul {
+    list-style-type: disc;
+    padding-left: 1.5em;
+    margin-bottom: 1em;
+    
+    li {
+      margin-bottom: 0.25em;
+      &::marker {
+        color: var(--color-text-primary);
+      }
+    }
+  }
+
+  ol {
+    list-style-type: decimal;
+    padding-left: 1.5em;
+    margin-bottom: 1em;
+    
+    li {
+      margin-bottom: 0.25em;
+    }
+  }
+
+  // General Typography & Elements for Rich HTML Support
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 1.5em;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+    display: flex; // Use flexbox for perfect alignment of icons inside headers
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5em; // Add consistent spacing between icon and text using flex gap
+    
+    &[align="center"] {
+      justify-content: center;
+      text-align: center;
+    }
+
+    img {
+      margin: 0; // Reset margin as we use gap now
+      vertical-align: middle; // Fallback
+    }
+  }
+
+  p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+    
+    &[align="center"] {
+      text-align: center;
+    }
+  }
+
+  // Images & Badges
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: $radius-sm;
+    display: inline-block !important; // Force inline to prevent stacking
+    vertical-align: middle;
+    margin: 2px; // Add slight spacing for badges
+    
+    &[align="center"] {
+      margin: 0 auto;
+      display: block !important;
+    }
+    
+    &[valign="middle"] {
+      vertical-align: middle;
+    }
+    
+    &[valign="bottom"] {
+      vertical-align: text-bottom;
+    }
+  }
+
+  // Tables
+  table {
+    border-collapse: collapse;
+    margin: $spacing-md 0;
+    width: 100%;
+    
+    &[align="center"] {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    th, td {
+      border: 1px solid var(--color-border);
+      padding: 0.75rem;
+      text-align: left;
+      vertical-align: top; // Default to top for readability
+      
+      &[align="center"] {
+        text-align: center;
+      }
+      
+      &[valign="top"] {
+        vertical-align: top;
+      }
+      
+      &[valign="middle"] {
+        vertical-align: middle;
+      }
+      
+      // Nested lists in tables
+      ul, ol {
+        margin-bottom: 0;
+        padding-left: 1.2em;
+      }
+    }
+
+    th {
+      background-color: var(--color-bg-secondary);
+      font-weight: 600;
+    }
+  }
+
+  // Horizontal Rule
+  hr {
+    height: 1px;
+    border: none;
+    background-color: var(--color-border);
+    margin: 2rem 0;
+  }
+
+  // Blockquotes
+  blockquote {
+    border-left: 4px solid var(--color-accent-primary);
+    padding-left: 1rem;
+    color: var(--color-text-secondary);
+    margin: 1rem 0;
+    background: rgba(var(--color-accent-primary-rgb), 0.05);
+    padding: 0.5rem 1rem;
+    border-radius: 0 $radius-md $radius-md 0;
+  }
+  
+  // Links
+  a {
+    color: var(--color-accent-primary);
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Code block styles
+.md-editor-preview {
+  .md-editor-code {
+    margin: $spacing-md 0;
+    border-radius: $radius-md;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    background-color: rgba(243, 244, 246, 0.5); // Fallback light
+    
+    // Dark mode override if needed, or rely on variables
+    [data-theme="dark"] & {
+      background-color: rgba(30, 41, 59, 0.5);
+    }
+    
+    pre {
+      backdrop-filter: blur($backdrop-blur);
+      background-color: var(--color-bg-glass) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      
+      code {
+        font-family: $font-family-code;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+    }
+    
+    // Toolbar / Copy button area
+    .md-editor-code-head {
+      background: transparent;
+      border-bottom: 1px solid var(--color-border);
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between; // Dots left, actions right
+      
+      // Ensure standard text styling for language label
+      color: var(--color-text-secondary);
+      font-family: $font-family-code;
+      font-size: 12px;
+      font-weight: 500;
+
+      // Copy Button Styling
+      .md-editor-copy-button {
+        cursor: pointer;
+        padding: 0;
+        border-radius: 6px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        color: var(--color-text-tertiary);
+        position: relative;
+        background: transparent;
+        border: none;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0 !important; // Hide text
+        
+        // Icon using Mask
+        &::before {
+          content: '';
+          display: block;
+          width: 14px;
+          height: 14px;
+          background-color: currentColor;
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='13' height='13' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'%3E%3C/path%3E%3C/svg%3E");
+          -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='13' height='13' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'%3E%3C/path%3E%3C/svg%3E");
+          mask-size: contain;
+          -webkit-mask-size: contain;
+          mask-repeat: no-repeat;
+          -webkit-mask-repeat: no-repeat;
+          mask-position: center;
+          -webkit-mask-position: center;
+          transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        // Hide default SVG
+        svg {
+          display: none !important;
+        }
+        
+        // Hover state
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.05);
+          color: var(--color-text-primary);
+          
+          &::before {
+            transform: translateY(-1px);
+          }
+        }
+        
+        // Active/Click state
+        &:active::before {
+          transform: scale(0.9);
+        }
+        
+        // Success state
+        &.active, 
+        &.success,
+        &[data-tips="Copied!"],
+        &.md-editor-copy-button-success {
+           color: #10b981;
+           
+           &::before {
+             background-color: #10b981;
+             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+             -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+             animation: success-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+           }
+        }
+      }
+    }
+  }
+}
+
+@keyframes success-pop {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+// Responsive adjustments
+@media (max-width: $breakpoint-mobile) {
+  .md-editor-preview .md-editor-code .md-editor-code-head .md-editor-copy-button {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .md-editor-preview .md-editor-code .md-editor-code-head .md-editor-copy-button {
+    transition: none;
+    &::before {
+      transition: none;
+      animation: none;
+    }
+  }
+}

@@ -2,19 +2,33 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 
 const progress = ref(0);
+let ticking = false;
 
 const updateProgress = () => {
   const scrollTop = window.scrollY;
   const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-  progress.value = (scrollTop / docHeight) * 100;
+  const newProgress = (scrollTop / docHeight) * 100;
+  
+  // Only update if changed significantly to avoid micro-updates
+  if (Math.abs(newProgress - progress.value) > 0.1) {
+    progress.value = newProgress;
+  }
+  ticking = false;
+};
+
+const onScroll = () => {
+  if (!ticking) {
+    window.requestAnimationFrame(updateProgress);
+    ticking = true;
+  }
 };
 
 onMounted(() => {
-  window.addEventListener('scroll', updateProgress);
+  window.addEventListener('scroll', onScroll, { passive: true });
 });
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', updateProgress);
+  window.removeEventListener('scroll', onScroll);
 });
 </script>
 

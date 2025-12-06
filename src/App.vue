@@ -5,7 +5,9 @@ import NavBar from './components/NavBar.vue';
 import Footer from './components/Footer.vue';
 import ScrollProgress from './components/ScrollProgress.vue';
 import InteractiveBackground from './components/InteractiveBackground.vue';
+import SvgSprite from './components/SvgSprite.vue';
 import JavaHelloLoader from './components/JavaHelloLoader.vue';
+import Toast from './components/Toast.vue';
 import { useUserStore } from './store/user';
 import { useAppStore } from './store/app';
 import { useTheme } from './composables/useTheme';
@@ -38,6 +40,8 @@ watch(locale, (newLocale) => {
 
 <template>
   <div class="app-layout">
+    <SvgSprite />
+    <Toast />
     <transition name="fade">
       <JavaHelloLoader v-if="isLoading" />
     </transition>

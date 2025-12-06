@@ -74,7 +74,7 @@ const { t, d } = useI18n();
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   display: flex;
   flex-direction: column;
-  backdrop-filter: blur(10px);
+  // backdrop-filter: blur(10px); // Removed for performance
 
   &:hover {
     transform: translateY(-10px);

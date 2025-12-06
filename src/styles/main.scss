@@ -1,4 +1,5 @@
 @use 'variables' as *;
+@use 'code-block';
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -155,9 +156,9 @@ button {
 }
 
 .glass-panel {
-  background: $color-bg-glass;
-  backdrop-filter: blur($backdrop-blur);
-  -webkit-backdrop-filter: blur($backdrop-blur);
+  background: $color-bg-secondary; // Use solid/semi-transparent background for performance
+  // backdrop-filter: blur($backdrop-blur); // Removed for performance
+  // -webkit-backdrop-filter: blur($backdrop-blur);
   border: 1px solid $color-border;
 }
 

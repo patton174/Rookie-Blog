@@ -3,7 +3,7 @@ import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { MdEditor } from 'md-editor-v3';
 import 'md-editor-v3/lib/style.css';
-import { publishArticle, saveDraft, getArticleBySlug, getArticleContent } from '../api/article';
+import { publishArticle, saveDraft, getArticleBySlug, getArticleContent, getArticleById } from '../api/article';
 // import { useUserStore } from '../store/user';
 import { useTheme } from '../composables/useTheme';
 
@@ -146,31 +146,61 @@ const loadArticleForEdit = async (id: string) => {
     
     // Let's try to fetch content directly if we assume it's an ID.
     const contentRes = await getArticleContent(id);
+    
+    let contentData: any = null;
     if (contentRes.isSuccess && contentRes.data) {
-        const data = contentRes.data;
-        if (data.contentRaw) {
-            content.value = data.contentRaw;
-        } else if (data.content) {
-            content.value = data.content; // Fallback to HTML if no markdown
+        contentData = contentRes.data;
+    } else if ((contentRes as any).content || (contentRes as any).contentRaw || (contentRes as any).contentMd) {
+        // Fallback: response might be the content object directly
+        contentData = contentRes;
+    } else if (contentRes.data && (contentRes.data.content || contentRes.data.contentRaw || contentRes.data.contentMd)) {
+        contentData = contentRes.data;
+    }
+
+    if (contentData) {
+        if (contentData.contentMd) {
+            content.value = contentData.contentMd;
+        } else if (contentData.contentRaw) {
+            content.value = contentData.contentRaw;
+        } else if (contentData.content) {
+            content.value = contentData.content; // Fallback to HTML if no markdown
         }
     }
 
     // We also need title and other metadata. 
-    // But getArticleContent only returns content.
-    // So we likely need to fetch metadata too. 
-    // However, getArticleBySlug takes a slug. 
-    // If 'id' is actually a slug, we can use it.
-    // If 'id' is a UUID, getArticleBySlug might fail if it strictly expects a slug?
-    // But usually backend handles id/slug interchangeably or we have a separate getById.
-    // The current API definition has `getArticleBySlug`. 
-    // Let's try to use it. If it fails, we might need a getById.
-    const metaRes = await getArticleBySlug(id);
-    if (metaRes.isSuccess && metaRes.data) {
+    // getArticleBySlug might fail if 'id' is a UUID.
+    // Let's try to get article by ID first (new API endpoint might be needed or check if getArticleBySlug handles ID)
+    // Assuming we added getArticleById or can reuse a generic fetch.
+    // For now, let's try getArticleById if available or fallback to getArticleBySlug.
+    
+    let metaRes;
+    try {
+       metaRes = await getArticleById(id);
+    } catch (e) {
+       // Fallback or maybe it was a slug?
+       metaRes = await getArticleBySlug(id);
+    }
+
+    if (metaRes && metaRes.isSuccess && metaRes.data) {
         title.value = metaRes.data.title;
         publishForm.summary = metaRes.data.summary || '';
         publishForm.coverUrl = metaRes.data.coverUrl || '';
         if (metaRes.data.tags) {
             publishForm.tags = metaRes.data.tags.join(', ');
+        }
+    } else {
+        // If getArticleById failed (maybe API not implemented?), try getArticleBySlug as fallback
+        // (If the above try/catch didn't already cover it)
+        if (!metaRes || !metaRes.isSuccess) {
+            const slugRes = await getArticleBySlug(id);
+            if (slugRes.isSuccess && slugRes.data) {
+                title.value = slugRes.data.title;
+                publishForm.summary = slugRes.data.summary || '';
+                publishForm.coverUrl = slugRes.data.coverUrl || '';
+                if (slugRes.data.tags) {
+                    publishForm.tags = slugRes.data.tags.join(', ');
+                }
+            }
         }
     }
 
@@ -216,6 +246,7 @@ const submitArticle = async () => {
   try {
     const contentHtml = await renderMarkdown(content.value);
     const res = await publishArticle({
+      id: route.query.id as string, // Pass ID for update
       title: title.value,
       contentMd: content.value,
       contentHtml: contentHtml,
@@ -663,6 +694,120 @@ const submitArticle = async () => {
   
   :deep(.cm-scroller) {
     font-family: $font-family-code;
+  }
+
+  // Preview Styles from ArticleDetail
+  :deep(.md-editor-preview) {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: $color-text-secondary;
+    word-wrap: break-word;
+
+    h1, h2, h3, h4, h5, h6 {
+      color: $color-text-primary;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin: $spacing-xl 0 $spacing-md;
+    }
+
+    p {
+      margin-bottom: $spacing-md;
+      
+      &[align="center"] {
+        text-align: center;
+        img { 
+          margin: 0 auto; 
+          display: inline-block;
+        }
+      }
+    }
+
+    ul, ol {
+      margin-bottom: $spacing-md;
+      padding-left: $spacing-lg;
+      li { margin-bottom: $spacing-xs; }
+    }
+
+    pre {
+      background: rgba(255, 255, 255, 0.03);
+      padding: $spacing-md;
+      border-radius: 8px;
+      margin-bottom: $spacing-md;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      
+      code {
+        font-family: $font-family-code;
+        color: $color-text-primary;
+        background: transparent !important;
+      }
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: $radius-md;
+      margin: $spacing-md 0;
+      display: inline-block;
+      background: transparent !important; // Ensure background is transparent
+      
+      &[valign="middle"], &[valign="bottom"] {
+        display: inline-block;
+        margin: 0 4px;
+        vertical-align: middle;
+      }
+    }
+
+    blockquote {
+      margin: $spacing-md 0;
+      padding: $spacing-md;
+      border-left: 4px solid $color-accent-primary;
+      background: rgba($color-accent-primary, 0.05);
+      border-radius: 0 8px 8px 0;
+      color: $color-text-secondary;
+      
+      p { margin: 0; }
+    }
+
+    table {
+      display: block;
+      width: fit-content;
+      overflow-x: auto;
+      max-width: 100%;
+      margin-bottom: $spacing-md;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid $color-border !important;
+      background: transparent !important;
+      
+      tr { background-color: transparent !important; }
+      tr:nth-child(2n) { background-color: rgba(0, 0, 0, 0.02) !important; }
+      
+      th, td {
+        padding: $spacing-sm $spacing-md;
+        border-right: 1px solid $color-border !important;
+        border-bottom: 1px solid $color-border !important;
+        border-left: none !important;
+        border-top: none !important;
+        min-width: 6.25rem;
+        color: $color-text-primary;
+        background-color: transparent !important;
+        vertical-align: top;
+        
+        &:last-child { border-right: none !important; }
+      }
+
+      tr:last-child td { border-bottom: none !important; }
+
+      th {
+        background: rgba(0, 0, 0, 0.04) !important;
+        font-weight: 600;
+        text-align: left;
+      }
+    }
   }
 }
 

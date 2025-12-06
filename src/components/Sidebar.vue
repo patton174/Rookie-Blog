@@ -6,6 +6,9 @@ import HotTagIcon from './icons/HotTagIcon.vue';
 import { useUserStore } from '../store/user';
 import Matter from 'matter-js';
 
+const props = defineProps<{ enablePhysics?: boolean }>();
+const enablePhysics = props.enablePhysics ?? true;
+
 const { t } = useI18n();
 const { isLoggedIn, user } = useUserStore();
 
@@ -291,6 +294,7 @@ const handleOrientation = (event: DeviceOrientationEvent) => {
 };
 
 onMounted(() => {
+  if (!enablePhysics) return;
   isMobile = window.matchMedia('(max-width: 768px)').matches;
   setTimeout(initPhysics, 100);
   window.addEventListener('scroll', handleScroll, { passive: true });
@@ -300,13 +304,15 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  stopLoop();
-  if (observer) observer.disconnect();
-  if (engine) Matter.Engine.clear(engine);
-  if (scrollTimeout) clearTimeout(scrollTimeout);
-  if (orientationTimeout) clearTimeout(orientationTimeout);
-  window.removeEventListener('scroll', handleScroll);
-  window.removeEventListener('deviceorientation', handleOrientation);
+  if (enablePhysics) {
+    stopLoop();
+    if (observer) observer.disconnect();
+    if (engine) Matter.Engine.clear(engine);
+    if (scrollTimeout) clearTimeout(scrollTimeout);
+    if (orientationTimeout) clearTimeout(orientationTimeout);
+    window.removeEventListener('scroll', handleScroll);
+    window.removeEventListener('deviceorientation', handleOrientation);
+  }
 });
 </script>
 
@@ -350,26 +356,37 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div class="sidebar__widget tag-cloud glass-panel">
-      <h3 class="sidebar__title">
-        <HotTagIcon class="sidebar-icon" />
-        {{ t('sidebar.hotTags') }}
-      </h3>
-      <div class="tag-cloud__container" ref="tagContainerRef">
-        <a 
-          href="#" 
-          v-for="(tag, index) in tags" 
-          :key="tag.name" 
-          :ref="el => { if(el) tagRefs[index] = el as HTMLElement }"
-          class="tag-cloud__item"
-          :class="`tag-cloud__item--${tag.category}`"
-        >
-          <TechIcon :name="tag.name" :size="16" />
-          <span class="tag-text">{{ tag.name }}</span>
-        </a>
-      </div>
+  <div class="sidebar__widget tag-cloud glass-panel">
+    <h3 class="sidebar__title">
+      <HotTagIcon class="sidebar-icon" />
+      {{ t('sidebar.hotTags') }}
+    </h3>
+    <div v-if="enablePhysics" class="tag-cloud__container" ref="tagContainerRef">
+      <a 
+        href="#" 
+        v-for="(tag, index) in tags" 
+        :key="tag.name" 
+        :ref="el => { if(el) tagRefs[index] = el as HTMLElement }"
+        class="tag-cloud__item"
+        :class="`tag-cloud__item--${tag.category}`"
+      >
+        <TechIcon :name="tag.name" :size="16" />
+        <span class="tag-text">{{ tag.name }}</span>
+      </a>
     </div>
-  </aside>
+    <div v-else class="tag-cloud__static">
+      <router-link 
+        v-for="tag in tags" 
+        :key="tag.name"
+        class="tag-chip"
+        :to="{ name: 'search', query: { q: tag.name } }"
+      >
+        <TechIcon :name="tag.name" :size="14" />
+        <span class="chip-text">{{ tag.name }}</span>
+      </router-link>
+    </div>
+  </div>
+</aside>
 </template>
 
 <style lang="scss" scoped>
@@ -682,5 +699,27 @@ onUnmounted(() => {
   &__item--cloud { }
   &__item--database { }
   &__item--architecture { }
+}
+
+.tag-cloud__static {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 16px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  color: $color-text-secondary;
+}
+
+.chip-text {
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 </style>

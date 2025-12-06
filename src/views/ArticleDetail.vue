@@ -1,25 +1,39 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted, onUpdated, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import Sidebar from '../components/Sidebar.vue';
+import TagsCard from '../components/TagsCard.vue';
+import SeriesCard from '../components/SeriesCard.vue';
+import RecommendedCard from '../components/RecommendedCard.vue';
+import UserCard from '../components/UserCard.vue';
+import ArticleToc from '../components/ArticleToc.vue';
+import TagBadge from '../components/TagBadge.vue';
 import IconUser from '../components/icons/IconUser.vue';
+import IconLike from '../components/icons/IconLike.vue';
+import IconStar from '../components/icons/IconStar.vue';
+import IconShare from '../components/icons/IconShare.vue';
 import CommentItem, { type Comment as UIComment } from '../components/CommentItem.vue';
+import { useToast } from '../composables/useToast';
 import { 
   getArticleBySlug, 
   getArticleContent, 
+  getArticleChapters,
   recordView, 
   likeArticle, 
   unlikeArticle,
   checkIsLiked,
   checkIsFavorited,
   getLikeCount,
+  getFavoriteCount,
   favoriteArticle,
   unfavoriteArticle,
-  type Article
+  checkArticleOwnership,
+  type Article,
+  type ArticleChapter
 } from '../api/article';
 import { 
   getComments, 
-  getReplies, // Add this
+  getReplies, 
   getCommentCount,
   addComment, 
   replyComment, 
@@ -34,17 +48,52 @@ import { MdPreview } from 'md-editor-v3';
 import 'md-editor-v3/lib/preview.css';
 import { useTheme } from '../composables/useTheme';
 
+// Performance Monitoring
+const perfStart = performance.now();
+onMounted(() => {
+  // Measure FCP/LCP approximation or just component mount time
+  const perfEnd = performance.now();
+  console.log(`[Performance] ArticleDetail mounted in ${perfEnd - perfStart}ms`);
+
+  // Copy button listener
+  document.addEventListener('click', handleCopyClick);
+});
+
+const handleCopyClick = (e: MouseEvent) => {
+  const target = e.target as HTMLElement;
+  const btn = target.closest('.md-editor-copy-button');
+  if (btn) {
+    // MdEditor v3 handles the copy, we just show the toast
+    // We can delay slightly to ensure it felt like a completed action
+    setTimeout(() => {
+      addToast('Copied to clipboard successfully!', 'success');
+    }, 100);
+  }
+};
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleCopyClick);
+});
+
+onUpdated(() => {
+  // Track re-renders to identify performance bottlenecks
+  console.debug('[Performance] ArticleDetail component updated');
+});
+
 const props = defineProps<{
   id: string | number
 }>();
 
+const router = useRouter();
 const { d } = useI18n();
 const userStore = useUserStore();
 const { isLoggedIn, user } = userStore; // Destructure for reactive access
 const { theme } = useTheme();
+const { addToast } = useToast();
 
 // Article Data
 const article = ref<Article | null>(null);
+const isOwner = ref(false);
 const authorName = ref(''); // Reactive state for author name
 const articleContent = ref(''); // Stores Markdown
 const articleHtml = ref(''); // Stores HTML fallback
@@ -212,6 +261,27 @@ const nextArticle = ref<ArticleLink | null>(null);
 const isLiked = ref(false); // Local state for like button
 const isFavorited = ref(false); // Local state for favorite button
 
+// Chapters Data
+const chapters = ref<ArticleChapter[]>([]);
+const isLoadingChapters = ref(false);
+
+const loadChapters = async (articleId: string) => {
+  isLoadingChapters.value = true;
+  try {
+    const res = await getArticleChapters(articleId);
+    if (res.isSuccess && res.data) {
+      chapters.value = res.data;
+    } else {
+      chapters.value = [];
+    }
+  } catch (e) {
+    console.error('Failed to load chapters:', e);
+    chapters.value = [];
+  } finally {
+    isLoadingChapters.value = false;
+  }
+};
+
 // Fetch Article Details
 const loadArticle = async (slug: string) => {
   isLoading.value = true;
@@ -258,6 +328,9 @@ const loadArticle = async (slug: string) => {
            if (res.isSuccess) article.value!.comments = res.data;
         });
         
+        // Load chapters
+        loadChapters(articleData.id);
+        
         // Check user interaction status if logged in
         if (isLoggedIn.value) {
             checkIsLiked(articleData.id).then(res => {
@@ -266,7 +339,16 @@ const loadArticle = async (slug: string) => {
             checkIsFavorited(articleData.id).then(res => {
                 if (res.isSuccess) isFavorited.value = res.data;
             });
+            // Check ownership
+            checkArticleOwnership(articleData.id).then(res => {
+                if (res.isSuccess) isOwner.value = res.data;
+            });
         }
+
+        // Fetch favorite count
+        getFavoriteCount(articleData.id).then(res => {
+           if (res.isSuccess && article.value) article.value.favorites = res.data;
+        });
       }
 
       // 2. Get Content
@@ -580,6 +662,22 @@ const toggleFavorite = async () => {
     console.error('Failed to toggle favorite:', error);
   }
 };
+
+const toggleShare = async () => {
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    addToast('链接已复制，快去分享吧！', 'success');
+  } catch (err) {
+    console.error('Failed to copy:', err);
+    addToast('复制失败，请手动分享', 'error');
+  }
+};
+
+const handleEdit = () => {
+  if (article.value) {
+    router.push(`/editor?id=${article.value.id}`);
+  }
+};
 </script>
 
 
@@ -596,7 +694,7 @@ const toggleFavorite = async () => {
     </div>
     <div class="container article-layout" v-else>
     <main class="article-content">
-      <article class="glass-panel" v-if="article">
+      <article v-if="article" class="glass-panel article-main-card">
         <header class="article-header">
           <div class="article-meta">
             <span class="date">{{ d(new Date(article.publishAt || article.createdAt), 'long') }}</span>
@@ -604,7 +702,7 @@ const toggleFavorite = async () => {
             <span class="read-time">{{ article.readingTimeMinutes || 5 }} min read</span>
             <span class="dot" v-if="article.tags && article.tags.length > 0">•</span>
             <div class="tags" v-if="article.tags && article.tags.length > 0">
-              <span class="tag" v-for="tag in article.tags" :key="tag">#{{ tag }}</span>
+              <TagBadge v-for="tag in article.tags" :key="tag" :label="tag" size="sm" />
             </div>
           </div>
 
@@ -617,9 +715,11 @@ const toggleFavorite = async () => {
               <span class="name">{{ authorName || article.authorId }}</span>
               <span class="stats">{{ article.views || 0 }} views • {{ article.likes || 0 }} likes</span>
             </div>
+            <button v-if="isOwner" class="edit-btn" @click="handleEdit">
+              Edit
+            </button>
           </div>
         </header>
-
 
         <div class="article-body">
            <MdPreview 
@@ -628,25 +728,30 @@ const toggleFavorite = async () => {
              :theme="theme" 
              preview-theme="github" 
              style="background: transparent;"
+             :code-theme="theme === 'dark' ? 'atom' : 'github'"
+             :no-katex="true"
+             :no-mermaid="true"
+             :no-img-zoom-in="true"
            />
            <div v-else-if="articleHtml" v-html="articleHtml"></div>
            <div class="loading-placeholder" v-else-if="isLoading">Loading content...</div>
            <div class="no-content" v-else>No content available.</div>
-        </div>
 
-        <div class="article-actions" v-if="article">
-          <button class="action-btn" :class="{ active: isLiked }" @click="toggleLike" aria-label="Like article">
-            <span class="icon">♥</span> 
-            <span class="btn-text">{{ article.likes }} Likes</span>
-          </button>
-          <button class="action-btn" aria-label="Share article">
-            <span class="icon">↗</span> 
-            <span class="btn-text">Share</span>
-          </button>
-          <button class="action-btn" :class="{ active: isFavorited }" @click="toggleFavorite" aria-label="Add to favorites">
-            <span class="icon">★</span> 
-            <span class="btn-text">{{ isFavorited ? 'Favorited' : 'Favorite' }}</span>
-          </button>
+          <div class="article-actions">
+            <div class="left-actions">
+              <button class="action-btn like-btn" :class="{ active: isLiked }" @click="toggleLike" aria-label="Like article">
+                <IconLike :filled="isLiked" :size="22" />
+                <span class="count">{{ article.likes || 0 }}</span>
+              </button>
+              <button class="action-btn fav-btn" :class="{ active: isFavorited }" @click="toggleFavorite" aria-label="Add to favorites">
+                <IconStar :filled="isFavorited" :size="22" />
+                <span class="count">{{ article.favorites || 0 }}</span>
+              </button>
+            </div>
+            <button class="action-btn share-btn" @click="toggleShare" aria-label="Share article">
+              <IconShare :size="22" />
+            </button>
+          </div>
         </div>
       </article>
 
@@ -674,51 +779,67 @@ const toggleFavorite = async () => {
         <div v-else class="nav-spacer"></div>
       </nav>
 
-      <!-- Comments Section -->
-      <section class="comments-section glass-panel">
-        <h3>Comments ({{ article?.comments ?? comments.length }})</h3>
-        
-        <div class="comment-form main-form">
-          <div class="avatar-wrapper">
-            <div class="user-avatar">
-              <img v-if="user && user.avatarUrl" :src="user.avatarUrl" :alt="user.username" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
-              <IconUser v-else :size="24" />
-            </div>
-          </div>
-          <div class="input-wrapper">
-            <textarea 
-              v-model="newComment" 
-              :placeholder="isLoggedIn ? 'Leave a comment...' : 'Please login to leave a comment'" 
-              rows="3" 
-              aria-label="Comment content"
-              :disabled="!isLoggedIn"
-            ></textarea>
-            <div class="form-footer">
-              <button @click="submitComment" class="submit-btn" :disabled="!newComment.trim() || !isLoggedIn || isSubmittingComment">
-                 <span v-if="isSubmittingComment">Posting...</span>
-                 <span v-else>Post Comment</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="comments-list">
-          <CommentItem 
-            v-for="comment in comments" 
-            :key="comment.id" 
-            :comment="comment"
-            :loading-replies="loadingRepliesSet.has(comment.id)"
-            @vote="handleVote"
-            @reply="handleReply"
-            @fetch-replies="handleFetchReplies"
-          />
-        </div>
-      </section>
     </main>
 
-    <aside class="sidebar-section">
-      <Sidebar />
-    </aside>
+    <!-- Comments Section Moved Outside Main to allow Sidebar to stop scrolling with Article -->
+    <section class="comments-section glass-panel">
+      <h3>Comments ({{ article?.comments ?? comments.length }})</h3>
+      
+      <div class="comment-form main-form">
+        <div class="avatar-wrapper">
+          <div class="user-avatar">
+            <img v-if="user && user.avatarUrl" :src="user.avatarUrl" :alt="user.username" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+            <IconUser v-else :size="24" />
+          </div>
+        </div>
+        <div class="input-wrapper">
+          <textarea 
+            v-model="newComment" 
+            :placeholder="isLoggedIn ? 'Leave a comment...' : 'Please login to leave a comment'" 
+            rows="3" 
+            aria-label="Comment content"
+            :disabled="!isLoggedIn"
+          ></textarea>
+          <div class="form-footer">
+            <button @click="submitComment" class="submit-btn" :disabled="!newComment.trim() || !isLoggedIn || isSubmittingComment">
+               <span v-if="isSubmittingComment">Posting...</span>
+               <span v-else>Post Comment</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="comments-list">
+        <CommentItem 
+          v-for="comment in comments" 
+          :key="comment.id" 
+          :comment="comment"
+          :loading-replies="loadingRepliesSet.has(comment.id)"
+          @vote="handleVote"
+          @reply="handleReply"
+          @fetch-replies="handleFetchReplies"
+        />
+      </div>
+    </section>
+
+  <aside class="sidebar-section">
+    <div class="sidebar-content">
+      <UserCard :author="{ name: authorName }" />
+      
+      <div class="sticky-wrapper">
+        <ArticleToc 
+          v-if="chapters.length > 0 || isLoadingChapters" 
+          :chapters="chapters" 
+          :is-loading="isLoadingChapters" 
+          class="toc-card"
+        />
+        
+        <TagsCard class="tags-card" />
+        <SeriesCard class="series-card" />
+        <RecommendedCard class="recommended-card" />
+      </div>
+    </div>
+  </aside>
   </div>
 </template>
 
@@ -727,47 +848,129 @@ const toggleFavorite = async () => {
 
 .article-layout {
   display: grid;
-  grid-template-columns: 1fr 22rem;
-  gap: $spacing-xxl;
-  margin-top: 7.5rem; // Space for fixed navbar
-  padding-bottom: $spacing-xxl;
-  max-width: 100%; /* Ensure no overflow */
-  overflow-x: hidden; /* Prevent horizontal scroll */
-
+  grid-template-columns: 1fr 20rem; // Reduced sidebar width slightly
+  gap: 2rem; // Drastically reduced from 4rem to 2rem
+  margin-top: 6rem;
+  padding-bottom: $spacing-xl;
+  max-width: 1400px; 
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $spacing-md;
+  padding-right: $spacing-md;
+  overflow-x: visible;
+  
   @media (max-width: $breakpoint-desktop) {
     grid-template-columns: 1fr;
-    gap: $spacing-xl;
+    gap: $spacing-lg;
+    padding-left: $spacing-md;
+    padding-right: $spacing-md;
   }
 
   @media (max-width: $breakpoint-tablet) {
-    gap: $spacing-lg;
+    gap: $spacing-md;
   }
 
   @media (max-width: $breakpoint-mobile) {
     margin-top: 5rem;
-    gap: $spacing-lg;
+    gap: $spacing-md;
     padding-bottom: $spacing-lg;
-    padding-left: $spacing-md;
-    padding-right: $spacing-md;
   }
+}
+
+.sidebar-section {
+  min-width: 0; // Prevent grid overflow
+  grid-column: 2;
+  // grid-row: 1; // Removed to allow spanning
+  grid-row: 1 / span 2; // Span across article and comments
+  height: 100%; 
+  
+  @media (max-width: $breakpoint-desktop) {
+    display: none; // Hide sidebar on smaller screens or move to bottom
+  }
+}
+
+.sidebar-content {
+  height: 100%; // Pass height down
+  display: flex;
+  flex-direction: column;
+}
+
+.comments-section {
+  grid-column: 1; // Align with article content
+  grid-row: 2; // Place below article
+  
+  @media (max-width: $breakpoint-desktop) {
+    grid-column: 1;
+  }
+}
+
+.sticky-wrapper {
+  position: sticky;
+  top: 6rem; // Align with navbar height
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.toc-card {
+  flex-shrink: 0; // Prevent TOC from shrinking
+}
+
+.tags-card, .series-card, .recommended-card {
+  flex-shrink: 0;
 }
 
 .article-content {
   min-width: 0; /* Allow grid item to shrink below content size */
 }
 
+.article-body {
+  content-visibility: auto; /* Browser optimization: skip rendering off-screen content */
+  contain-intrinsic-size: 1000px; /* Placeholder size for scrollbar stability */
+  // contain: layout paint; // REMOVED: Can cause issues with sticky elements or overlays
+}
+
+/* Optimize images within markdown preview */
+:deep(.md-editor-preview img) {
+  loading: lazy; /* Native lazy loading */
+  // content-visibility: auto; // REMOVED: Can cause jumpy images during scroll
+  max-width: 100%;
+  height: auto;
+  display: block; /* Avoid inline layout reflows */
+  will-change: transform; // Hint to browser for composition
+}
+
 .glass-panel {
-  background: $color-bg-glass;
-  backdrop-filter: blur(10px);
+  // Performance Optimization: 
+  // Replaced heavy backdrop-filter with a solid semi-transparent background
+  // This maintains the visual hierarchy without the GPU cost of real-time blurring
+  background: $color-bg-secondary; 
   border: 1px solid $color-border;
   border-radius: 16px;
   padding: $spacing-xl;
   margin-bottom: $spacing-lg;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02); // Subtle shadow for depth
 
   @media (max-width: $breakpoint-mobile) {
     padding: $spacing-lg;
     border-radius: 12px;
   }
+}
+
+.glass-panel.blur-effect {
+  // Only use this for small, sticky elements if absolutely necessary
+  background: rgba(255, 255, 255, 0.95); // Increased opacity to remove need for blur
+  // backdrop-filter: saturate(180%) blur(12px); // REMOVED: Expensive operation
+  // -webkit-backdrop-filter: saturate(180%) blur(12px); // REMOVED
+  border: 1px solid $color-border;
+  
+  @media (prefers-color-scheme: dark) {
+    background: rgba(30, 30, 30, 0.95); // High opacity dark background
+  }
+}
+
+.glass-panel.no-backdrop {
+  background: $color-bg-secondary;
 }
 
 .article-header {
@@ -835,6 +1038,24 @@ const toggleFavorite = async () => {
         color: $color-text-secondary;
       }
     }
+
+    .edit-btn {
+      margin-left: auto;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      border: 1px solid rgba($color-border, 0.5);
+      background: rgba($color-bg-secondary, 0.5);
+      color: $color-text-secondary;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        border-color: $color-accent-primary;
+        color: $color-accent-primary;
+        background: rgba($color-accent-primary, 0.1);
+      }
+    }
   }
 }
 
@@ -845,6 +1066,7 @@ const toggleFavorite = async () => {
   margin-bottom: $spacing-xl;
   overflow-wrap: break-word; /* Break long words */
   word-wrap: break-word;
+  min-height: 200px; // Prevent collapse when empty
 
   @media (max-width: $breakpoint-mobile) {
     font-size: 1rem;
@@ -865,9 +1087,18 @@ const toggleFavorite = async () => {
 
   :deep(p) {
     margin-bottom: $spacing-md;
+    
+    // Handle align center attribute in HTML p tag
+    &[align="center"] {
+      text-align: center;
+      
+      img {
+        margin: 0 auto;
+      }
+    }
   }
 
-  :deep(ul) {
+  :deep(ul), :deep(ol) {
     margin-bottom: $spacing-md;
     padding-left: $spacing-lg;
     
@@ -879,12 +1110,12 @@ const toggleFavorite = async () => {
   :deep(pre) {
     overflow-x: auto;
     max-width: 100%;
-    background: $color-bg-secondary;
+    background: rgba(255, 255, 255, 0.03);
     padding: $spacing-md;
     border-radius: 8px;
     margin-bottom: $spacing-md;
     -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
-    border: 1px solid $color-border;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     
     code {
       font-family: $font-family-code;
@@ -898,67 +1129,230 @@ const toggleFavorite = async () => {
     border-radius: $radius-md;
     margin: $spacing-md 0;
     display: block;
+    background: transparent !important; // Ensure background is transparent
+    
+    // Fix for inline images like badges/icons
+    &[valign="middle"], &[valign="bottom"] {
+      display: inline-block;
+      margin: 0 4px;
+      vertical-align: middle;
+    }
   }
 
   :deep(table) {
     display: block;
+    width: fit-content;
     overflow-x: auto;
     max-width: 100%;
     margin-bottom: $spacing-md;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid $color-border !important;
+    background: transparent !important;
     
-    th, td {
-      padding: $spacing-sm;
-      border: 1px solid $color-border;
-      min-width: 6.25rem; // Ensure readable columns
-      color: $color-text-primary;
+    &[align="center"] {
+      margin-left: auto;
+      margin-right: auto;
     }
     
+    tr {
+      background-color: transparent !important;
+    }
+
+    tr:nth-child(2n) {
+      background-color: rgba(0, 0, 0, 0.02) !important;
+    }
+    
+    th, td {
+      padding: $spacing-sm $spacing-md;
+      border-right: 1px solid $color-border !important;
+      border-bottom: 1px solid $color-border !important;
+      border-left: none !important;
+      border-top: none !important;
+      
+      min-width: 6.25rem;
+      color: $color-text-primary;
+      background-color: transparent !important;
+      vertical-align: top;
+      
+      &:last-child {
+        border-right: none !important;
+      }
+
+      ul, ol {
+        padding-left: 1.2rem;
+        margin-bottom: 0;
+      }
+    }
+
+    tr:last-child td {
+      border-bottom: none !important;
+    }
+
     th {
-      background: $color-bg-secondary;
-      font-weight: bold;
+      background: rgba(0, 0, 0, 0.04) !important;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    // Responsive fix
+    @media (max-width: $breakpoint-mobile) {
+      display: block;
+      background: transparent !important;
+      border: none !important;
+      border-radius: 0;
+      
+      tbody {
+        display: block;
+      }
+
+      tr {
+        display: flex;
+        flex-wrap: wrap;
+        background: transparent !important;
+        margin-bottom: $spacing-md;
+        border-radius: 8px;
+        border: 1px solid $color-border !important;
+        overflow: hidden;
+      }
+      
+      td {
+        width: 100% !important;
+        display: block;
+        border-right: none !important;
+        border-left: none !important; 
+        border-top: none !important;
+        border-bottom: 1px solid $color-border !important;
+        
+        &:last-child {
+          border-bottom: none !important;
+        }
+      }
+      
+      thead {
+        display: none;
+      }
+    }
+  }
+
+  :deep(blockquote) {
+    margin: $spacing-md 0;
+    padding: $spacing-md;
+    border-left: 4px solid $color-accent-primary;
+    background: rgba($color-accent-primary, 0.05);
+    border-radius: 0 8px 8px 0;
+    color: $color-text-secondary;
+    
+    p {
+      margin: 0;
     }
   }
 }
 
+.loading-placeholder {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-secondary;
+  font-style: italic;
+}
+
 .article-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-md;
-  padding-top: $spacing-lg;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: $spacing-xl; // Increased spacing to avoid overlap
+  padding-bottom: $spacing-sm;
   border-top: 1px solid $color-border;
+  contain: layout;
+  margin-top: $spacing-lg;
+
+  .left-actions {
+    display: flex;
+    gap: $spacing-md;
+  }
 
   .action-btn {
-    background: rgba(255, 255, 255, 0.05); /* Keep slight transparency or use var */
-    background: $color-bg-secondary; /* Better for light mode compatibility */
-    border: 1px solid $color-border;
-    color: $color-text-primary;
-    padding: $spacing-sm $spacing-md;
-    border-radius: 1.25rem;
+    background: transparent; // No background by default
+    border: none; // No border as requested
+    color: $color-text-secondary;
+    padding: 0.5rem; // Compact padding
+    border-radius: 50%; // Circular touch target
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: $spacing-xs;
-    min-height: 3rem; // Touch target size
-    min-width: 3rem;
+    gap: 6px;
+    min-height: 44px; // Ensure touch target
+    min-width: 44px;
+    font-family: inherit;
 
-    @media (max-width: $breakpoint-mobile) {
-      flex: 1; // Full width distribution on mobile
-      padding: 8px 12px;
+    // Text/Count styling
+    .count {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      min-width: 1ch;
     }
 
     &:hover {
-      background: $color-border;
-      transform: translateY(-2px);
+      // background: rgba($color-text-secondary, 0.1); // Removed background
+      color: $color-text-primary;
+      transform: scale(1.1);
+    }
+    
+    &:active {
+      transform: scale(0.95);
     }
 
-    &.active {
-      color: $color-accent-tertiary;
-      border-color: rgba($color-accent-tertiary, 0.3);
-      background: rgba($color-accent-tertiary, 0.1);
+    // Like Button Specifics
+    &.like-btn {
+      &:hover {
+        color: #ff4757;
+        background: transparent; // Ensure no background
+      }
+      
+      &.active {
+        color: #ff4757;
+        background: transparent; // Ensure no background
+        
+        .count {
+           color: #ff4757;
+        }
+      }
+    }
+
+    // Favorite Button Specifics
+    &.fav-btn {
+      &:hover {
+        color: #ffa502;
+        background: transparent; // Ensure no background
+      }
+
+      &.active {
+        color: #ffa502;
+        background: transparent; // Ensure no background
+        
+        .count {
+           color: #ffa502;
+        }
+      }
+    }
+
+    // Share Button Specifics
+    &.share-btn {
+      margin-left: auto; // Just in case, but flex space-between handles it
+      
+      &:hover {
+        color: $color-accent-primary;
+        background: transparent; // Ensure no background
+      }
     }
   }
 }

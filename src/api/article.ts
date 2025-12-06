@@ -99,6 +99,11 @@ export const getArticleBySlug = (slug: string) => {
   return request.get<any, ResultArticle>(`/api/article/read/by-slug/${slug}`);
 };
 
+// Get Article by ID
+export const getArticleById = (id: string) => {
+  return request.get<any, ResultArticle>(`/api/article/read/${id}`);
+};
+
 // Query Article Chapters
 export const getArticleChapters = (articleId: string) => {
   return request.get<any, ResultListArticleChapter>(`/api/article/read/${articleId}/chapters`);
@@ -152,6 +157,11 @@ export const getLikeCount = (articleId: string) => {
 // Get Favorite Count
 export const getFavoriteCount = (articleId: string) => {
   return request.get<any, ResultNumber>(`/api/article/interaction/${articleId}/favorite-count`);
+};
+
+// Check if User is Owner of Article
+export const checkArticleOwnership = (articleId: string) => {
+  return request.get<any, ResultBoolean>(`/api/article/${articleId}/check`);
 };
 
 // Create/Publish Article
