@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.lx.blog.common.response.Result;
 import com.lx.blog.common.utils.BeanCopyUtils;
 import com.lx.blog.common.utils.PageUtils;
+import com.lx.blog.domain.dto.CommentReactionDto;
 import com.lx.blog.domain.dto.CommentReplySaveDto;
 import com.lx.blog.domain.dto.CommentSaveDto;
 import com.lx.blog.domain.vo.CommentReplyVo;
@@ -143,12 +144,10 @@ public class ArticleCommentBizServiceImpl implements ArticleCommentBizService {
 
         List<CommentReplyVo> voList = replies.stream().map(r -> {
             CommentReplyVo vo = BeanCopyUtils.copyProperties(r, CommentReplyVo.class);
-            // TODO: 填充用户信息
             vo.setUsername("User-" + r.getUserId()); // 模拟
             if (r.getReplyToUserId() != null) {
                 vo.setReplyToUsername("User-" + r.getReplyToUserId()); // 模拟
             }
-            
             // 设置 isShow
             if (currentUserId != null && finalDislikedReplyIds.contains(r.getId())) {
                 vo.setIsShow(false);
@@ -218,18 +217,16 @@ public class ArticleCommentBizServiceImpl implements ArticleCommentBizService {
     /**
      * 评论点赞或踩
      *
-     * @param targetCommentId 评论ID（可空）
-     * @param targetReplyId 回复ID（可空）
-     * @param type like/dislike
+     * @param dto 点赞或踩DTO
      * @return 结果
      */
     @Override
-    public Result<Object> react(Long targetCommentId, Long targetReplyId, String type) {
+    public Result<Object> react(CommentReactionDto dto) {
         String userId = StpUtil.getLoginIdAsString();
-        if (targetCommentId != null) {
-            reactionDao.reactToComment(targetCommentId, userId, type);
-        } else if (targetReplyId != null) {
-            reactionDao.reactToReply(targetReplyId, userId, type);
+        if (dto.getCommentId() != null) {
+            reactionDao.reactToComment(dto.getCommentId(), userId, dto.getType());
+        } else if (dto.getReplyId() != null) {
+            reactionDao.reactToReply(dto.getReplyId(), userId, dto.getType());
         }
         return Result.ok();
     }

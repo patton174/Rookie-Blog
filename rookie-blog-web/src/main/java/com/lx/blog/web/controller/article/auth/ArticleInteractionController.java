@@ -22,8 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ArticleInteractionController {
 
-    @NotNull
-    private final ArticleInteractionBizService biz;
+    @NotNull private final ArticleInteractionBizService biz;
 
     /**
      * 记录文章阅读

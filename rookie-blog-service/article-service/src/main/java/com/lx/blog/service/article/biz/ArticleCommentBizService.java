@@ -1,6 +1,7 @@
 package com.lx.blog.service.article.biz;
 
 import com.lx.blog.common.response.Result;
+import com.lx.blog.domain.dto.CommentReactionDto;
 import com.lx.blog.domain.dto.CommentReplySaveDto;
 import com.lx.blog.domain.dto.CommentSaveDto;
 import com.lx.blog.domain.vo.CommentReplyVo;
@@ -58,11 +59,9 @@ public interface ArticleCommentBizService {
     /**
      * 评论或回复点赞或取消点赞
      *
-     * @param targetCommentId 目标评论ID（回复为NULL）
-     * @param targetReplyId 目标回复ID（评论为NULL）
-     * @param type 操作类型（like/unlike）
+     * @param dto 点赞或踩DTO
      * @return 结果
      */
-    Result<Object> react(Long targetCommentId, Long targetReplyId, String type);
+    Result<Object> react(CommentReactionDto dto);
 }
 

@@ -3,14 +3,5 @@ spring:
   application.name: Rookie-Blog
 
 server:
-  port: 8080
   servlet:
     context-path: /api
-
-logging:
-  level:
-    com.lx.blog: DEBUG
-    
-springdoc:
-  swagger-ui:
-    path: /doc

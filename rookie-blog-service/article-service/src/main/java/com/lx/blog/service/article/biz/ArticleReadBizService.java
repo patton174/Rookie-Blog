@@ -53,5 +53,12 @@ public interface ArticleReadBizService {
      * @return 标签列表
      */
     Result<List<TagStatVo>> listPopularTags();
+
+    /**
+     * 根据文章Id查询文章基础信息
+     * @param articleId 文章ID
+     * @return 文章信息
+     */
+    Result<ArticleVo> getById(String articleId);
 }
 

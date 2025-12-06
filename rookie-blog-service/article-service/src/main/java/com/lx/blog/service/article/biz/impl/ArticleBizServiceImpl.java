@@ -17,8 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayDeque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author 李旭
@@ -90,6 +94,21 @@ public class ArticleBizServiceImpl implements ArticleBizService {
             articleDao.updateById(article);
         }
         return Result.ok(true);
+    }
+
+    /**
+     * 判断是否为当前用户的文章
+     *
+     * @param articleId 文章ID
+     * @return 是否为当前用户的文章
+     */
+    @Override
+    public Result<Boolean> checkOwnership(String articleId) {
+        Article article = articleDao.getById(articleId);
+        if (article == null) {
+            return Result.ok(false);
+        }
+        return Result.ok(article.getAuthorId().equals(StpUtil.getLoginIdAsString()));
     }
 
     /**
@@ -270,9 +289,11 @@ public class ArticleBizServiceImpl implements ArticleBizService {
 
         // 2. 解析新章节
         // 正则匹配：^#{1,6}\s+(.*)$
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("^(#{1,6})\\s+(.*)$", java.util.regex.Pattern.MULTILINE);
-        java.util.regex.Matcher matcher = pattern.matcher(content);
+        Pattern pattern = java.util.regex.Pattern.compile("^(#{1,6})\\s+(.*)$", java.util.regex.Pattern.MULTILINE);
+        Matcher matcher = pattern.matcher(content);
 
+        ArrayDeque<ArticleChapter> stack = new ArrayDeque<>();
+        HashMap<String, Integer> anchorCount = new HashMap<>();
         int order = 1;
         while (matcher.find()) {
             String hashes = matcher.group(1);
@@ -281,8 +302,16 @@ public class ArticleBizServiceImpl implements ArticleBizService {
             int start = matcher.start();
             int end = matcher.end();
 
-            // 生成简单锚点 (仅作示例，实际需要更复杂的slug生成逻辑)
-            String anchor = "heading-" + order;
+            String base = slugify(title);
+            Integer cnt = anchorCount.getOrDefault(base, 0);
+            String anchor = cnt == 0 ? base : base + "-" + cnt;
+            anchorCount.put(base, cnt + 1);
+
+            while (!stack.isEmpty() && stack.peek().getLevel() >= level) {
+                stack.pop();
+            }
+            Long parentId = stack.isEmpty() ? null : stack.peek().getId();
+            String parentPath = stack.isEmpty() ? null : stack.peek().getPath();
 
             ArticleChapter chapter = ArticleChapter.builder()
                     .articleId(articleId)
@@ -290,16 +319,36 @@ public class ArticleBizServiceImpl implements ArticleBizService {
                     .level(level)
                     .title(title)
                     .anchor(anchor)
+                    .parentId(parentId)
                     .startOffset(start)
                     .endOffset(end)
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
                     .build();
-            // TODO: 计算 parentId 和 path (需要维护栈结构)
-            
+
             chapterDao.save(chapter);
+            String path = parentPath != null ? parentPath + "/" + chapter.getId() : String.valueOf(chapter.getId());
+            chapter.setPath(path);
+            chapterDao.updateById(chapter);
+            stack.push(chapter);
         }
     }
-}
 
+    private String slugify(String s) {
+        String t = s == null ? "" : s;
+        t = t.trim().toLowerCase();
+        t = t.replaceAll("[\\p{Z}]+", " ");
+        t = t.replaceAll("[\\p{Punct}]", " ");
+        t = t.replaceAll("\\s+", "-");
+        t = t.replaceAll("-+", "-");
+        t = t.replaceAll("^-|-$", "");
+        if (t.isEmpty()) {
+            t = "section";
+        }
+        if (t.length() > 64) {
+            t = t.substring(0, 64);
+        }
+        return t;
+    }
+}
 

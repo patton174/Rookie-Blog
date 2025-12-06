@@ -1,5 +1,6 @@
 package com.lx.blog.web.controller.article.auth;import com.lx.blog.common.aop.log.OpLog;
 import com.lx.blog.common.response.Result;
+import com.lx.blog.domain.dto.CommentReactionDto;
 import com.lx.blog.domain.dto.CommentReplySaveDto;
 import com.lx.blog.domain.dto.CommentSaveDto;
 import com.lx.blog.domain.vo.CommentReplyVo;
@@ -25,11 +26,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ArticleCommentController {
 
-    @NotNull
-    private final ArticleCommentBizService biz;
+    @NotNull private final ArticleCommentBizService biz;
 
     /**
      * 统计文章评论数量
+     *
      * @param articleId 文章ID
      * @return 评论数量
      */
@@ -41,6 +42,7 @@ public class ArticleCommentController {
 
     /**
      * 查询评论列表
+     *
      * @param articleId 文章ID
      * @return 评论列表
      */
@@ -52,6 +54,7 @@ public class ArticleCommentController {
 
     /**
      * 查询评论回复列表
+     *
      * @param commentId 评论ID
      * @return 回复列表
      */
@@ -63,6 +66,7 @@ public class ArticleCommentController {
 
     /**
      * 发表评论
+     *
      * @param dto 评论信息
      * @return 结果
      */
@@ -74,6 +78,7 @@ public class ArticleCommentController {
 
     /**
      * 回复评论或回复者
+     *
      * @param dto 回复信息
      * @return 结果
      */
@@ -85,17 +90,14 @@ public class ArticleCommentController {
 
     /**
      * 评论点赞或踩
-     * @param commentId 评论ID（可空）
-     * @param replyId 回复ID（可空）
-     * @param type like/dislike
+     *
+     * @param dto 点赞或踩DTO
      * @return 结果
      */
     @PostMapping("/reaction")
     @Operation(summary = "评论点赞或踩", description = "对评论或回复进行点赞或踩")
-    public Result<Object> react(@RequestParam(value = "commentId", required = false) Long commentId,
-                                @RequestParam(value = "replyId", required = false) Long replyId,
-                                @RequestParam("type") String type) {
-        return biz.react(commentId, replyId, type);
+    public Result<Object> react(@RequestBody @Valid CommentReactionDto dto) {
+        return biz.react(dto);
     }
 }
 

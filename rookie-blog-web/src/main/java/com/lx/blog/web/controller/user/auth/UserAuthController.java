@@ -26,11 +26,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user/auth")
 public class UserAuthController {
 
-    @NotNull
-    private final UserAuthBizService authBiz;
+    @NotNull private final UserAuthBizService authBiz;
 
     /**
      * 用户登录
+     *
      * @param req 登录请求参数
      * @return 登录结果
      */
@@ -43,6 +43,7 @@ public class UserAuthController {
 
      /**
       * 用户注册
+      *
       * @param req 注册请求参数
       * @return 注册结果
       */
@@ -54,6 +55,7 @@ public class UserAuthController {
 
     /**
      * 用户注销登录
+     *
      * @return 注销结果
      */
     @PostMapping("/logout")
@@ -64,6 +66,7 @@ public class UserAuthController {
 
     /**
      * 更新用户密码
+     *
      * @param req 更新密码请求参数
      * @return 更新结果
      */

@@ -44,4 +44,11 @@ public interface ArticleBizService {
      * @return 统计信息
      */
     Result<UserArticleStatsVo> getUserStats(String userId);
+
+    /**
+     * 判断是否为当前用户的文章
+     * @param articleId 文章ID
+     * @return 是否为当前用户的文章
+     */
+    Result<Boolean> checkOwnership(String articleId);
 }

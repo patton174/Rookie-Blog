@@ -25,8 +25,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserProfileController {
 
-    @NotNull
-    private final UserProfileBizService profileBiz;
+    @NotNull private final UserProfileBizService profileBiz;
 
     /**
      * 获取当前登录用户信息

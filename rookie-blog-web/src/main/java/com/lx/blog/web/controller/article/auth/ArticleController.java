@@ -22,11 +22,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ArticleController {
 
-    @NotNull
-    private final ArticleBizService biz;
+    @NotNull private final ArticleBizService biz;
 
     /**
      * 保存草稿
+     *
      * @param dto 文章信息
      * @return 文章ID
      */
@@ -39,6 +39,7 @@ public class ArticleController {
 
     /**
      * 发布文章
+     *
      * @param dto 文章信息
      * @return 文章ID
      */
@@ -50,7 +51,21 @@ public class ArticleController {
     }
 
     /**
+     * 判断是否为当前用户的文章
+     *
+     * @param articleId 文章ID
+     * @return 是否为当前用户的文章
+     */
+    @GetMapping("/{articleId}/check")
+    @Operation(summary = "检查文章是否为当前用户", description = "根据ID检查文章是否为当前登录用户的文章")
+    @OpLog(action = "check_ownership", func = "article.check_ownership")
+    public Result<Boolean> checkOwnership(@PathVariable("articleId") String articleId) {
+        return biz.checkOwnership(articleId);
+    }
+
+    /**
      * 删除文章
+     *
      * @param id 文章ID
      * @return 是否成功
      */
@@ -63,6 +78,7 @@ public class ArticleController {
 
     /**
      * 获取当前用户文章统计
+     *
      * @return 统计信息
      */
     @GetMapping("/stats/me")
@@ -73,6 +89,7 @@ public class ArticleController {
 
     /**
      * 获取指定用户文章统计
+     *
      * @param userId 用户ID
      * @return 统计信息
      */

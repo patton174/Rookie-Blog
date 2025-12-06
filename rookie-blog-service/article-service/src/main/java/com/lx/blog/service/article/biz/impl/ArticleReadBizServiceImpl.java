@@ -140,5 +140,17 @@ public class ArticleReadBizServiceImpl implements ArticleReadBizService {
         }).collect(Collectors.toList());
         return Result.ok(vos);
     }
+
+     /**
+      * 根据文章Id查询文章基础信息
+      *
+      * @param articleId 文章ID
+      * @return 文章信息
+      */
+    @Override
+    public Result<ArticleVo> getById(String articleId) {
+        Article article = articleDao.getById(articleId);
+        return Result.ok(BeanCopyUtils.copyProperties(article, ArticleVo.class));
+    }
 }
 

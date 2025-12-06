@@ -4,6 +4,7 @@ import com.lx.blog.common.response.Result;
 import com.lx.blog.service.auth.biz.UserEmailBizService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,10 +19,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserEmailController {
 
-    private final UserEmailBizService emailBiz;
+    @NotNull private final UserEmailBizService emailBiz;
 
     /**
      * 是否已完成邮箱验证
+     *
      * @return 是否已验证
      */
     @GetMapping("/verification/status")
@@ -32,6 +34,7 @@ public class UserEmailController {
 
     /**
      * 申请邮箱验证（发送验证邮件）
+     *
      * @return 结果
      */
     @PostMapping("/verification/request")
@@ -42,6 +45,7 @@ public class UserEmailController {
 
     /**
      * 确认邮箱验证
+     *
      * @param token 临时验证令牌
      * @return 结果
      */

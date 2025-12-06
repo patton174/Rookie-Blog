@@ -1,4 +1,6 @@
 ################## 开发环境配置 ##################
+server:
+  port: 12345
 spring:
   # 数据源配置
   datasource:
@@ -34,7 +36,7 @@ spring:
 # 开发环境可以显示更详细的日志
 logging:
   level:
-    com.lx.myblog: DEBUG
+    com.lx.blog: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
@@ -64,3 +66,7 @@ sa-token:
 
 app:
   host: http://localhost:5173
+
+springdoc:
+  swagger-ui:
+    path: /doc

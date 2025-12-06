@@ -38,7 +38,19 @@ public class ArticleReadController {
     public Result<ArticleVo> getBySlug(@PathVariable("slug") String slug) {
         return biz.getBySlug(slug);
     }
-    
+
+    /**
+     * 根据文章Id查询文章基础信息
+     *
+     * @param articleId 文章ID
+     * @return 文章信息
+     */
+    @GetMapping("/{articleId}")
+    @Operation(summary = "根据文章Id查询文章基础信息", description = "根据文章ID查询文章基础信息")
+    public Result<ArticleVo> getById(@PathVariable("articleId") String articleId) {
+        return biz.getById(articleId);
+    }
+
     /**
      * 查询文章内容
      *
@@ -65,6 +77,7 @@ public class ArticleReadController {
 
     /**
      * 查询已发布文章列表
+     *
      * @return 文章列表
      */
     @GetMapping("/published")
