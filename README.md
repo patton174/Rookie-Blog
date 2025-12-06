@@ -237,7 +237,7 @@ Rookie-Blog/
 
 ### 联系方式
 *   **GitHub Issues**: [点击提问](https://github.com/patton174/Rookie-Blog/issues)
-*   **Email**: [2037475020lixu@gmail.com]
+*   **Email**: 2037475020lixu@gmail.com
 
 ---
 
