@@ -580,8 +580,8 @@ public class ArticleBizServiceImpl implements ArticleBizService {
             return "section";
         }
 
-        if (t.length() > 50) {
-            t = t.substring(0, 50);
+        if (t.length() > 1000) {
+            t = t.substring(0, 1000);
         }
 
         return t;

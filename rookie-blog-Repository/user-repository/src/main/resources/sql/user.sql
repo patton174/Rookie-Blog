@@ -16,7 +16,7 @@ CREATE TABLE `user` (
   `id` CHAR(32) NOT NULL,
   `username` VARCHAR(64) NOT NULL,
   `password` VARCHAR(255) NOT NULL,
-  `email` VARCHAR(255) NOT NULL,
+  `email` VARCHAR(64) NOT NULL,
   `status` TINYINT NOT NULL DEFAULT 1,
   `avatar_url` VARCHAR(255) DEFAULT NULL,
   `email_verified` TINYINT NOT NULL DEFAULT 0,

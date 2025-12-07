@@ -4,22 +4,22 @@ server:
 spring:
   # 数据源配置
   datasource:
-    url: jdbc:mysql://localhost:3306/my_blog?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: root
-    password: LIxu2002
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:my_blog}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:LIxu2002}
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
-      host: 127.0.0.1
-      port: 6379
-      password: 123456
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:123456}
       database: 0
       timeout: 2s
   mail:
-    host: smtp.example.com
-    port: 587
-    username: your-account@example.com
-    password: your-password
+    host: ${MAIL_HOST:smtp.example.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:your-account@example.com}
+    password: ${MAIL_PASSWORD:your-password}
     properties:
       mail:
         smtp:
