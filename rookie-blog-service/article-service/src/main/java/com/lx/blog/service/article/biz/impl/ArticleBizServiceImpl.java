@@ -522,10 +522,9 @@ public class ArticleBizServiceImpl implements ArticleBizService {
                 .replaceAll("!\\[[^\\]]+\\]\\([^)]+\\)", "");    // 图片
 
         // 清理空格
-        cleaned = cleaned.replaceAll("\\s+", " ").trim();
+        //cleaned = cleaned.replaceAll("\\s+", " ").trim();
 
-        // 移除开头和结尾的标点
-        cleaned = cleaned.replaceAll("^[\\s\\p{Punct}]+|[\\s\\p{Punct}]+$", "");
+        cleaned = cleaned.replaceAll("^[\\s,.;:!?]+|[\\s,.;:!?]+$", "");
 
         return cleaned;
     }
