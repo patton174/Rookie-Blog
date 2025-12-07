@@ -526,7 +526,6 @@ public class ArticleBizServiceImpl implements ArticleBizService {
         // 清理空格
         cleaned = cleaned.replaceAll("\\s+", " ").trim();
 
-        // 移除开头和结尾的标点
         cleaned = cleaned.replaceAll("^[\\s,.;:!?]+|[\\s,.;:!?]+$", "");
 
         return cleaned;
