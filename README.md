@@ -5,11 +5,11 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Vue.js-3.4+-000000?style=flat-square&logo=vue.js&logoColor=white" alt="Vue 3">
-  <img src="https://img.shields.io/badge/TypeScript-5.0+-000000?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript">
-  <img src="https://img.shields.io/badge/Vite-5.0+-000000?style=flat-square&logo=vite&logoColor=white" alt="Vite">
-  <img src="https://img.shields.io/badge/Sass-Latest-000000?style=flat-square&logo=sass&logoColor=white" alt="Sass">
-  <img src="https://img.shields.io/badge/License-MIT-000000?style=flat-square&logo=opensourceinitiative&logoColor=white" alt="License">
+  <img src="https://img.shields.io/badge/Vue.js-3.4+-4FC08D?style=flat-square&logo=vue.js&logoColor=white" alt="Vue 3">
+  <img src="https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Vite-5.0+-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite">
+  <img src="https://img.shields.io/badge/Sass-Latest-CC6699?style=flat-square&logo=sass&logoColor=white" alt="Sass">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square&logo=opensourceinitiative&logoColor=white" alt="License">
 </p>
 
 <br>
@@ -43,7 +43,7 @@
                 <li><b>Core</b>: Vue 3 (Composition API)</li>
                 <li><b>Language</b>: TypeScript 5.x</li>
                 <li><b>Router</b>: Vue Router 4</li>
-                <li><b>State</b>: Pinia / Reactive Store</li>
+                <li><b>State</b>: Vue Reactive Store</li>
             </ul>
         </td>
         <td valign="top">
@@ -51,7 +51,6 @@
                 <li><b>Build</b>: Vite 5</li>
                 <li><b>Network</b>: Axios</li>
                 <li><b>I18n</b>: Vue I18n</li>
-                <li><b>Lint</b>: Eslint + Prettier</li>
             </ul>
         </td>
         <td valign="top">
@@ -71,14 +70,15 @@
 
 | 目录名称 | 职责说明 | 关键内容 |
 | :--- | :--- | :--- |
-| **src/api** | **接口层**<br>封装 Axios 请求，集中管理 API 定义 | `article.ts`, `user.ts` |
+| **src/api** | **接口层**<br>封装 Axios 请求，集中管理 API 定义 | `request.ts`, `article.ts` |
 | **src/components** | **组件层**<br>通用的 UI 组件，复用性强 | `CommentItem`, `NavBar` |
+| **src/composables** | **组合式函数**<br>复用逻辑封装 (Hooks) | `useTheme.ts`, `useToast.ts` |
 | **src/views** | **视图层**<br>页面级组件，承载业务逻辑 | `ArticleDetail`, `HomeView` |
-| **src/store** | **状态层**<br>全局状态管理，响应式数据流 | `userStore`, `appStore` |
+| **src/store** | **状态层**<br>全局状态管理，响应式数据流 | `user.ts`, `app.ts` |
 | **src/router** | **路由层**<br>页面路由定义、权限守卫 | `index.ts` |
 | **src/styles** | **样式层**<br>全局 SCSS 变量、混合与主题定义 | `variables.scss`, `theme.css` |
 | **src/locales** | **语言包**<br>国际化资源文件 (JSON/TS) | `zh.ts`, `en.ts` |
-| **src/utils** | **工具层**<br>通用辅助函数与类库 | `request.ts`, `format.ts` |
+| **src/utils** | **工具层**<br>通用辅助函数与类库 | `text3dEffect.ts` |
 
 ## <img src="https://api.iconify.design/mdi:star-four-points.svg?color=%23000000" width="24" height="24" valign="bottom"> 核心功能
 
