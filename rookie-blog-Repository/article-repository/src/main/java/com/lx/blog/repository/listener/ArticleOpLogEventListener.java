@@ -1,6 +1,7 @@
 package com.lx.blog.repository.listener;
 
 import com.lx.blog.common.aop.log.OpLogEvent;
+import com.lx.blog.common.response.Result;
 import com.lx.blog.common.utils.UUIDUtils;
 import com.lx.blog.repository.dao.ArticleStatsDao;
 import com.lx.blog.repository.dao.ArticleDao;
@@ -66,6 +67,34 @@ public class ArticleOpLogEventListener {
             String[] sArr = paramsArray.get("slug");
             if ((slug == null || slug.isEmpty()) && sArr != null && sArr.length > 0) slug = sArr[0];
         }
+
+        if (articleId == null || articleId.isEmpty()) {
+            Object ret = p.get("ret");
+            if (ret instanceof Result) {
+                Object data = ((Result<?>) ret).getData();
+                if (data != null) {
+                    if (data instanceof Map) {
+                        Map<?, ?> map = (Map<?, ?>) data;
+                        Object id = map.get("id");
+                        if (id == null) id = map.get("articleId");
+                        if (id != null) articleId = id.toString();
+                    } else {
+                        try {
+                            java.lang.reflect.Method getId = data.getClass().getMethod("getId");
+                            Object id = getId.invoke(data);
+                            if (id != null) articleId = id.toString();
+                        } catch (Exception ignored) {
+                            try {
+                                java.lang.reflect.Method getArticleId = data.getClass().getMethod("getArticleId");
+                                Object id = getArticleId.invoke(data);
+                                if (id != null) articleId = id.toString();
+                            } catch (Exception ignored2) {}
+                        }
+                    }
+                }
+            }
+        }
+
         if ((slug == null || slug.isEmpty())) {
             try {
                 String uri = ServletUtils.getRequest().getRequestURI();

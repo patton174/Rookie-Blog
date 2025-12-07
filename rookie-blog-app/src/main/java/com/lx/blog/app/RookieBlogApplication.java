@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -23,6 +24,7 @@ import java.net.UnknownHostException;
 @MapperScan(basePackages = {
         "com.lx.blog.repository.dao.impl.mapper"
 })
+@EnableTransactionManagement
 public class RookieBlogApplication {
     public static void main(String[] args) {
         ConfigurableEnvironment env = SpringApplication.run(RookieBlogApplication.class, args).getEnvironment();

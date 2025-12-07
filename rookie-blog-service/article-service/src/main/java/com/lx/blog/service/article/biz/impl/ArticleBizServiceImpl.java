@@ -63,7 +63,7 @@ public class ArticleBizServiceImpl implements ArticleBizService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result<String> publish(ArticleSaveDto dto) {
+    public Result<Map<String, String>> publish(ArticleSaveDto dto) {
         String articleId = saveArticleBase(dto, "published");
         saveRevision(articleId, dto.getContentMd());
         // 保存内容
@@ -73,7 +73,9 @@ public class ArticleBizServiceImpl implements ArticleBizService {
         // 保存关联
         saveRelations(articleId, dto);
 
-        return Result.ok(articleId);
+        Map<String, String> result = new HashMap<>();
+        result.put("articleId", articleId);
+        return Result.ok(result);
     }
 
     /**
@@ -522,7 +524,7 @@ public class ArticleBizServiceImpl implements ArticleBizService {
                 .replaceAll("!\\[[^\\]]+\\]\\([^)]+\\)", "");    // 图片
 
         // 清理空格
-        //cleaned = cleaned.replaceAll("\\s+", " ").trim();
+        cleaned = cleaned.replaceAll("\\s+", " ").trim();
 
         cleaned = cleaned.replaceAll("^[\\s,.;:!?]+|[\\s,.;:!?]+$", "");
 

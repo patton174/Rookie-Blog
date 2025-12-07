@@ -36,16 +36,14 @@ spring:
 # 开发环境可以显示更详细的日志
 logging:
   level:
-    com.lx.blog: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.lx.blog: INFO
 
 mybatis-plus:
   configuration:
     # 开启驼峰命名映射
     map-underscore-to-camel-case: true
     # 开启 MyBatis Plus 日志
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 # sa-token 配置
 sa-token:

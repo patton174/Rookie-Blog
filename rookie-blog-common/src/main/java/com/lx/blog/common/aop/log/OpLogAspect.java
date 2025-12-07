@@ -66,6 +66,7 @@ public class OpLogAspect {
         map.put("logged_at", LocalDateTime.now());
         map.put("params", ServletUtils.getParamsMap());
         map.put("params_array", ServletUtils.getParamsArrayMap());
+        map.put("ret", ret);
         return map;
     }
 }

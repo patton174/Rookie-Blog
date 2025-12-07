@@ -4,6 +4,8 @@ import com.lx.blog.common.response.Result;
 import com.lx.blog.domain.dto.ArticleSaveDto;
 import com.lx.blog.domain.vo.UserArticleStatsVo;
 
+import java.util.Map;
+
 /**
  * @author LX
  * @date 2025/12/03
@@ -25,7 +27,7 @@ public interface ArticleBizService {
      * @param dto 文章信息
      * @return 文章ID
      */
-    Result<String> publish(ArticleSaveDto dto);
+    Result<Map<String, String>> publish(ArticleSaveDto dto);
 
     /**
      * 删除文章

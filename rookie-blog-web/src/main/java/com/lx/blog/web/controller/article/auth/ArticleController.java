@@ -11,6 +11,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 /**
  * @author LX
  * @date 2025/12/03
@@ -46,7 +48,7 @@ public class ArticleController {
     @PostMapping("/publish")
     @Operation(summary = "发布文章", description = "发布文章")
     @OpLog(action = "publish_article", func = "article.publish")
-    public Result<String> publish(@RequestBody ArticleSaveDto dto) {
+    public Result<Map<String, String>> publish(@RequestBody ArticleSaveDto dto) {
         return biz.publish(dto);
     }
 
