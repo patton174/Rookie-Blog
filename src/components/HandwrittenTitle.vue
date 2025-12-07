@@ -47,11 +47,10 @@ const getEffectConfig = () => {
 };
 
 onMounted(() => {
-  setTimeout(() => {
-    isVisible.value = true;
-    // Initialize 3D Text Effect
-    init3dEffect(getEffectConfig());
-  }, 100);
+  // Removed setTimeout for immediate rendering
+  isVisible.value = true;
+  // Initialize 3D Text Effect
+  init3dEffect(getEffectConfig());
 });
 
 onUnmounted(() => {
@@ -65,7 +64,7 @@ watch(() => content.value.title, async () => {
 </script>
 
 <template>
-  <div class="brand-title-wrapper" :class="{ 'is-visible': isVisible }">
+  <div class="brand-title-wrapper" :class="{ 'is-visible': isVisible }" style="min-height: 120px;">
     
     <!-- Decorative Grid Background -->
     <div class="bg-grid"></div>

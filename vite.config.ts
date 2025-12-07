@@ -4,6 +4,17 @@ import vue from '@vitejs/plugin-vue'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'md-editor': ['md-editor-v3'],
+          'vue-vendor': ['vue', 'vue-router', 'pinia', 'vue-i18n'],
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000,
+  },
   server: {
     host: '0.0.0.0',
     proxy: {

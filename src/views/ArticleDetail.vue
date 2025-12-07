@@ -18,7 +18,6 @@ import {
   getArticleBySlug, 
   getArticleContent, 
   getArticleChapters,
-  recordView, 
   likeArticle, 
   unlikeArticle,
   checkIsLiked,
@@ -48,6 +47,7 @@ import { MdPreview } from 'md-editor-v3';
 import 'md-editor-v3/lib/preview.css';
 import { useTheme } from '../composables/useTheme';
 
+const { t } = useI18n();
 // Performance Monitoring
 const perfStart = performance.now();
 onMounted(() => {
@@ -318,8 +318,6 @@ const loadArticle = async (slug: string) => {
 
       // Record view and load updated stats
       if (articleData.id) {
-        recordView(articleData.id).catch(e => console.warn('Failed to record view', e));
-        
         // Load real-time stats
         getLikeCount(articleData.id).then(res => {
            if (res.isSuccess) article.value!.likes = res.data;
@@ -683,10 +681,24 @@ const handleEdit = () => {
 
 <template>
   <div class="container article-layout" v-if="isLoading && !article">
-       <div class="glass-panel" style="padding: 2rem; text-align: center;">
-         Loading article...
+     <div class="glass-panel article-skeleton">
+       <div class="skeleton-header">
+         <div class="skeleton-meta"></div>
+         <div class="skeleton-title"></div>
+         <div class="skeleton-user">
+           <div class="skeleton-avatar"></div>
+           <div class="skeleton-info"></div>
+         </div>
        </div>
-    </div>
+       <div class="skeleton-body">
+         <div class="skeleton-line" style="width: 100%"></div>
+         <div class="skeleton-line" style="width: 90%"></div>
+         <div class="skeleton-line" style="width: 95%"></div>
+         <div class="skeleton-line" style="width: 80%"></div>
+         <div class="skeleton-line" style="width: 85%"></div>
+       </div>
+     </div>
+  </div>
     <div class="container article-layout" v-else-if="!article && !isLoading">
        <div class="glass-panel" style="padding: 2rem; text-align: center;">
          Article not found.
@@ -713,10 +725,10 @@ const handleEdit = () => {
             </div>
             <div class="author-details">
               <span class="name">{{ authorName || article.authorId }}</span>
-              <span class="stats">{{ article.views || 0 }} views • {{ article.likes || 0 }} likes</span>
+              <span class="stats">{{ article.views || 0 }} {{ t('articleDetail.views') }} • {{ article.likes || 0 }} {{ t('articleDetail.likes') }}</span>
             </div>
             <button v-if="isOwner" class="edit-btn" @click="handleEdit">
-              Edit
+              {{ t('articleDetail.edit') }}
             </button>
           </div>
         </header>
@@ -734,8 +746,13 @@ const handleEdit = () => {
              :no-img-zoom-in="true"
            />
            <div v-else-if="articleHtml" v-html="articleHtml"></div>
-           <div class="loading-placeholder" v-else-if="isLoading">Loading content...</div>
-           <div class="no-content" v-else>No content available.</div>
+           <div class="skeleton-body" v-else-if="isLoading">
+             <div class="skeleton-line" style="width: 100%"></div>
+             <div class="skeleton-line" style="width: 90%"></div>
+             <div class="skeleton-line" style="width: 95%"></div>
+             <div class="skeleton-line" style="width: 80%"></div>
+           </div>
+           <div class="no-content" v-else>{{ t('articleDetail.noContent') }}</div>
 
           <div class="article-actions">
             <div class="left-actions">
@@ -783,7 +800,7 @@ const handleEdit = () => {
 
     <!-- Comments Section Moved Outside Main to allow Sidebar to stop scrolling with Article -->
     <section class="comments-section glass-panel">
-      <h3>Comments ({{ article?.comments ?? comments.length }})</h3>
+      <h3>{{ t('articleDetail.comments') }} ({{ article?.comments ?? comments.length }})</h3>
       
       <div class="comment-form main-form">
         <div class="avatar-wrapper">
@@ -795,15 +812,15 @@ const handleEdit = () => {
         <div class="input-wrapper">
           <textarea 
             v-model="newComment" 
-            :placeholder="isLoggedIn ? 'Leave a comment...' : 'Please login to leave a comment'" 
+            :placeholder="isLoggedIn ? t('articleDetail.reply') + '...' : t('articleDetail.loginToComment')" 
             rows="3" 
             aria-label="Comment content"
             :disabled="!isLoggedIn"
           ></textarea>
           <div class="form-footer">
             <button @click="submitComment" class="submit-btn" :disabled="!newComment.trim() || !isLoggedIn || isSubmittingComment">
-               <span v-if="isSubmittingComment">Posting...</span>
-               <span v-else>Post Comment</span>
+               <span v-if="isSubmittingComment">{{ t('editor.saving') }}</span>
+               <span v-else>{{ t('articleDetail.submitComment') }}</span>
             </button>
           </div>
         </div>
@@ -1129,7 +1146,7 @@ const handleEdit = () => {
     border-radius: $radius-md;
     margin: $spacing-md 0;
     display: block;
-    background: transparent !important; // Ensure background is transparent
+    background: transparent !important;
     
     // Fix for inline images like badges/icons
     &[valign="middle"], &[valign="bottom"] {
@@ -1603,5 +1620,80 @@ const handleEdit = () => {
   @media (max-width: $breakpoint-desktop) {
     margin-top: $spacing-lg;
   }
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+// Skeleton Loader Styles
+.article-skeleton {
+  padding: 2rem;
+  width: 100%;
+}
+
+.skeleton-header {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.skeleton-meta {
+  width: 200px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.skeleton-title {
+  width: 60%;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.skeleton-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.skeleton-info {
+  width: 120px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.skeleton-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.skeleton-line {
+  height: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }
 </style>

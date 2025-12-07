@@ -44,23 +44,23 @@ const links = {
         <!-- Links Grid -->
         <div class="footer__nav-grid">
           <div class="nav-col">
-            <h4 class="nav-title">Product</h4>
+            <h4 class="nav-title">{{ t('footer.product') }}</h4>
             <ul>
               <li v-for="link in links.product" :key="link"><a href="#" class="nav-link">{{ link }}</a></li>
             </ul>
           </div>
           <div class="nav-col">
-            <h4 class="nav-title">Company</h4>
+            <h4 class="nav-title">{{ t('footer.company') }}</h4>
             <ul>
               <li v-for="link in links.company" :key="link"><a href="#" class="nav-link">{{ link }}</a></li>
             </ul>
           </div>
           <div class="nav-col">
-            <h4 class="nav-title">Resources</h4>
+            <h4 class="nav-title">{{ t('footer.resources') }}</h4>
             <ul>
-              <li><a href="#" class="nav-link">Community</a></li>
-              <li><a href="#" class="nav-link">Help Center</a></li>
-              <li><a href="#" class="nav-link">Status</a></li>
+              <li><a href="#" class="nav-link">{{ t('footer.community') }}</a></li>
+              <li><a href="#" class="nav-link">{{ t('footer.helpCenter') }}</a></li>
+              <li><a href="#" class="nav-link">{{ t('footer.status') }}</a></li>
             </ul>
           </div>
         </div>

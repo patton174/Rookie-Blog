@@ -114,11 +114,6 @@ export const getArticleContent = (articleId: string) => {
   return request.get<any, ResultArticleContent>(`/api/article/read/${articleId}/content`);
 };
 
-// Record Article View
-export const recordView = (articleId: string) => {
-  return request.post<any, ResultObject>(`/api/article/interaction/${articleId}/view`);
-};
-
 // Like Article
 export const likeArticle = (articleId: string) => {
   return request.post<any, ResultObject>(`/api/article/interaction/${articleId}/like`);
@@ -189,6 +184,40 @@ export const saveDraft = (data: ArticleSaveDto) => {
 // Delete Article
 export const deleteArticle = (id: string) => {
   return request.delete<any, ResultObject>(`/api/article/${id}`);
+};
+
+// Query Popular Tags
+export const getPopularTags = () => {
+  return request.get<any, { data: string[] }>('/api/article/read/tags/popular');
+};
+
+// Query Reading History
+export const getReadingHistory = () => {
+  return request.get<any, ResultListArticle>('/api/article/read/history');
+};
+
+export interface UserArticleStats {
+  totalViews: number;
+  totalLikes: number;
+  totalFavorites: number;
+  articleCount: number;
+}
+
+export interface ResultUserArticleStats {
+  errCode: number;
+  errMsg: string;
+  isSuccess: boolean;
+  data: UserArticleStats;
+}
+
+// Get User Stats
+export const getUserStats = (userId: string) => {
+  return request.get<any, ResultUserArticleStats>(`/api/article/stats/${userId}`);
+};
+
+// Get My Stats
+export const getMyStats = () => {
+  return request.get<any, ResultUserArticleStats>('/api/article/stats/me');
 };
 
 

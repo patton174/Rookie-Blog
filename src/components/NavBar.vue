@@ -29,7 +29,7 @@ const menuItems = computed(() => [
   { name: t('nav.spring'), link: '#' },
   { name: t('nav.frameworks'), link: '#' },
   { name: t('nav.devops'), link: '#' },
-  { name: 'Profile', link: '/profile' }, // Temporary link for testing
+  { name: t('nav.profile'), link: '/profile' }, // Temporary link for testing
 ]);
 
 const isMenuOpen = ref(false);

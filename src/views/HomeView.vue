@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed, watch, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import HeroSection from '../components/HeroSection.vue';
 import ArticleCard from '../components/ArticleCard.vue';
@@ -9,6 +9,9 @@ import { getPublishedArticles } from '../api/article';
 
 const { t } = useI18n();
 const { isLoading } = useAppStore();
+const isFetching = ref(true);
+
+const showContent = computed(() => !isLoading.value && !isFetching.value);
 
 const featuredArticle = ref({
   id: '1',
@@ -86,11 +89,15 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to fetch articles:', error);
   } finally {
-    // Ensure elements are observed AFTER data is loaded and DOM is updated
-    // Use nextTick or simple timeout
-    setTimeout(() => {
-        observeElements();
-    }, 100);
+    isFetching.value = false;
+  }
+});
+
+watch(showContent, (val) => {
+  if (val) {
+    nextTick(() => {
+      observeElements();
+    });
   }
 });
 </script>
@@ -100,24 +107,29 @@ onMounted(async () => {
     <!-- Hero Section is always rendered but lightweight -->
     <HeroSection />
     
-    <!-- Defer heavy content rendering until loading is complete -->
-    <div v-show="!isLoading" class="container content-layout">
+    <!-- Main Content -->
+    <div class="container content-layout">
       <div class="main-content">
         <!-- Featured Section -->
         <section class="featured-section fade-in-up">
           <h2 class="section-title">
-            <span class="text-gradient">Featured</span> Story
+            <span class="text-gradient">{{ t('home.featured') }}</span>
           </h2>
-          <ArticleCard v-bind="featuredArticle" class="featured-card" />
+          <ArticleCard v-if="showContent" v-bind="featuredArticle" class="featured-card" />
+          <div v-else class="skeleton-card featured-skeleton"></div>
         </section>
 
         <!-- Latest Articles -->
         <section class="articles-section">
           <h2 class="section-title fade-in-up">{{ t('common.latestArticles') }}</h2>
-          <div class="articles-grid">
+          <div class="articles-grid" v-if="showContent">
             <div v-for="article in articles" :key="article.id" class="fade-in-up">
               <ArticleCard v-bind="article" />
             </div>
+          </div>
+          <!-- Skeleton Grid -->
+          <div class="articles-grid" v-else>
+             <div v-for="i in 6" :key="i" class="skeleton-card"></div>
           </div>
         </section>
       </div>
@@ -131,6 +143,25 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 @use '../styles/variables' as *;
+
+// Skeleton Styles
+.skeleton-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  width: 100%;
+  height: 480px; // Match ArticleCard min-height
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.featured-skeleton {
+  height: 480px; // Match ArticleCard min-height
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.6; }
+}
 
 .content-layout {
   display: grid;

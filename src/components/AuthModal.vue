@@ -2,7 +2,7 @@
 import { ref, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { login, register } from '../api/auth';
-// import { useUserStore } from '../store/user';
+import { useUserStore } from '../store/user';
 
 interface Props {
   isOpen: boolean;
@@ -16,8 +16,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits(['close', 'success']);
 const { t } = useI18n();
-// const userStore = useUserStore(); // keep for store usage if needed, but fetchUserInfo was unused
-// const { fetchUserInfo } = useUserStore(); // Remove unused destructuring
+const { fetchUserInfo } = useUserStore();
 
 const mode = ref(props.initialMode);
 const username = ref('');
@@ -95,6 +94,7 @@ const handleSubmit = async () => {
         setTimeout(() => {
           emit('success');
           emit('close');
+          fetchUserInfo();
         }, 1500);
       } else {
         error.value = res.errMsg || 'Login failed';

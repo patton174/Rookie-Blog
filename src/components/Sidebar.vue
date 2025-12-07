@@ -600,6 +600,7 @@ onUnmounted(() => {
     // Physics layout overrides
     display: block; // Needed for absolute positioning context
     width: 100%;
+    height: 300px; // Fixed height to prevent CLS
     overflow: hidden; // Keep balls inside
     position: relative; // Anchor
   }

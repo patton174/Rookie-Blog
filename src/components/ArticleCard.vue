@@ -59,7 +59,7 @@ const { t, d } = useI18n();
 .card-container {
   width: 100%;
   height: 100%;
-  min-height: 420px;
+  min-height: 480px;
   position: relative;
   z-index: 1;
 }
@@ -158,6 +158,12 @@ const { t, d } = useI18n();
     font-weight: 700;
     line-height: 1.3;
     transition: color 0.3s;
+    
+    // Line clamping for predictable height
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   &__summary {
@@ -166,6 +172,12 @@ const { t, d } = useI18n();
     line-height: 1.6;
     margin-bottom: $spacing-lg;
     flex: 1;
+    
+    // Line clamping for predictable height
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   &__btn {

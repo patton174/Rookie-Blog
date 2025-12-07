@@ -1,10 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/HomeView.vue';
-import ArticleDetail from '../views/ArticleDetail.vue';
-import SearchPage from '../views/SearchPage.vue';
-import UserProfile from '../views/UserProfile.vue';
-import EmailVerification from '../views/EmailVerification.vue';
-import ArticleEditor from '../views/ArticleEditor.vue';
 import { useAppStore } from '../store/app';
 
 const router = createRouter({
@@ -13,33 +7,33 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: () => import('../views/HomeView.vue')
     },
     {
       path: '/article/:id',
       name: 'article-detail',
-      component: ArticleDetail,
+      component: () => import('../views/ArticleDetail.vue'),
       props: true
     },
     {
       path: '/search',
       name: 'search',
-      component: SearchPage
+      component: () => import('../views/SearchPage.vue')
     },
     {
       path: '/profile',
       name: 'profile',
-      component: UserProfile
+      component: () => import('../views/UserProfile.vue')
     },
     {
       path: '/editor',
       name: 'editor',
-      component: ArticleEditor
+      component: () => import('../views/ArticleEditor.vue')
     },
     {
       path: '/email/verify',
       name: 'email-verify',
-      component: EmailVerification
+      component: () => import('../views/EmailVerification.vue')
     }
   ],
   scrollBehavior(_to, _from, savedPosition) {
@@ -51,18 +45,22 @@ const router = createRouter({
   }
 });
 
+let loadStartTime = 0;
+
 router.beforeEach((_to, _from, next) => {
   const { startLoading } = useAppStore();
+  loadStartTime = Date.now();
   startLoading();
   next();
 });
 
 router.afterEach(() => {
   const { stopLoading } = useAppStore();
-  // Short delay to allow animation to play a bit if page loads instantly
-  // But user wants to see the animation. 
-  // 1500ms is the full cycle.
-  stopLoading(1500);
+  const MIN_LOADING_TIME = 600;
+  const elapsed = Date.now() - loadStartTime;
+  const remaining = MIN_LOADING_TIME - elapsed;
+  
+  stopLoading(remaining > 0 ? remaining : 0);
 });
 
 export default router;

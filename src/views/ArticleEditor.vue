@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { MdEditor } from 'md-editor-v3';
 import 'md-editor-v3/lib/style.css';
 import { publishArticle, saveDraft, getArticleBySlug, getArticleContent, getArticleById } from '../api/article';
@@ -11,6 +12,7 @@ import { marked } from 'marked';
 
 const router = useRouter();
 const route = useRoute();
+const { t } = useI18n();
 // const userStore = useUserStore();
 const { theme } = useTheme();
 
@@ -276,7 +278,7 @@ const submitArticle = async () => {
     <!-- Top Bar -->
     <header class="editor-header">
       <div class="header-left">
-        <button class="back-btn" @click="router.back()" title="Go Back">
+        <button class="back-btn" @click="router.back()" :title="t('editor.back')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
@@ -285,15 +287,15 @@ const submitArticle = async () => {
           v-model="title" 
           type="text" 
           class="title-input" 
-          placeholder="Untitled Story..." 
+          :placeholder="t('editor.titlePlaceholder')" 
         />
       </div>
       
       <div class="header-right">
-        <span class="status-text" v-if="isSavingDraft">Saving...</span>
-        <span class="word-count" v-if="wordCount > 0 && !isSavingDraft">{{ wordCount }} words</span>
+        <span class="status-text" v-if="isSavingDraft">{{ t('editor.saving') }}</span>
+        <span class="word-count" v-if="wordCount > 0 && !isSavingDraft">{{ wordCount }} {{ t('editor.words') }}</span>
         
-        <button class="icon-btn" @click="showPublishModal = true" title="Settings">
+        <button class="icon-btn" @click="showPublishModal = true" :title="t('editor.settings')">
            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
              <circle cx="12" cy="12" r="3"></circle>
@@ -301,11 +303,11 @@ const submitArticle = async () => {
         </button>
 
         <button class="draft-btn" @click="handleSaveDraft" :disabled="isSavingDraft">
-          <span>{{ isSavingDraft ? 'Saved' : 'Save' }}</span>
+          <span>{{ isSavingDraft ? t('editor.draftSaved') : t('editor.saveDraft') }}</span>
         </button>
 
         <button class="publish-btn" @click="handlePublishClick">
-          <span>Publish</span>
+          <span>{{ t('editor.publish') }}</span>
         </button>
       </div>
     </header>
@@ -324,7 +326,7 @@ const submitArticle = async () => {
           :scroll-auto="false"
           :no-img-zoom-in="true"
           :code-foldable="false"
-          placeholder="Start writing your amazing story..."
+          :placeholder="t('editor.requiredContent')"
           @onUploadImg="handleUploadImage"
         />
       </div>
@@ -335,7 +337,7 @@ const submitArticle = async () => {
       <div v-if="showPublishModal" class="modal-overlay" @click.self="showPublishModal = false">
         <div class="modal-content glass-panel">
           <div class="modal-header">
-            <h3>Publish Article</h3>
+            <h3>{{ t('editor.publish') }}</h3>
             <button class="close-btn" @click="showPublishModal = false">×</button>
           </div>
           
@@ -344,7 +346,7 @@ const submitArticle = async () => {
               <!-- Left Column: Cover Image -->
               <div class="grid-col left-col">
                 <div class="form-group">
-                  <label>Cover Image</label>
+                  <label>{{ t('editor.coverImage') }}</label>
                   <div class="cover-uploader">
                     <!-- Preview / Click Area -->
                     <div 
@@ -365,8 +367,8 @@ const submitArticle = async () => {
                             <polyline points="21 15 16 10 5 21"></polyline>
                           </svg>
                         </div>
-                        <span v-if="publishForm.coverUrl">Click to Replace</span>
-                        <span v-else>Click or Drop Image Here</span>
+                        <span v-if="publishForm.coverUrl">{{ t('editor.dragDrop') }}</span>
+                        <span v-else>{{ t('editor.dragDrop') }}</span>
                       </div>
                     </div>
 
@@ -393,21 +395,21 @@ const submitArticle = async () => {
               <!-- Right Column: Metadata -->
               <div class="grid-col right-col">
                 <div class="form-group">
-                  <label>Summary</label>
+                  <label>{{ t('editor.summary') }}</label>
                   <textarea 
                     v-model="publishForm.summary" 
                     rows="4" 
-                    placeholder="Write a brief summary (optional)..."
+                    :placeholder="t('editor.summary')"
                     class="custom-input"
                   ></textarea>
                 </div>
                 
                 <div class="form-group">
-                  <label>Tags</label>
+                  <label>{{ t('editor.tags') }}</label>
                   <input 
                     v-model="publishForm.tags" 
                     type="text" 
-                    placeholder="Vue, Tech, Life (comma separated)" 
+                    :placeholder="t('editor.tagsPlaceholder')" 
                     class="custom-input"
                   />
                 </div>
@@ -416,10 +418,10 @@ const submitArticle = async () => {
           </div>
 
           <div class="modal-footer">
-            <button @click="showPublishModal = false" class="cancel-btn">Cancel</button>
+            <button @click="showPublishModal = false" class="cancel-btn">{{ t('editor.cancel') }}</button>
             <button @click="submitArticle" class="confirm-btn" :disabled="isSubmitting">
               <span v-if="isSubmitting" class="spinner"></span>
-              {{ isSubmitting ? 'Publishing...' : 'Confirm Publish' }}
+              {{ isSubmitting ? t('editor.saving') : t('editor.publishNow') }}
             </button>
           </div>
         </div>
@@ -750,7 +752,7 @@ const submitArticle = async () => {
       border-radius: $radius-md;
       margin: $spacing-md 0;
       display: inline-block;
-      background: transparent !important; // Ensure background is transparent
+      background: transparent !important;
       
       &[valign="middle"], &[valign="bottom"] {
         display: inline-block;

@@ -107,3 +107,8 @@ export const requestEmailVerification = () => {
 export const confirmEmailVerification = (token: string) => {
   return request.post<any, ResultObject>(`/api/user/email/verification/confirm?token=${token}`);
 };
+
+// Get Username by ID
+export const getUsernameById = (userId: string) => {
+  return request.get<any, { data: string }>(`/api/user/profile/public/username/${userId}`);
+};
