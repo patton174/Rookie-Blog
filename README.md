@@ -185,6 +185,30 @@ git clone -b frontend https://github.com/patton174/Rookie-Blog.git frontend
 ---
 
 <!-- CONTRIBUTOR_STATS_START -->
+
+<br>
+
+## <img src="https://api.iconify.design/mdi:account-group.svg?color=%23000000" width="24" height="24" valign="bottom"> 贡献者风采
+
+感谢每一位参与 **Rookie Blog** 开发的贡献者，是你们让这个项目变得更好。
+
+<table align="center" border="0">
+  <tr>
+    <td align="center">
+      <a href="https://github.com/mianqiqi" title="mianqiqi">
+        <img src="https://github.com/mianqiqi.png?size=100" width="50" height="50" alt="mianqiqi" style="border-radius: 50%;">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/1529119384" title="1529119384">
+        <img src="https://github.com/1529119384.png?size=100" width="50" height="50" alt="1529119384" style="border-radius: 50%;">
+      </a>
+    </td>
+  </tr>
+</table>
+
+<p align='right'><sub>Last updated: 2025-12-08</sub></p>
+
 <!-- CONTRIBUTOR_STATS_END -->
 
 ## <img src="https://api.iconify.design/mdi:license.svg?color=%23000000" width="24" height="24" valign="bottom"> 开源协议
