@@ -188,7 +188,7 @@ git clone -b frontend https://github.com/patton174/Rookie-Blog.git frontend
 
 <br>
 
-## <img src="https://api.iconify.design/mdi:account-group.svg?color=%23000000" width="24" height="24" valign="bottom"> 贡献者风采
+## 贡献者风采
 
 感谢每一位参与 **Rookie Blog** 开发的贡献者，是你们让这个项目变得更好。
 
