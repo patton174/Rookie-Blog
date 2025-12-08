@@ -4,8 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 **/.env
+distribution/
 
 ### STS ###
+
 .apt_generated
 .classpath
 .factorypath
