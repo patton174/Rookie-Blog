@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: read
+      pull-requests: write
     
     env:
       TARGET_FILE: "README.md"
@@ -50,8 +50,8 @@ jobs:
       uses: peter-evans/create-pull-request@v6
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "📊 Update contributor statistics"
-        title: "📊 Update Contributor Statistics"
+        commit-message: "Update contributor statistics"
+        title: "Update Contributor Statistics"
         body: |
           Update contributor statistics in README.md and generate SVG.
           

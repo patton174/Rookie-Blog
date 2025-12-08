@@ -144,7 +144,7 @@ def generate_svg(contributors):
     os.makedirs('.github/assets', exist_ok=True)
     with open('.github/assets/contributors.svg', 'w', encoding='utf-8') as f:
         f.write(svg_content)
-    print("✅ Generated contributors.svg")
+    print("Generated contributors.svg")
 
 def update_readme(contributors):
     """更新README.md文件"""
@@ -164,7 +164,7 @@ def update_readme(contributors):
     stats_section = f"""
 <br>
 
-## <img src="https://api.iconify.design/mdi:account-group.svg?color=%23000000" width="24" height="24" valign="bottom"> 贡献者风采
+## 贡献者风采
 
 感谢每一位参与 **Rookie Blog** 开发的贡献者，是你们让这个项目变得更好。
 
@@ -190,26 +190,26 @@ def update_readme(contributors):
     with open(target_file, 'w', encoding='utf-8') as f:
         f.write(content)
     
-    print(f"✅ 已更新 {target_file} 文件")
+    print(f"Updated {target_file}")
 
 def main():
     try:
-        print("开始统计贡献者数据...")
+        print("Starting contributor statistics...")
         contributors = get_contributor_stats()
         
         if not contributors:
-            print("⚠️ 没有找到贡献者数据")
+            print("No contributors found")
             return
         
-        print(f"找到 {len(contributors)} 位贡献者")
+        print(f"Found {len(contributors)} contributors")
         for i, (contributor, count) in enumerate(contributors[:10], 1):
-            print(f"{i}. @{contributor}: {count} 个合并PR")
+            print(f"{i}. {contributor}: {count} merged PRs")
         
         update_readme(contributors)
-        print("✅ 统计完成！")
+        print("Statistics completed!")
         
     except Exception as e:
-        print(f"❌ 发生错误: {str(e)}")
+        print(f"Error: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":
