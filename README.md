@@ -188,26 +188,21 @@ git clone -b frontend https://github.com/patton174/Rookie-Blog.git frontend
 
 <br>
 
-## 贡献者风采
+## <img src="https://api.iconify.design/mdi:account-group-outline.svg?color=%23000000" width="24" height="24" valign="bottom"> 贡献者风采
 
 感谢每一位参与 **Rookie Blog** 开发的贡献者，是你们让这个项目变得更好。
 
 
 <div align="center">
-<table style="border-width:0; border:none; border-spacing:0; padding:0; margin:0;">
-  <tr>
-    <td align="center" style="border:none; padding: 10px;">
-      <a href="https://github.com/mianqiqi" title="mianqiqi">
-        <img src="https://wsrv.nl/?url=github.com/mianqiqi.png&h=80&w=80&fit=cover&mask=circle" width="50" height="50" alt="mianqiqi" />
-      </a>
-    </td>
-    <td align="center" style="border:none; padding: 10px;">
-      <a href="https://github.com/1529119384" title="1529119384">
-        <img src="https://wsrv.nl/?url=github.com/1529119384.png&h=80&w=80&fit=cover&mask=circle" width="50" height="50" alt="1529119384" />
-      </a>
-    </td>
-  </tr>
-</table>
+<br/>
+<p>
+<a href="https://github.com/mianqiqi" title="mianqiqi (1 contributions)">
+    <img src="https://wsrv.nl/?url=github.com/mianqiqi.png&h=120&w=120&fit=cover&mask=circle&q=80" width="60" height="60" alt="mianqiqi" style="margin: 10px; display: inline-block;" />
+</a><a href="https://github.com/1529119384" title="1529119384 (1 contributions)">
+    <img src="https://wsrv.nl/?url=github.com/1529119384.png&h=120&w=120&fit=cover&mask=circle&q=80" width="60" height="60" alt="1529119384" style="margin: 10px; display: inline-block;" />
+</a>
+</p>
+<br/>
 </div>
 
 <!-- CONTRIBUTOR_STATS_END -->
