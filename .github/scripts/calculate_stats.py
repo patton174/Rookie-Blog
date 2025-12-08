@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import os
 import sys
+import base64
+import requests
 from collections import defaultdict
 from datetime import datetime
 from github import Github
@@ -10,7 +12,6 @@ def get_contributor_stats():
     """获取backend和frontend分支的PR贡献者统计"""
     token = os.getenv('GITHUB_TOKEN')
     repo_name = os.getenv('GITHUB_REPOSITORY')
-    target_file = os.getenv('TARGET_FILE', 'README.md')
     
     if not token:
         print("Error: GITHUB_TOKEN not found")
@@ -51,9 +52,106 @@ def get_contributor_stats():
     
     return sorted_contributors
 
+def get_base64_image(url):
+    """下载图片并转换为base64"""
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return base64.b64encode(response.content).decode('utf-8')
+    except Exception as e:
+        print(f"Error downloading image {url}: {e}")
+    return None
+
+def generate_svg(contributors):
+    """生成包含头像的SVG文件"""
+    # 配置
+    avatar_size = 60
+    gap = 20
+    columns = 10
+    padding = 20
+    
+    # 计算尺寸
+    count = len(contributors)
+    rows = (count + columns - 1) // columns
+    width = columns * (avatar_size + gap) + padding * 2
+    height = rows * (avatar_size + gap) + padding * 2
+    
+    svg_content = f'''<svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <style>
+    .avatar {{
+      transition: all 0.3s ease;
+      cursor: pointer;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }}
+    .avatar:hover {{
+      transform: scale(1.1);
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+    }}
+    text {{
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 12px;
+        fill: #666;
+        text-anchor: middle;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }}
+    .group:hover text {{
+        opacity: 1;
+    }}
+  </style>
+  <defs>
+    <clipPath id="circle">
+      <circle cx="{avatar_size/2}" cy="{avatar_size/2}" r="{avatar_size/2}" />
+    </clipPath>
+  </defs>
+'''
+    
+    for i, (contributor, count) in enumerate(contributors):
+        col = i % columns
+        row = i // columns
+        x = padding + col * (avatar_size + gap)
+        y = padding + row * (avatar_size + gap)
+        
+        # 获取头像Base64 (使用较小尺寸以减小文件体积)
+        avatar_url = f"https://github.com/{contributor}.png?size=64"
+        base64_img = get_base64_image(avatar_url)
+        
+        if base64_img:
+            img_href = f"data:image/png;base64,{base64_img}"
+        else:
+            img_href = avatar_url  # 降级处理
+            
+        profile_url = f"https://github.com/{contributor}"
+        
+        # 居中偏移
+        cx = x + avatar_size/2
+        cy = y + avatar_size/2
+        
+        svg_content += f'''
+  <a xlink:href="{profile_url}" target="_blank">
+    <g class="group" transform="translate({x}, {y})">
+        <g class="avatar" transform-origin="{avatar_size/2} {avatar_size/2}">
+            <image href="{img_href}" width="{avatar_size}" height="{avatar_size}" clip-path="url(#circle)" />
+        </g>
+        <text x="{avatar_size/2}" y="{avatar_size + 15}">{contributor}</text>
+    </g>
+  </a>
+'''
+        
+    svg_content += '</svg>'
+    
+    # 保存文件
+    os.makedirs('.github/assets', exist_ok=True)
+    with open('.github/assets/contributors.svg', 'w', encoding='utf-8') as f:
+        f.write(svg_content)
+    print("✅ Generated contributors.svg")
+
 def update_readme(contributors):
     """更新README.md文件"""
     target_file = os.getenv('TARGET_FILE', 'README.md')
+    
+    # 首先生成SVG
+    generate_svg(contributors)
     
     # 读取现有内容
     if os.path.exists(target_file):
@@ -61,9 +159,6 @@ def update_readme(contributors):
             content = f.read()
     else:
         content = ""
-    
-    # 创建贡献者表格 (Grid Layout)
-    timestamp = datetime.now().strftime('%Y-%m-%d')
     
     # 头部样式
     stats_section = f"""
@@ -73,34 +168,10 @@ def update_readme(contributors):
 
 感谢每一位参与 **Rookie Blog** 开发的贡献者，是你们让这个项目变得更好。
 
-<table align="center" border="0">
+<div align="center">
+  <img src=".github/assets/contributors.svg" alt="Contributors" width="100%">
+</div>
 """
-    
-    columns = 10
-    for i, (contributor, count) in enumerate(contributors):
-        if i % columns == 0:
-            stats_section += "  <tr>\n"
-        
-        # 贡献者信息
-        profile_url = f"https://github.com/{contributor}"
-        avatar_url = f"https://github.com/{contributor}.png?size=100"
-        
-        stats_section += f"""    <td align="center">
-      <a href="{profile_url}" title="{contributor}">
-        <img src="{avatar_url}" width="50" height="50" alt="{contributor}" style="border-radius: 50%;">
-      </a>
-    </td>
-"""
-        
-        if (i + 1) % columns == 0:
-            stats_section += "  </tr>\n"
-    
-    # 补全最后一行
-    if len(contributors) % columns != 0:
-        stats_section += "  </tr>\n"
-        
-    stats_section += "</table>\n"
-    stats_section += f"\n<p align='right'><sub>Last updated: {timestamp}</sub></p>\n"
     
     # 使用标记来替换内容
     start_marker = "<!-- CONTRIBUTOR_STATS_START -->"
