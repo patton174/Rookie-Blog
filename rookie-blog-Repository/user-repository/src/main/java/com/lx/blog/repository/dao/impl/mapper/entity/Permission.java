@@ -23,8 +23,8 @@ import java.time.LocalDateTime;
 @TableName("permission")
 public class Permission {
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    @TableId(value = "id", type = IdType.INPUT)
+    private String id;
 
     /**
      * 权限唯一编码（业务唯一键）

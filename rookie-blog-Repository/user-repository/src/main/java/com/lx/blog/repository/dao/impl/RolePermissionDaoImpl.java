@@ -25,7 +25,7 @@ public class RolePermissionDaoImpl extends ServiceImpl<RolePermissionMapper, Rol
      * @return 权限ID集合
      */
     @Override
-    public List<Long> listPermissionIdsByRoleId(Long roleId) {
+    public List<String> listPermissionIdsByRoleId(String roleId) {
         return baseMapper.selectList(new LambdaQueryWrapper<RolePermission>().eq(RolePermission::getRoleId, roleId))
                 .stream()
                 .map(RolePermission::getPermissionId)

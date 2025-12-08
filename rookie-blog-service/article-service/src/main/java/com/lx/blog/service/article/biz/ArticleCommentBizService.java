@@ -38,7 +38,7 @@ public interface ArticleCommentBizService {
      * @param commentId 评论ID
      * @return 回复列表
      */
-    Result<List<CommentReplyVo>> listReplies(Long commentId);
+    Result<List<CommentReplyVo>> listReplies(String commentId);
 
     /**
      * 添加评论

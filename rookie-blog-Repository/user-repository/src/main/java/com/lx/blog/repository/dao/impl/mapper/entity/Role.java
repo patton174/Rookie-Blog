@@ -23,8 +23,8 @@ import java.time.LocalDateTime;
 @TableName("role")
 public class Role {
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    @TableId(value = "id", type = IdType.INPUT)
+    private String id;
 
     /**
      * 角色唯一编码（业务唯一键）

@@ -14,12 +14,12 @@ public class CommentReactionDto {
     /**
      * 评论ID（可空）
      */
-    private Long commentId;
+    private String commentId;
 
     /**
      * 回复ID（可空）
      */
-    private Long replyId;
+    private String replyId;
 
     /**
      * 操作类型（like/dislike）

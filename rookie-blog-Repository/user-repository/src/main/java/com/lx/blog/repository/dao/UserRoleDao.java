@@ -19,7 +19,7 @@ public interface UserRoleDao extends IService<UserRole> {
      * @param userId 用户ID
      * @param roleId 角色ID
      */
-    void assignRole(String userId, Long roleId);
+    void assignRole(String userId, String roleId);
 
     /**
      * 解绑用户角色（幂等）
@@ -27,7 +27,7 @@ public interface UserRoleDao extends IService<UserRole> {
      * @param userId 用户ID
      * @param roleId 角色ID
      */
-    void revokeRole(String userId, Long roleId);
+    void revokeRole(String userId, String roleId);
 
     /**
      * 查询用户的角色列表

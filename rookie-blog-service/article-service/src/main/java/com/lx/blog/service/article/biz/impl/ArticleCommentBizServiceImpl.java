@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.lx.blog.common.response.Result;
 import com.lx.blog.common.utils.BeanCopyUtils;
 import com.lx.blog.common.utils.PageUtils;
+import com.lx.blog.common.utils.UUIDUtils;
 import com.lx.blog.domain.dto.CommentReactionDto;
 import com.lx.blog.domain.dto.CommentReplySaveDto;
 import com.lx.blog.domain.dto.CommentSaveDto;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -73,11 +75,11 @@ public class ArticleCommentBizServiceImpl implements ArticleCommentBizService {
         
         // 批量查询当前用户对这些评论及回复的 reaction (dislike)
         // 优化：如果 userId 为空，不需要查
-        Set<Long> dislikedCommentIds = new java.util.HashSet<>();
-        Set<Long> dislikedReplyIds = new java.util.HashSet<>();
+        Set<String> dislikedCommentIds = new java.util.HashSet<>();
+        Set<String> dislikedReplyIds = new java.util.HashSet<>();
         
         if (userId != null) {
-            List<Long> commentIds = list.stream().map(Comment::getId).collect(Collectors.toList());
+            List<String> commentIds = list.stream().map(Comment::getId).collect(Collectors.toList());
             if (!commentIds.isEmpty()) {
                 dislikedCommentIds = reactionDao.getCommentIdsByReaction(commentIds, userId, "dislike");
             }
@@ -87,7 +89,7 @@ public class ArticleCommentBizServiceImpl implements ArticleCommentBizService {
         }
 
         final String currentUserId = userId;
-        final Set<Long> finalDislikedCommentIds = dislikedCommentIds;
+        final Set<String> finalDislikedCommentIds = dislikedCommentIds;
 
         // 转换为DTO
         List<CommentVo> voList = list.stream().map(comment -> {
@@ -122,7 +124,7 @@ public class ArticleCommentBizServiceImpl implements ArticleCommentBizService {
      * @return 回复列表
      */
     @Override
-    public Result<List<CommentReplyVo>> listReplies(Long commentId) {
+    public Result<List<CommentReplyVo>> listReplies(String commentId) {
         List<CommentReply> replies = replyDao.listByCommentId(commentId);
         if (replies.isEmpty()) {
             return Result.ok(new ArrayList<>());
@@ -133,14 +135,14 @@ public class ArticleCommentBizServiceImpl implements ArticleCommentBizService {
         try { userId = StpUtil.getLoginIdAsString(); } catch (Exception ignored) {}
 
         // 批量查询回复的 dislike 状态
-        Set<Long> dislikedReplyIds = new java.util.HashSet<>();
+        Set<String> dislikedReplyIds = new java.util.HashSet<>();
         if (userId != null) {
-            List<Long> replyIds = replies.stream().map(CommentReply::getId).collect(Collectors.toList());
+            List<String> replyIds = replies.stream().map(CommentReply::getId).collect(Collectors.toList());
             dislikedReplyIds = reactionDao.getReplyIdsByReaction(replyIds, userId, "dislike");
         }
 
         final String currentUserId = userId;
-        final Set<Long> finalDislikedReplyIds = dislikedReplyIds;
+        final Set<String> finalDislikedReplyIds = dislikedReplyIds;
 
         List<CommentReplyVo> voList = replies.stream().map(r -> {
             CommentReplyVo vo = BeanCopyUtils.copyProperties(r, CommentReplyVo.class);
@@ -169,6 +171,7 @@ public class ArticleCommentBizServiceImpl implements ArticleCommentBizService {
     @Override
     public Result<Object> addComment(CommentSaveDto dto) {
         Comment comment = BeanCopyUtils.copyProperties(dto, Comment.class);
+        comment.setId(UUIDUtils.signatureUuid(UUID.randomUUID()));
         comment.setUserId(StpUtil.getLoginIdAsString());
         comment.setCommentAt(LocalDateTime.now());
         
@@ -191,6 +194,7 @@ public class ArticleCommentBizServiceImpl implements ArticleCommentBizService {
     public Result<Object> addReply(CommentReplySaveDto dto) {
 
         CommentReply commentReply = BeanCopyUtils.copyProperties(dto, CommentReply.class);
+        commentReply.setId(UUIDUtils.signatureUuid(UUID.randomUUID()));
         commentReply.setUserId(StpUtil.getLoginIdAsString());
         commentReply.setReplyAt(LocalDateTime.now());
         

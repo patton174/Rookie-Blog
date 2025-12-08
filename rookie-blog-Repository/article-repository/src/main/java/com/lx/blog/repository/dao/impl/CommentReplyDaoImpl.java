@@ -26,7 +26,7 @@ public class CommentReplyDaoImpl extends ServiceImpl<CommentReplyMapper, Comment
      * @return 回复列表
      */
     @Override
-    public List<CommentReply> listByCommentId(Long commentId) {
+    public List<CommentReply> listByCommentId(String commentId) {
         return baseMapper.selectList(new LambdaQueryWrapper<CommentReply>()
                 .eq(CommentReply::getCommentId, commentId)
                 .orderByAsc(CommentReply::getReplyAt));
@@ -39,7 +39,7 @@ public class CommentReplyDaoImpl extends ServiceImpl<CommentReplyMapper, Comment
      * @return 回复数量
      */
     @Override
-    public long countByCommentId(Long commentId) {
+    public long countByCommentId(String commentId) {
         return baseMapper.selectCount(new LambdaQueryWrapper<CommentReply>()
                 .eq(CommentReply::getCommentId, commentId));
     }

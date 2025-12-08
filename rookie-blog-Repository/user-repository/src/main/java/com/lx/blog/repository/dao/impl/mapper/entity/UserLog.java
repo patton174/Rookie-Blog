@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @TableName("user_log")
 public class UserLog {
 
-    @TableId(value = "id")
+    @TableId(value = "id", type = IdType.INPUT)
     private String id;
 
     /**

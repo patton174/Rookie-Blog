@@ -26,7 +26,7 @@ public class ArticleLog {
     /**
      * 阅读明细ID
      */
-    @TableId(value = "id")
+    @TableId(value = "id", type = IdType.INPUT)
     private String id;
 
     /**

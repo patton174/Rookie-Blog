@@ -17,9 +17,11 @@ import com.lx.blog.domain.dto.RegisterDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import com.lx.blog.common.utils.I18nUtils;
+import com.lx.blog.common.utils.UUIDUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * @author LX
@@ -66,6 +68,7 @@ public class UserAuthBizServiceImpl implements UserAuthBizService {
     @Override
     public Result<Object> register(RegisterDto req) {
         User user = User.builder()
+                .id(UUIDUtils.signatureUuid(UUID.randomUUID()))
                 .username(req.getUsername())
                 .password(BCryptUtils.encode(req.getPassword()))
                 .email(req.getEmail())

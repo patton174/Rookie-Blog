@@ -26,8 +26,8 @@ public class UserSetting {
     /**
      * 主键ID
      */
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    @TableId(value = "id", type = IdType.INPUT)
+    private String id;
 
     /**
      * 用户ID（UUID）

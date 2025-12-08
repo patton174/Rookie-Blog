@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author LX
@@ -13,6 +14,7 @@ import lombok.Data;
  */
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 @TableName("article_series_item")
 public class ArticleSeriesItem {
@@ -21,7 +23,7 @@ public class ArticleSeriesItem {
      * 系列ID
      */
     @TableField("series_id")
-    private Long seriesId;
+    private String seriesId;
 
     /**
      * 文章ID

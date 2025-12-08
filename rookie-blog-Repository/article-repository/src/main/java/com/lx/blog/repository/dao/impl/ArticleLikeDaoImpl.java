@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lx.blog.repository.dao.ArticleLikeDao;
 import com.lx.blog.repository.dao.impl.mapper.ArticleLikeMapper;
 import com.lx.blog.repository.dao.impl.mapper.entity.ArticleLike;
+import com.lx.blog.common.utils.UUIDUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
 
 /**
  * @author LX
@@ -40,7 +43,11 @@ public class ArticleLikeDaoImpl extends ServiceImpl<ArticleLikeMapper, ArticleLi
     @Override
     public void like(String articleId, String userId) {
         if (!hasLiked(articleId, userId)) {
-            ArticleLike like = ArticleLike.builder().articleId(articleId).userId(userId).build();
+            ArticleLike like = ArticleLike.builder()
+                    .id(UUIDUtils.signatureUuid(UUID.randomUUID()))
+                    .articleId(articleId)
+                    .userId(userId)
+                    .build();
             baseMapper.insert(like);
         }
     }

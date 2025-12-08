@@ -18,7 +18,7 @@ public interface CommentReplyDao extends IService<CommentReply> {
      * @param commentId 评论ID
      * @return 回复列表
      */
-    List<CommentReply> listByCommentId(Long commentId);
+    List<CommentReply> listByCommentId(String commentId);
 
     /**
      * 根据评论ID统计回复数量
@@ -26,6 +26,6 @@ public interface CommentReplyDao extends IService<CommentReply> {
      * @param commentId 评论ID
      * @return 回复数量
      */
-    long countByCommentId(Long commentId);
+    long countByCommentId(String commentId);
 }
 

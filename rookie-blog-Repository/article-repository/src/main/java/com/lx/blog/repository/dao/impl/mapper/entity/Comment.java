@@ -26,8 +26,8 @@ public class Comment {
     /**
      * 评论ID
      */
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    @TableId(value = "id", type = IdType.INPUT)
+    private String id;
 
     /**
      * 文章ID

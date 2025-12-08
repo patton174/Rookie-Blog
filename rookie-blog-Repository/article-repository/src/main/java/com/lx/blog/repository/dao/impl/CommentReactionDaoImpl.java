@@ -5,12 +5,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lx.blog.repository.dao.CommentReactionDao;
 import com.lx.blog.repository.dao.impl.mapper.CommentReactionMapper;
 import com.lx.blog.repository.dao.impl.mapper.entity.CommentReaction;
+import com.lx.blog.common.utils.UUIDUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -30,12 +32,17 @@ public class CommentReactionDaoImpl extends ServiceImpl<CommentReactionMapper, C
      * @param type 反应类型（like/dislike）
      */
     @Override
-    public void reactToComment(Long commentId, String userId, String type) {
+    public void reactToComment(String commentId, String userId, String type) {
         // 先删除同用户对该评论的历史反应，再插入新的
         baseMapper.delete(new LambdaQueryWrapper<CommentReaction>()
                 .eq(CommentReaction::getCommentId, commentId)
                 .eq(CommentReaction::getUserId, userId));
-        CommentReaction r = CommentReaction.builder().commentId(commentId).userId(userId).reactionType(type).build();
+        CommentReaction r = CommentReaction.builder()
+                .id(UUIDUtils.signatureUuid(UUID.randomUUID()))
+                .commentId(commentId)
+                .userId(userId)
+                .reactionType(type)
+                .build();
         baseMapper.insert(r);
     }
 
@@ -47,11 +54,16 @@ public class CommentReactionDaoImpl extends ServiceImpl<CommentReactionMapper, C
      * @param type 反应类型（like/dislike）
      */
     @Override
-    public void reactToReply(Long replyId, String userId, String type) {
+    public void reactToReply(String replyId, String userId, String type) {
         baseMapper.delete(new LambdaQueryWrapper<CommentReaction>()
                 .eq(CommentReaction::getReplyId, replyId)
                 .eq(CommentReaction::getUserId, userId));
-        CommentReaction r = CommentReaction.builder().replyId(replyId).userId(userId).reactionType(type).build();
+        CommentReaction r = CommentReaction.builder()
+                .id(UUIDUtils.signatureUuid(UUID.randomUUID()))
+                .replyId(replyId)
+                .userId(userId)
+                .reactionType(type)
+                .build();
         baseMapper.insert(r);
     }
 
@@ -63,7 +75,7 @@ public class CommentReactionDaoImpl extends ServiceImpl<CommentReactionMapper, C
      * @param userId 用户ID
      */
     @Override
-    public void cancelReaction(Long commentId, Long replyId, String userId) {
+    public void cancelReaction(String commentId, String replyId, String userId) {
         baseMapper.delete(new LambdaQueryWrapper<CommentReaction>()
                 .eq(commentId != null, CommentReaction::getCommentId, commentId)
                 .eq(replyId != null, CommentReaction::getReplyId, replyId)
@@ -79,7 +91,7 @@ public class CommentReactionDaoImpl extends ServiceImpl<CommentReactionMapper, C
      * @return 评论ID集合
      */
     @Override
-    public Set<Long> getCommentIdsByReaction(List<Long> commentIds, String userId, String type) {
+    public Set<String> getCommentIdsByReaction(List<String> commentIds, String userId, String type) {
         if (commentIds == null || commentIds.isEmpty()) {
             return Collections.emptySet();
         }
@@ -99,7 +111,7 @@ public class CommentReactionDaoImpl extends ServiceImpl<CommentReactionMapper, C
      * @return 回复ID集合
      */
     @Override
-    public Set<Long> getReplyIdsByReaction(List<Long> replyIds, String userId, String type) {
+    public Set<String> getReplyIdsByReaction(List<String> replyIds, String userId, String type) {
         if (replyIds == null || replyIds.isEmpty()) {
             return Collections.emptySet();
         }

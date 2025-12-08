@@ -26,8 +26,8 @@ public class CommentReply {
     /**
      * 回复ID
      */
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    @TableId(value = "id", type = IdType.INPUT)
+    private String id;
 
     /**
      * 文章ID
@@ -39,13 +39,13 @@ public class CommentReply {
      * 所属楼主评论ID
      */
     @TableField("comment_id")
-    private Long commentId;
+    private String commentId;
 
     /**
      * 被回复的回复ID（回复楼主为NULL）
      */
     @TableField("reply_to_reply_id")
-    private Long replyToReplyId;
+    private String replyToReplyId;
 
     /**
      * 回复者用户ID

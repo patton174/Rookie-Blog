@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 public class CommentVo {
 
-    private Long id;
+    private String id;
     private String articleId;
     private String userId;
     private String content;

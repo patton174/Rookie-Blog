@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lx.blog.repository.dao.ArticleFavoriteDao;
 import com.lx.blog.repository.dao.impl.mapper.ArticleFavoriteMapper;
 import com.lx.blog.repository.dao.impl.mapper.entity.ArticleFavorite;
+import com.lx.blog.common.utils.UUIDUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
 
 /**
  * @author LX
@@ -40,7 +43,11 @@ public class ArticleFavoriteDaoImpl extends ServiceImpl<ArticleFavoriteMapper, A
     @Override
     public void favorite(String articleId, String userId) {
         if (!hasFavorited(articleId, userId)) {
-            ArticleFavorite fav = ArticleFavorite.builder().articleId(articleId).userId(userId).build();
+            ArticleFavorite fav = ArticleFavorite.builder()
+                    .id(UUIDUtils.signatureUuid(UUID.randomUUID()))
+                    .articleId(articleId)
+                    .userId(userId)
+                    .build();
             baseMapper.insert(fav);
         }
     }

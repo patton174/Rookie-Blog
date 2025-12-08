@@ -19,7 +19,7 @@ public interface UserPermissionDao extends IService<UserPermission> {
      * @param userId 用户ID
      * @param permissionId 权限ID
      */
-    void grantPermission(String userId, Long permissionId);
+    void grantPermission(String userId, String permissionId);
 
     /**
      * 拒绝用户权限（deny 并幂等）
@@ -27,7 +27,7 @@ public interface UserPermissionDao extends IService<UserPermission> {
      * @param userId 用户ID
      * @param permissionId 权限ID
      */
-    void denyPermission(String userId, Long permissionId);
+    void denyPermission(String userId, String permissionId);
 
     /**
      * 撤销用户直授权限
@@ -35,7 +35,7 @@ public interface UserPermissionDao extends IService<UserPermission> {
      * @param userId 用户ID
      * @param permissionId 权限ID
      */
-    void revokePermission(String userId, Long permissionId);
+    void revokePermission(String userId, String permissionId);
 
     /**
      * 查询用户直授的权限列表

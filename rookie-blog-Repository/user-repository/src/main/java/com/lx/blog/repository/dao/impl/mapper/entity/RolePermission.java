@@ -23,16 +23,16 @@ import java.time.LocalDateTime;
 @TableName("role_permission")
 public class RolePermission {
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    @TableId(value = "id", type = IdType.INPUT)
+    private String id;
 
     /** 角色ID */
     @TableField("role_id")
-    private Long roleId;
+    private String roleId;
 
     /** 权限ID */
     @TableField("permission_id")
-    private Long permissionId;
+    private String permissionId;
 
     /** 创建时间 */
     @TableField("created_at")

@@ -26,7 +26,7 @@ public class Article {
     /**
      * 文章ID（UUID32）
      */
-    @TableId(value = "id", type = IdType.ASSIGN_UUID)
+    @TableId(value = "id", type = IdType.INPUT)
     private String id;
 
     /**

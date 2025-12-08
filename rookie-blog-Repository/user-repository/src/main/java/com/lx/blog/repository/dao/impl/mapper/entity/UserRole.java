@@ -23,8 +23,8 @@ import java.time.LocalDateTime;
 @TableName("user_role")
 public class UserRole {
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    @TableId(value = "id", type = IdType.INPUT)
+    private String id;
 
     /**
      * 用户ID（UUID）
@@ -36,7 +36,7 @@ public class UserRole {
      * 角色ID
      */
     @TableField("role_id")
-    private Long roleId;
+    private String roleId;
 
     /**
      * 创建时间

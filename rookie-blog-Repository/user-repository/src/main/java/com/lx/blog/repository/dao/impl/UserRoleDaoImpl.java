@@ -32,7 +32,7 @@ public class UserRoleDaoImpl extends ServiceImpl<UserRoleMapper, UserRole> imple
      * @param roleId 角色ID
      */
     @Override
-    public void assignRole(String userId, Long roleId) {
+    public void assignRole(String userId, String roleId) {
         long count = this.count(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, userId).eq(UserRole::getRoleId, roleId));
         if (count == 0) {
             UserRole ur = UserRole.builder().userId(userId).roleId(roleId).createdAt(LocalDateTime.now()).build();
@@ -47,7 +47,7 @@ public class UserRoleDaoImpl extends ServiceImpl<UserRoleMapper, UserRole> imple
      * @param roleId 角色ID
      */
     @Override
-    public void revokeRole(String userId, Long roleId) {
+    public void revokeRole(String userId, String roleId) {
         this.remove(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, userId).eq(UserRole::getRoleId, roleId));
     }
 
@@ -60,7 +60,7 @@ public class UserRoleDaoImpl extends ServiceImpl<UserRoleMapper, UserRole> imple
     @Override
     public List<Role> listRoles(String userId) {
         List<UserRole> urs = this.list(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, userId));
-        List<Long> roleIds = urs.stream().map(UserRole::getRoleId).collect(Collectors.toList());
+        List<String> roleIds = urs.stream().map(UserRole::getRoleId).collect(Collectors.toList());
         if (roleIds.isEmpty()) return List.of();
         return roleMapper.selectBatchIds(roleIds);
     }

@@ -13,9 +13,9 @@ import lombok.Data;
 public class CommentReplySaveDto {
     
     @NotNull(message = "评论ID不能为空")
-    private Long commentId;
+    private String commentId;
     
-    private Long replyToReplyId; // 可空，表示回复某条具体的回复
+    private String replyToReplyId; // 可空，表示回复某条具体的回复
     
     private String replyToUserId; // 可空，通常由后端根据 replyToReplyId 查询，或者前端传递
     

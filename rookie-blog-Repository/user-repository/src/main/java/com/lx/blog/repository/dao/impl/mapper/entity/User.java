@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 @TableName("user")
 public class User {
@@ -25,7 +26,7 @@ public class User {
     /**
      * 主键 uuid
      */
-    @TableId(value = "id", type = IdType.ASSIGN_UUID)
+    @TableId(value = "id", type = IdType.INPUT)
     private String id;
 
      /**

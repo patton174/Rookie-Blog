@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 @TableName("article_chapter")
 public class ArticleChapter {
@@ -24,7 +26,7 @@ public class ArticleChapter {
     /**
      * 章节ID
      */
-    @TableId(value = "id")
+    @TableId(value = "id", type = IdType.INPUT)
     private String id;
 
     /**

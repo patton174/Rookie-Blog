@@ -33,7 +33,7 @@ public class UserPermissionDaoImpl extends ServiceImpl<UserPermissionMapper, Use
      * @param permissionId 权限ID
      */
     @Override
-    public void grantPermission(String userId, Long permissionId) {
+    public void grantPermission(String userId, String permissionId) {
         // 若存在记录，更新为 grant；否则插入
         UserPermission exists = this.getOne(new LambdaQueryWrapper<UserPermission>()
                 .eq(UserPermission::getUserId, userId)
@@ -55,7 +55,7 @@ public class UserPermissionDaoImpl extends ServiceImpl<UserPermissionMapper, Use
      * @param permissionId 权限ID
      */
     @Override
-    public void denyPermission(String userId, Long permissionId) {
+    public void denyPermission(String userId, String permissionId) {
         UserPermission exists = this.getOne(new LambdaQueryWrapper<UserPermission>()
                 .eq(UserPermission::getUserId, userId)
                 .eq(UserPermission::getPermissionId, permissionId));
@@ -76,7 +76,7 @@ public class UserPermissionDaoImpl extends ServiceImpl<UserPermissionMapper, Use
      * @param permissionId 权限ID
      */
     @Override
-    public void revokePermission(String userId, Long permissionId) {
+    public void revokePermission(String userId, String permissionId) {
         this.remove(new LambdaQueryWrapper<UserPermission>().eq(UserPermission::getUserId, userId).eq(UserPermission::getPermissionId, permissionId));
     }
 
@@ -89,7 +89,7 @@ public class UserPermissionDaoImpl extends ServiceImpl<UserPermissionMapper, Use
     @Override
     public List<Permission> listDirectPermissions(String userId) {
         List<UserPermission> ups = this.list(new LambdaQueryWrapper<UserPermission>().eq(UserPermission::getUserId, userId).eq(UserPermission::getEffect, "grant"));
-        List<Long> ids = ups.stream().map(UserPermission::getPermissionId).collect(Collectors.toList());
+        List<String> ids = ups.stream().map(UserPermission::getPermissionId).collect(Collectors.toList());
         if (ids.isEmpty()) return List.of();
         return permissionMapper.selectBatchIds(ids);
     }

@@ -158,6 +158,7 @@ public class ArticleBizServiceImpl implements ArticleBizService {
             }
         } else {
             article = new Article();
+            article.setId(UUIDUtils.signatureUuid(UUID.randomUUID()));
             isNew = true;
         }
 
@@ -204,6 +205,7 @@ public class ArticleBizServiceImpl implements ArticleBizService {
      */
     private void saveRevision(String articleId, String contentMd) {
         ArticleRevision revision = ArticleRevision.builder()
+                .id(UUIDUtils.signatureUuid(UUID.randomUUID()))
                 .articleId(articleId)
                 .contentSnapshot(contentMd)
                 .savedAt(LocalDateTime.now())

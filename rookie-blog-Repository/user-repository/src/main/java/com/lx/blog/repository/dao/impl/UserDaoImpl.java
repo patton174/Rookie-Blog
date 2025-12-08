@@ -108,7 +108,7 @@ public class UserDaoImpl extends ServiceImpl<UserMapper, User> implements UserDa
     @Override
     public List<Role> listRolesByUserId(String userId) {
         List<UserRole> urs = userRoleMapper.selectList(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, userId));
-        List<Long> roleIds = urs.stream().map(UserRole::getRoleId).collect(Collectors.toList());
+        List<String> roleIds = urs.stream().map(UserRole::getRoleId).collect(Collectors.toList());
         if (roleIds.isEmpty()) return List.of();
         return roleMapper.selectBatchIds(roleIds);
     }
@@ -123,8 +123,8 @@ public class UserDaoImpl extends ServiceImpl<UserMapper, User> implements UserDa
     public List<Permission> listPermissionsByUserId(String userId) {
         // 角色继承的权限
         List<UserRole> urs = userRoleMapper.selectList(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, userId));
-        List<Long> roleIds = urs.stream().map(UserRole::getRoleId).collect(Collectors.toList());
-        Set<Long> permFromRoles = new LinkedHashSet<>();
+        List<String> roleIds = urs.stream().map(UserRole::getRoleId).collect(Collectors.toList());
+        Set<String> permFromRoles = new LinkedHashSet<>();
         if (!roleIds.isEmpty()) {
             List<RolePermission> rps = rolePermissionMapper.selectList(new LambdaQueryWrapper<RolePermission>().in(RolePermission::getRoleId, roleIds));
             permFromRoles.addAll(rps.stream().map(RolePermission::getPermissionId).collect(Collectors.toSet()));
@@ -132,11 +132,11 @@ public class UserDaoImpl extends ServiceImpl<UserMapper, User> implements UserDa
 
         // 用户直授/直拒
         List<UserPermission> ups = userPermissionMapper.selectList(new LambdaQueryWrapper<UserPermission>().eq(UserPermission::getUserId, userId));
-        Set<Long> grant = ups.stream().filter(up -> "grant".equalsIgnoreCase(up.getEffect())).map(UserPermission::getPermissionId).collect(Collectors.toSet());
-        Set<Long> deny = ups.stream().filter(up -> "deny".equalsIgnoreCase(up.getEffect())).map(UserPermission::getPermissionId).collect(Collectors.toSet());
+        Set<String> grant = ups.stream().filter(up -> "grant".equalsIgnoreCase(up.getEffect())).map(UserPermission::getPermissionId).collect(Collectors.toSet());
+        Set<String> deny = ups.stream().filter(up -> "deny".equalsIgnoreCase(up.getEffect())).map(UserPermission::getPermissionId).collect(Collectors.toSet());
 
         // 合并：角色 + grant - deny
-        LinkedHashSet<Long> finalIds = new LinkedHashSet<>(permFromRoles);
+        LinkedHashSet<String> finalIds = new LinkedHashSet<>(permFromRoles);
         finalIds.addAll(grant);
         finalIds.removeAll(deny);
         if (finalIds.isEmpty()) return List.of();

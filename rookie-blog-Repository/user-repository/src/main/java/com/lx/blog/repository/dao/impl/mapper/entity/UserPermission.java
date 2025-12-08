@@ -23,8 +23,8 @@ import java.time.LocalDateTime;
 @TableName("user_permission")
 public class UserPermission {
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    @TableId(value = "id", type = IdType.INPUT)
+    private String id;
 
     /**
      * 用户ID（UUID）
@@ -36,7 +36,7 @@ public class UserPermission {
      * 权限ID
      */
     @TableField("permission_id")
-    private Long permissionId;
+    private String permissionId;
 
     /**
      * 生效方式：grant 授权，deny 拒绝

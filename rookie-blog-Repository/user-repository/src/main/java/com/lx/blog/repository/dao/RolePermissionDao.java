@@ -18,5 +18,5 @@ public interface RolePermissionDao extends IService<RolePermission> {
      * @param roleId 角色ID
      * @return 权限ID集合
      */
-    List<Long> listPermissionIdsByRoleId(Long roleId);
+    List<String> listPermissionIdsByRoleId(String roleId);
 }

@@ -33,14 +33,14 @@ public interface CommentDao extends IService<Comment> {
      *
      * @param commentId 评论ID
      */
-    void pin(Long commentId);
+    void pin(String commentId);
 
     /**
      * 取消置顶评论
      *
      * @param commentId 评论ID
      */
-    void unpin(Long commentId);
+    void unpin(String commentId);
 
     /**
      * 获取文章当前最大楼层

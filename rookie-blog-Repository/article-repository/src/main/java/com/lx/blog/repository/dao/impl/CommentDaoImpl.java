@@ -54,7 +54,7 @@ public class CommentDaoImpl extends ServiceImpl<CommentMapper, Comment> implemen
      * @param commentId 评论ID
      */
     @Override
-    public void pin(Long commentId) {
+    public void pin(String commentId) {
         baseMapper.update(null, new LambdaUpdateWrapper<Comment>()
                 .eq(Comment::getId, commentId)
                 .set(Comment::getIsPinned, 1));
@@ -66,7 +66,7 @@ public class CommentDaoImpl extends ServiceImpl<CommentMapper, Comment> implemen
      * @param commentId 评论ID
      */
     @Override
-    public void unpin(Long commentId) {
+    public void unpin(String commentId) {
         baseMapper.update(null, new LambdaUpdateWrapper<Comment>()
                 .eq(Comment::getId, commentId)
                 .set(Comment::getIsPinned, 0));

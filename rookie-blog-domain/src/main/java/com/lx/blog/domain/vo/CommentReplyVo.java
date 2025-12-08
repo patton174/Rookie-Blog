@@ -13,10 +13,10 @@ import java.time.LocalDateTime;
 @Data
 public class CommentReplyVo {
 
-    private Long id;
+    private String id;
     private String articleId;
-    private Long commentId;
-    private Long replyToReplyId;
+    private String commentId;
+    private String replyToReplyId;
     private String userId;
     private String replyToUserId;
     private String content;

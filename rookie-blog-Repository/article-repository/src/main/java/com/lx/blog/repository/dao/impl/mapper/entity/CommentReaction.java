@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 @TableName("comment_reaction")
 public class CommentReaction {
@@ -24,8 +26,8 @@ public class CommentReaction {
     /**
      * 记录ID
      */
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    @TableId(value = "id", type = IdType.INPUT)
+    private String id;
 
     /**
      * 文章ID（冗余）
@@ -37,13 +39,13 @@ public class CommentReaction {
      * 评论ID（楼主）
      */
     @TableField("comment_id")
-    private Long commentId;
+    private String commentId;
 
     /**
      * 回复ID
      */
     @TableField("reply_id")
-    private Long replyId;
+    private String replyId;
 
     /**
      * 用户ID
