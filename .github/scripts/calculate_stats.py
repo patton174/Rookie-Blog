@@ -53,12 +53,12 @@ def get_contributor_stats():
     return sorted_contributors
 
 def generate_contributor_html(contributors):
-    """生成贡献者HTML列表 (流式布局 - 从左到右自动换行)"""
+    """生成贡献者HTML列表 (流式布局 - 左对齐)"""
     
     html_content = """
-<div align="center">
+<div align="left">
 <br/>
-<p>
+<p style="text-align: left;">
 """
     
     for contributor, count in contributors:
@@ -67,9 +67,9 @@ def generate_contributor_html(contributors):
         profile_url = f"https://github.com/{contributor}"
         
         # 纯流式布局
-        # style="margin: 5px" 用于增加间距
+        # margin-right: 15px 确保右侧间距，第一行左对齐
         html_content += f"""<a href="{profile_url}" title="{contributor} ({count} contributions)">
-    <img src="{avatar_url}" width="60" height="60" alt="{contributor}" style="margin: 10px; display: inline-block;" />
+    <img src="{avatar_url}" width="60" height="60" alt="{contributor}" style="margin-right: 15px; margin-bottom: 15px; display: inline-block;" />
 </a>"""
             
     html_content += "\n</p>\n<br/>\n</div>"
@@ -93,7 +93,7 @@ def update_readme(contributors):
     stats_section = f"""
 <br>
 
-## <img src="https://api.iconify.design/mdi:account-group-outline.svg?color=%23000000" width="24" height="24" valign="bottom"> 贡献者风采
+## <img src="https://api.iconify.design/mdi:account-group-outline.svg?color=%23000000" width="24" height="24" style="vertical-align: -5px;"> 贡献者风采
 
 感谢每一位参与 **Rookie Blog** 开发的贡献者，是你们让这个项目变得更好。
 
