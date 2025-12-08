@@ -21,20 +21,20 @@ const { initTheme } = useTheme();
 onMounted(async () => {
   // Initialize theme immediately
   initTheme();
-  
+
   // Initial load
   startLoading();
-  
+
   // Fetch user info
   await fetchUserInfo();
-  
+
   // Keep loader for a minimum time to show animation
   stopLoading(1500);
 });
 
 watch(locale, (newLocale) => {
   localStorage.setItem('locale', newLocale);
-  document.documentElement.dir = newLocale === 'ar' ? 'rtl' : 'ltr'; 
+  document.documentElement.dir = newLocale === 'ar' ? 'rtl' : 'ltr';
   document.documentElement.lang = newLocale;
 }, { immediate: true });
 </script>
@@ -50,7 +50,7 @@ watch(locale, (newLocale) => {
     <InteractiveBackground />
     <ScrollProgress />
     <NavBar />
-    
+
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
         <component :is="Component" />
@@ -82,7 +82,7 @@ watch(locale, (newLocale) => {
   margin-bottom: $spacing-lg;
   font-weight: 800;
   letter-spacing: -1px;
-  
+
   span {
     font-weight: 300;
   }
@@ -106,6 +106,18 @@ watch(locale, (newLocale) => {
   @media (max-width: $breakpoint-desktop) {
     position: static;
     order: 1;
+  }
+}
+
+:deep(.md-editor-preview) {
+  .md-editor-code {
+    .md-editor-code-head {
+      .md-editor-code-flag {
+        span {
+          margin-top: unset !important;
+        }
+      }
+    }
   }
 }
 </style>
