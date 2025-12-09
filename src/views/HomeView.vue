@@ -8,10 +8,18 @@ import { useAppStore } from '../store/app';
 import { getPublishedArticles } from '../api/article';
 
 const { t } = useI18n();
-const { isLoading } = useAppStore();
+const { isLoading, stopLoading } = useAppStore();
 const isFetching = ref(true);
 
 const showContent = computed(() => !isLoading.value && !isFetching.value);
+
+const handleTitleReady = () => {
+  // Title is ready (DOM rendered), now we can stop the global loader
+  // We use a small delay to ensure the DOM paint is fully committed
+  setTimeout(() => {
+    stopLoading();
+  }, 50);
+};
 
 const featuredArticle = ref({
   id: '1',
@@ -105,7 +113,7 @@ watch(showContent, (val) => {
 <template>
   <div>
     <!-- Hero Section is always rendered but lightweight -->
-    <HeroSection />
+    <HeroSection @title-ready="handleTitleReady" />
     
     <!-- Main Content -->
     <div class="container content-layout">

@@ -13,23 +13,34 @@ import { useUserStore } from './store/user';
 import { useAppStore } from './store/app';
 import { useTheme } from './composables/useTheme';
 
+import { useRouter, useRoute } from 'vue-router';
+
 const { locale } = useI18n();
 const { fetchUserInfo } = useUserStore();
 const { isLoading, startLoading, stopLoading } = useAppStore();
 const { initTheme } = useTheme();
+const route = useRoute();
+
+// Start loading immediately on app initialization
+startLoading();
 
 onMounted(async () => {
   // Initialize theme immediately
   initTheme();
 
-  // Initial load
-  startLoading();
-
-  // Fetch user info
+  // Fetch user info (background)
   await fetchUserInfo();
 
-  // Keep loader for a minimum time to show animation
-  stopLoading(1500);
+  // Stop loader ONLY if we are NOT on Home page
+  // Home page handles its own loading stop signal when title is ready
+  if (route.name !== 'home') {
+    stopLoading(800);
+  } else {
+    // Fallback in case Home page title takes too long or fails
+    setTimeout(() => {
+      if (isLoading.value) stopLoading();
+    }, 5000);
+  }
 });
 
 watch(locale, (newLocale) => {

@@ -1498,3 +1498,40 @@ const handleEdit = () => {
   100% { opacity: 0.6; }
 }
 </style>
+
+<style lang="scss">
+/* Nuclear Option: Force Dark Mode Styles for Article Detail Page Components */
+/* User requested "100% successful solution" to fix black background issues */
+html.dark .article-layout {
+  .glass-panel,
+  .article-main-card,
+  .comments-section,
+  .user-card,
+  .toc-card,
+  .tags-card,
+  .series-card,
+  .recommended-card {
+    /* Performance Optimization: Removed backdrop-filter blur which causes severe scroll lag */
+    /* Increased opacity to maintain contrast and "dark gray" look without GPU penalty */
+    background-color: rgba(30, 30, 31, 0.95) !important; 
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.4) !important;
+    color: #ffffff !important;
+    
+    /* Hardware acceleration hint */
+    transform: translateZ(0);
+  }
+  
+  /* Ensure text colors inside these cards are visible */
+  .card-title, .username, .article-title {
+    color: #ffffff !important;
+  }
+  
+  .card-header {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+}
+</style>

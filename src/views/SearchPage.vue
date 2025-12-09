@@ -162,140 +162,159 @@ onMounted(() => {
 <template>
   <div class="search-page">
     <div class="search-container">
-      <!-- Search Header -->
-      <div class="search-header">
-        <div class="search-box-wrapper">
-          <div class="search-box">
-            <input 
-              v-model="searchQuery" 
-              @keydown.enter="performSearch"
-              type="text" 
-              :placeholder="t('common.searchPlaceholder', 'Search articles, topics, etc...')" 
-              class="search-input"
-              autofocus
-              aria-label="Search"
-            />
-            <button class="search-btn" @click="performSearch" :title="t('common.search', 'Search')" aria-label="Search">
-              <span class="btn-text">Search</span>
-              <IconSearch class="btn-icon" :size="20" />
-            </button>
-          </div>
-        </div>
-        
-        <div class="filters-wrapper">
-          <div class="filters">
-            <button 
-              v-for="filter in filters" 
-              :key="filter" 
-              class="filter-chip"
-              :class="{ active: activeFilter === filter }"
-              @click="activeFilter = filter"
-              :aria-label="'Filter by ' + filter"
-            >
-              {{ filter.charAt(0).toUpperCase() + filter.slice(1) }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Content Layout (Left - Right) -->
+      
       <div class="search-layout">
         
-        <!-- Left Column: Results or History -->
-        <div class="left-column">
-          <transition name="fade" mode="out-in">
-            <!-- Case 1: Search History (When no query) -->
-            <div v-if="!searchQuery" class="history-section-wrapper">
-               <div class="suggestion-section" v-if="searchHistory.length">
-                <div class="section-header">
-                  <h3>History</h3>
-                  <button @click="clearHistory" class="clear-btn" aria-label="Clear History">Clear</button>
-                </div>
-                <div class="tags-cloud">
-                  <button 
-                    v-for="item in searchHistory" 
-                    :key="item" 
-                    class="tag history-tag"
-                    @click="selectTag(item)"
-                  >
-                    <span class="history-icon">🕒</span> {{ item }}
-                  </button>
-                </div>
-              </div>
-              <div v-else class="empty-history">
-                 <p>Type something to start searching...</p>
-              </div>
+        <!-- Left Sidebar: Filters & Hot Topics -->
+        <aside class="search-sidebar">
+          
+          <!-- Filters Section -->
+          <div class="sidebar-widget">
+            <h3 class="widget-title">
+              {{ t('common.filter', 'Filters') }}
+            </h3>
+            <div class="vertical-filters">
+              <button 
+                v-for="filter in filters" 
+                :key="filter" 
+                class="filter-item"
+                :class="{ active: activeFilter === filter }"
+                @click="activeFilter = filter"
+              >
+                <span class="filter-name">{{ filter.charAt(0).toUpperCase() + filter.slice(1) }}</span>
+                <span class="filter-indicator" v-if="activeFilter === filter"></span>
+              </button>
             </div>
+          </div>
 
-            <!-- Case 2: Search Results (When query exists) -->
-            <div v-else class="search-results-container">
-              <div v-if="isLoading" class="loading-state">
-                <div class="spinner"></div>
-                <p>Searching the cosmos...</p>
-              </div>
-
-              <div v-else class="results-wrapper">
-                <p class="results-count">Found {{ filteredResults.length }} results</p>
-                
-                <div class="results-grid" v-if="paginatedResults.length">
-                  <ArticleCard 
-                    v-for="result in paginatedResults" 
-                    :key="result.id" 
-                    v-bind="result" 
-                  />
-                </div>
-                
-                <div v-else class="no-results">
-                  <div class="no-results-content">
-                    <IconSearch :size="48" class="no-results-icon" />
-                    <h3>No matches found</h3>
-                    <p>Try adjusting your search or filters to find what you're looking for.</p>
-                  </div>
-                </div>
-
-                <!-- Pagination Controls -->
-                <div class="pagination" v-if="totalPages > 1">
-                  <button 
-                    class="page-btn" 
-                    :disabled="currentPage === 1" 
-                    @click="changePage(currentPage - 1)"
-                    aria-label="Previous Page"
-                  >
-                    &lt;
-                  </button>
-                  <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
-                  <button 
-                    class="page-btn" 
-                    :disabled="currentPage === totalPages" 
-                    @click="changePage(currentPage + 1)"
-                    aria-label="Next Page"
-                  >
-                    &gt;
-                  </button>
-                </div>
-              </div>
-            </div>
-          </transition>
-        </div>
-
-        <!-- Right Column: Hot Searches (Always Visible) -->
-        <div class="right-column">
-          <div class="suggestion-section sticky-sidebar">
-            <div class="section-header">
-              <h3>Hot Searches</h3>
-            </div>
-            <div class="tags-cloud">
+          <!-- Hot Searches Section -->
+          <div class="sidebar-widget">
+            <h3 class="widget-title">
+              {{ t('common.hotSearches', 'Trending') }}
+            </h3>
+            <div class="tags-cloud compact">
               <button 
                 v-for="item in hotSearches" 
                 :key="item" 
                 class="tag hot-tag"
                 @click="selectTag(item)"
               >
-                <span class="fire-icon">🔥</span> {{ item }}
+                {{ item }}
               </button>
             </div>
           </div>
-        </div>
+
+          <!-- History Sidebar (Mini) - Removed as per new layout request -->
+          <!--
+          <div class="sidebar-widget" v-if="searchHistory.length > 0">
+             <div class="widget-header">
+                <h3 class="widget-title">
+                  <span class="icon">🕒</span> {{ t('common.history', 'History') }}
+                </h3>
+                <button @click="clearHistory" class="clear-btn-mini" :title="t('common.clear', 'Clear')">×</button>
+             </div>
+             <div class="history-list-mini">
+                <button 
+                  v-for="item in searchHistory.slice(0, 5)" 
+                  :key="item" 
+                  class="history-item-mini"
+                  @click="selectTag(item)"
+                >
+                  {{ item }}
+                </button>
+             </div>
+          </div>
+          -->
+
+        </aside>
+
+        <!-- Main Content: Search Bar & Results -->
+        <main class="search-main">
+          
+          <!-- Sticky Search Header -->
+          <div class="main-search-header">
+             <div class="search-box">
+                <IconSearch class="search-icon" :size="20" />
+                <input 
+                  v-model="searchQuery" 
+                  @keydown.enter="performSearch"
+                  type="text" 
+                  :placeholder="t('common.searchPlaceholder', 'Type to search...')" 
+                  class="search-input"
+                  autofocus
+                />
+                <button v-if="searchQuery" class="clear-query-btn" @click="searchQuery = ''">×</button>
+                <button class="search-btn" @click="performSearch">
+                  {{ t('common.search', 'Search') }}
+                </button>
+             </div>
+             
+             <!-- Inline History (Below Search Box) -->
+             <div class="inline-history" v-if="!searchQuery && searchHistory.length > 0">
+                <span class="history-label">{{ t('common.history', 'History') }}:</span>
+                <div class="history-chips">
+                  <button 
+                    v-for="item in searchHistory.slice(0, 6)" 
+                    :key="item" 
+                    class="history-chip"
+                    @click="selectTag(item)"
+                  >
+                    {{ item }}
+                  </button>
+                  <button @click="clearHistory" class="clear-history-text" :title="t('common.clear', 'Clear')">
+                    {{ t('common.clear', 'Clear') }}
+                  </button>
+                </div>
+             </div>
+          </div>
+
+          <!-- Content Area -->
+          <transition name="fade" mode="out-in">
+             
+             <!-- Loading State -->
+             <div v-if="isLoading" class="state-container">
+                <div class="spinner"></div>
+                <p>Searching...</p>
+             </div>
+
+             <!-- Results State -->
+             <div v-else-if="searchQuery && paginatedResults.length > 0" class="results-container">
+                <div class="results-meta">
+                   <span class="count">Found {{ filteredResults.length }} results for "{{ searchQuery }}"</span>
+                </div>
+                
+                <div class="results-grid">
+                  <ArticleCard 
+                    v-for="result in paginatedResults" 
+                    :key="result.id" 
+                    v-bind="result" 
+                  />
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" v-if="totalPages > 1">
+                  <button class="page-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">&lt;</button>
+                  <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+                  <button class="page-btn" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">&gt;</button>
+                </div>
+             </div>
+
+             <!-- Empty/No Results State -->
+             <div v-else class="state-container empty-state">
+                <div v-if="searchQuery" class="no-results">
+                   <IconSearch :size="48" class="icon-muted" />
+                   <h3>No results found</h3>
+                   <p>Try different keywords or filters.</p>
+                </div>
+                <div v-else class="start-search">
+                   <div class="illustration">🔍</div>
+                   <h3>Ready to explore?</h3>
+                   <p>Select a topic from the sidebar or type to search.</p>
+                </div>
+             </div>
+
+          </transition>
+        </main>
 
       </div>
     </div>
@@ -306,20 +325,14 @@ onMounted(() => {
 @use '../styles/variables' as *;
 
 .search-page {
-  padding-top: 100px;
+  padding-top: 80px; // Reduced padding
   padding-bottom: $spacing-xxl;
   min-height: 100vh;
-  width: 100%;
-  // Use theme variable for background or keep transparent if body has bg
   background: var(--color-bg-primary);
-  
-  @media (max-width: $breakpoint-mobile) {
-    padding-top: 80px;
-  }
 }
 
 .search-container {
-  max-width: 1200px; // Increased width for 2 columns
+  max-width: 1400px; // Wide layout
   margin: 0 auto;
   padding: 0 $spacing-lg;
 
@@ -328,410 +341,691 @@ onMounted(() => {
   }
 }
 
-.search-header {
-  margin-bottom: $spacing-xl;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $spacing-lg;
-
-  .search-box-wrapper {
-    width: 100%;
-    max-width: 600px;
-    position: relative;
-    z-index: 10;
-  }
-
-  .search-box {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    background: var(--color-bg-secondary); // Theme aware
-    backdrop-filter: blur($backdrop-blur);
-    border: none;
-    padding: 8px;
-    border-radius: $radius-full;
-    transition: $transition-base;
-    box-shadow: $shadow-sm;
-
-    &:focus-within {
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      background: var(--color-bg-primary);
-    }
-    
-    .search-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      padding: $spacing-sm $spacing-lg;
-      color: var(--color-text-primary);
-      font-size: 1.1rem;
-      outline: none;
-      min-width: 0;
-      font-family: $font-family-main;
-
-      &::placeholder {
-        color: var(--color-text-tertiary);
-      }
-
-      &:focus {
-        box-shadow: none !important;
-        border: none !important;
-        outline: none !important;
-      }
-    }
-
-    .search-btn {
-      background: $gradient-primary;
-      border: none;
-      padding: 12px 28px;
-      border-radius: $radius-full;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: $transition-base;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba($color-accent-primary-rgb, 0.3);
-
-      .btn-icon {
-        display: none;
-      }
-
-      &:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba($color-accent-primary-rgb, 0.4);
-      }
-
-      &:active {
-        transform: translateY(1px);
-      }
-
-      @media (max-width: $breakpoint-mobile) {
-        padding: 12px;
-        width: 48px;
-        height: 48px;
-        
-        .btn-text {
-          display: none;
-        }
-        
-        .btn-icon {
-          display: block;
-        }
-      }
-    }
-  }
-
-  .filters-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    
-    @media (max-width: $breakpoint-mobile) {
-      justify-content: flex-start;
-      overflow-x: auto;
-      margin: 0 -#{$spacing-md};
-      padding: 0 $spacing-md $spacing-sm;
-      -webkit-overflow-scrolling: touch;
-      
-      /* Hide scrollbar */
-      scrollbar-width: none;
-      &::-webkit-scrollbar {
-        display: none;
-      }
-    }
-  }
-
-  .filters {
-    display: flex;
-    gap: $spacing-md;
-    flex-wrap: wrap;
-
-    @media (max-width: $breakpoint-mobile) {
-      flex-wrap: nowrap;
-      padding-right: $spacing-lg; // Space for end of list
-    }
-
-    .filter-chip {
-      background: var(--color-bg-secondary);
-      border: 1px solid var(--color-border);
-      color: var(--color-text-secondary);
-      padding: 8px 20px;
-      border-radius: $radius-full;
-      cursor: pointer;
-      transition: $transition-base;
-      font-size: 0.95rem;
-      font-weight: 500;
-      white-space: nowrap;
-
-      &:hover {
-        background: var(--color-bg-primary);
-        color: var(--color-text-primary);
-        border-color: var(--color-text-tertiary);
-      }
-
-      &.active {
-        background: rgba($color-accent-primary-rgb, 0.1);
-        border-color: var(--color-accent-primary);
-        color: var(--color-accent-primary);
-      }
-    }
-  }
-}
-
-// Layout Grid
 .search-layout {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 260px 1fr; // Sidebar | Content
   gap: $spacing-xl;
-  
+  align-items: start;
+
   @media (max-width: $breakpoint-desktop) {
     grid-template-columns: 1fr;
     gap: $spacing-lg;
   }
 }
 
-.left-column {
-  min-width: 0; // Fix grid overflow issues
-}
+/* --- Sidebar Styles --- */
+.search-sidebar {
+  position: sticky;
+  top: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
 
-.right-column {
   @media (max-width: $breakpoint-desktop) {
-    // On mobile/tablet, move hot searches to top or bottom? 
-    // Usually sidebar goes to bottom, but for search page, maybe hot searches are important.
-    // Let's keep it order-last (default)
-    display: none; // Optional: Hide hot searches on mobile to reduce clutter? Or keep it.
-    // Let's show it but simplified
-    display: block;
+    position: static;
+    display: none; // Hide on mobile for now, or move to bottom/drawer (Simplification)
+    // Or make it horizontal scroll
   }
 }
 
-.suggestion-section {
-  background: var(--color-card-bg);
-  border: 1px solid var(--color-border);
-  border-radius: $radius-lg;
-  padding: $spacing-lg;
-  backdrop-filter: blur(10px);
+.sidebar-widget {
+    background: var(--color-bg-secondary); // Card style
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    
+    // High contrast for dark mode
+    :global(.dark) &,
+    :global([data-theme="dark"]) & {
+      background: #111111 !important; // Absolute black/dark gray
+      border: 1px solid #444444 !important; // Visible border
+      box-shadow: 0 4px 12px rgba(0,0,0,0.8) !important;
+    }
+    
+    .widget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing-md;
+    }
   
-  &.sticky-sidebar {
-    position: sticky;
-    top: 100px; // Adjust based on navbar height
-  }
-
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: $spacing-md;
-
-    h3 {
-      font-size: 1.1rem;
-      color: var(--color-text-primary);
-      font-weight: 600;
-    }
-
-    .clear-btn {
-      background: none;
-      border: none;
+    .widget-title {
+      font-size: 0.95rem;
+      font-weight: 700;
       color: var(--color-text-tertiary);
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: $transition-base;
-      
-      &:hover {
-        color: var(--color-accent-tertiary);
-        text-decoration: underline;
-      }
-    }
-  }
-
-  .tags-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $spacing-sm;
-
-    .tag {
-      background: var(--color-bg-secondary);
-      border: 1px solid transparent;
-      color: var(--color-text-secondary);
-      padding: 6px 14px;
-      border-radius: $radius-md;
-      cursor: pointer;
-      transition: $transition-base;
-      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: $spacing-md;
       display: flex;
       align-items: center;
-      gap: 6px;
-
-      &:hover {
-        background: var(--color-bg-primary);
-        border-color: var(--color-border);
-        color: var(--color-text-primary);
-        transform: translateY(-1px);
+      gap: 8px;
+  
+      // Enhance title contrast in dark mode
+      :global(.dark) &,
+      :global([data-theme="dark"]) & {
+        color: #ffffff !important; // Pure white
+        text-shadow: 0 1px 2px rgba(0,0,0,1) !important;
       }
-
-      &.hot-tag {
-        // Keep hot tags distinctive but theme aware?
-        // Maybe just use accent color
-        background: rgba($color-accent-secondary-rgb, 0.05);
-        color: var(--color-accent-secondary);
-        border-color: rgba($color-accent-secondary-rgb, 0.1);
-
-        &:hover {
-          background: rgba($color-accent-secondary-rgb, 0.1);
-          box-shadow: 0 2px 8px rgba($color-accent-secondary-rgb, 0.15);
+  
+      .icon {
+        font-size: 1.1em;
+      }
+    }
+  }
+  
+  /* Vertical Filters */
+  .vertical-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  
+    .filter-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid transparent; // Reserve space for border
+      color: var(--color-text-secondary);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      font-size: 0.95rem;
+  
+      // Enhance text contrast
+      :global(.dark) &,
+      :global([data-theme="dark"]) & {
+        color: #e0e0e0 !important; // High visibility gray
+      }
+  
+      &:hover {
+        background: rgba(0,0,0,0.03);
+        color: var(--color-text-primary);
+        
+        :global(.dark) &,
+        :global([data-theme="dark"]) & {
+          background: #333333 !important;
+          color: #ffffff !important;
+          border-color: #777777 !important; // Distinct border
+          box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
         }
       }
+  
+      &.active {
+        background: rgba($color-accent-primary-rgb, 0.1);
+        color: var(--color-accent-primary);
+        font-weight: 600;
+        
+        :global(.dark) &,
+        :global([data-theme="dark"]) & {
+          background: rgba($color-accent-primary-rgb, 0.3) !important;
+          color: #ffffff !important;
+          border: 1px solid rgba($color-accent-primary-rgb, 0.8) !important;
+          box-shadow: 0 0 15px rgba($color-accent-primary-rgb, 0.5) !important;
+        }
+  
+        .filter-indicator {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: currentColor;
+          box-shadow: 0 0 8px currentColor;
+        }
+      }
+    }
+  }
+  
+  /* Compact Tags */
+  .tags-cloud.compact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  
+    .tag {
+      background: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+  
+      :global(.dark) &,
+      :global([data-theme="dark"]) & {
+        background: #222222 !important;
+        border-color: #666666 !important;
+        color: #eeeeee !important;
+      }
+  
+      &:hover {
+        border-color: var(--color-accent-primary);
+        color: var(--color-accent-primary);
+        transform: translateY(-1px);
+        
+        :global(.dark) &,
+        :global([data-theme="dark"]) & {
+          background: #444444 !important;
+          color: #ffffff !important;
+          border-color: var(--color-accent-primary) !important;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.6) !important;
+        }
+      }
+    }
+  }
+
+/* Mini History */
+.clear-btn-mini {
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  
+  &:hover {
+    color: var(--color-status-error);
+  }
+}
+
+.history-list-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  
+  .history-item-mini {
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 6px 0;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    
+    &:hover {
+      color: var(--color-accent-primary);
+      text-decoration: underline;
+    }
+  }
+}
+
+/* --- Main Content Styles --- */
+.search-main {
+  min-width: 0;
+}
+
+.main-search-header {
+  margin-bottom: $spacing-xl;
+  position: sticky;
+  top: 80px; // Below navbar
+  z-index: 20;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  padding: 8px 8px 8px 20px;
+  border-radius: 12px; // Slightly squarer than pill
+  box-shadow: $shadow-sm;
+  transition: all 0.3s ease;
+
+  // Search Box Contrast
+  :global(.dark) &,
+  :global([data-theme="dark"]) & {
+    background: #000000 !important; // Pitch black
+    border: 1px solid #666666 !important; // High contrast border
+    box-shadow: 0 4px 20px rgba(0,0,0,1) !important;
+  }
+
+  &:focus-within {
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 4px 20px rgba($color-accent-primary-rgb, 0.15);
+    transform: translateY(-1px);
+    
+    :global(.dark) &,
+    :global([data-theme="dark"]) & {
+      background: #000000 !important;
+      border-color: var(--color-accent-primary) !important;
+      box-shadow: 0 0 0 1px var(--color-accent-primary), 0 0 20px rgba($color-accent-primary-rgb, 0.5) !important;
+    }
+  }
+
+  .search-icon {
+    color: var(--color-text-tertiary);
+    :global(.dark) &,
+    :global([data-theme="dark"]) & { 
+      color: #cccccc !important; // Very light gray icon
+    }
+  }
+
+  .search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--color-text-primary);
+    font-size: 1.1rem;
+    outline: none;
+    font-weight: 500;
+    
+    :global(.dark) &,
+    :global([data-theme="dark"]) & { 
+      color: #ffffff !important; // Pure white text
+    }
+    
+    &::placeholder {
+      color: var(--color-text-tertiary);
+      font-weight: 400;
+      :global(.dark) &,
+      :global([data-theme="dark"]) & { 
+        color: #999999 !important; // High contrast placeholder
+        opacity: 1 !important;
+      }
+    }
+  }
+
+  .clear-query-btn {
+    background: none;
+    border: none;
+    color: var(--color-text-tertiary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 8px;
+    
+    &:hover {
+      color: var(--color-text-secondary);
+      :global(.dark) &,
+      :global([data-theme="dark"]) & { 
+        color: #ffffff !important; 
+      }
+    }
+  }
+
+  .search-btn {
+    background: $color-accent-primary;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 4px 12px rgba($color-accent-primary-rgb, 0.3);
+    }
+    
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+}
+
+/* Inline History Styles */
+.inline-history {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding-left: 12px;
+  animation: slideDown 0.3s ease;
+
+  .history-label {
+    font-size: 0.85rem;
+    color: var(--color-text-tertiary);
+    font-weight: 500;
+    
+    :global(.dark) &,
+    :global([data-theme="dark"]) & { 
+      color: #cccccc !important; // Light gray label
+    }
+  }
+
+  .history-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .history-chip {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    :global(.dark) &,
+    :global([data-theme="dark"]) & { 
+      color: #eeeeee !important; // Nearly white
+    }
+
+    &:hover {
+      background: rgba(0,0,0,0.05);
+      color: var(--color-text-primary);
       
-      &.history-tag {
-         // Subtle styling for history
-         .history-icon {
-            font-size: 0.8em;
-            opacity: 0.7;
-         }
+      :global(.dark) &,
+      :global([data-theme="dark"]) & {
+        background: #333333 !important;
+        color: #ffffff !important;
+        border: 1px solid #777777 !important;
+      }
+    }
+  }
+
+  .clear-history-text {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    margin-left: 4px;
+    color: inherit; // Inherit color
+
+    :global(.dark) &,
+    :global([data-theme="dark"]) & { 
+      color: #cccccc !important; // Visible trash icon
+      opacity: 0.8 !important;
+    }
+
+    &:hover {
+      opacity: 1;
+      :global(.dark) &,
+      :global([data-theme="dark"]) & { 
+        color: #ff6b6b !important; // Red on hover
+        opacity: 1 !important;
       }
     }
   }
 }
 
-.empty-history {
-    text-align: center;
-    padding: $spacing-xl;
-    color: var(--color-text-tertiary);
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.results-wrapper {
-  .results-count {
-    margin-bottom: $spacing-lg;
+/* Results Area */
+.results-meta {
+  margin-bottom: $spacing-lg;
+  .count {
     color: var(--color-text-secondary);
-    font-family: $font-family-code;
     font-size: 0.9rem;
-  }
-
-  .results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: $spacing-lg;
-    margin-bottom: $spacing-xl;
+    font-family: $font-family-code;
   }
 }
 
-.no-results {
-  display: flex;
-  justify-content: center;
-  padding: $spacing-xxl 0;
-
-  .no-results-content {
-    text-align: center;
-    color: var(--color-text-secondary);
-    max-width: 400px;
-
-    .no-results-icon {
-      margin-bottom: $spacing-lg;
-      opacity: 0.5;
-      color: var(--color-text-tertiary);
-    }
-
-    h3 {
-      font-size: 1.5rem;
-      color: var(--color-text-primary);
-      margin-bottom: $spacing-sm;
-    }
-
-    p {
-      line-height: 1.6;
-    }
-  }
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-lg;
+  margin-bottom: $spacing-xl;
 }
 
-.loading-state {
+.state-container {
+  padding: 4rem 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: $spacing-xxl;
-  gap: $spacing-lg;
+  text-align: center;
   color: var(--color-text-secondary);
-
+  
   .spinner {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     border: 3px solid rgba($color-accent-primary-rgb, 0.1);
     border-radius: 50%;
     border-top-color: var(--color-accent-primary);
-    animation: spin 1s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
-    box-shadow: 0 0 20px rgba($color-accent-primary-rgb, 0.2);
+    animation: spin 1s infinite linear;
+    margin-bottom: $spacing-md;
+  }
+
+  &.empty-state {
+    opacity: 0.7;
+    
+    .illustration {
+      font-size: 4rem;
+      margin-bottom: $spacing-md;
+      opacity: 0.5;
+    }
+    
+    .icon-muted {
+      margin-bottom: $spacing-md;
+      opacity: 0.3;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      color: var(--color-text-primary);
+      margin-bottom: $spacing-sm;
+    }
   }
 }
 
+/* Pagination */
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: $spacing-lg;
-  padding-top: $spacing-xl;
+  gap: $spacing-md;
+  padding-top: $spacing-lg;
   border-top: 1px solid var(--color-border);
-
+  
   .page-btn {
-    background: var(--color-bg-secondary);
-    border: 1px solid var(--color-border);
-    color: var(--color-text-primary);
-    width: 40px;
-    height: 40px;
-    border-radius: $radius-full;
-    cursor: pointer;
-    transition: $transition-base;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-secondary);
+    border-radius: 8px;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+    
     &:hover:not(:disabled) {
-      background: rgba($color-accent-primary-rgb, 0.1);
       border-color: var(--color-accent-primary);
       color: var(--color-accent-primary);
     }
-
+    
     &:disabled {
       opacity: 0.3;
       cursor: not-allowed;
-      background: transparent;
+    }
+  }
+  
+  .page-info {
+    font-family: $font-family-code;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+  }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+</style>
+
+<style lang="scss">
+/* 
+  Global Overrides for Search Page Dark Mode 
+  Using non-scoped styles to ensure 100% application and specificity dominance 
+*/
+:root[class~="dark"] .search-page,
+:root[data-theme="dark"] .search-page {
+  
+  /* Sidebar Widgets - Make them visible against black background */
+  .sidebar-widget {
+    background-color: #1e1e1e !important;
+    border: 1px solid #333333 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+  }
+
+  /* Widget Titles - Pure White */
+  .widget-title {
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;
+    
+    .icon {
+      filter: drop-shadow(0 0 2px rgba(255,255,255,0.3));
     }
   }
 
-  .page-info {
-    color: var(--color-text-secondary);
-    font-family: $font-family-code;
-    font-size: 0.9rem;
+  /* Filter Items - High Contrast */
+  .filter-item {
+    color: #e0e0e0 !important;
+    
+    &:hover {
+      background-color: #333333 !important;
+      color: #ffffff !important;
+      border-color: #666666 !important;
+    }
+
+    &.active {
+      background-color: rgba(99, 102, 241, 0.25) !important;
+      color: #ffffff !important;
+      border-color: #6366f1 !important;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.4) !important;
+    }
   }
-}
 
-// Animations
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+  /* Tags - Visible Pills */
+  .tag {
+    background-color: #2a2a2a !important;
+    border-color: #555555 !important;
+    color: #eeeeee !important;
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+    &:hover {
+      background-color: #444444 !important;
+      border-color: #818cf8 !important; /* Indigo-400 */
+      color: #ffffff !important;
+    }
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  /* Search Box - Distinct from page bg */
+  .search-box {
+    background-color: #1e1e1e !important;
+    border: 1px solid #444444 !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6) !important;
+
+    &:focus-within {
+      background-color: #000000 !important;
+      border-color: #818cf8 !important; /* Restore border for search box */
+      box-shadow: 0 0 0 1px #818cf8, 0 0 20px rgba(129, 140, 248, 0.3) !important; /* Restore glow */
+    }
+
+    .search-input {
+      color: #ffffff !important;
+      border: none !important; /* Ensure input has no border */
+      outline: none !important; /* Ensure input has no outline */
+      box-shadow: none !important; /* Ensure input has no shadow */
+      
+      &::placeholder {
+        color: #aaaaaa !important;
+        opacity: 1 !important;
+      }
+    }
+
+    .search-icon {
+      color: #cccccc !important;
+    }
+
+    .clear-query-btn {
+      color: #ffffff !important;
+      &:hover { color: #ff6b6b !important; }
+    }
   }
-}
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
+  /* History Items */
+  .inline-history {
+    .history-label {
+      color: #cccccc !important;
+      font-weight: 600 !important;
+    }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+    .history-chip {
+      color: #dddddd !important;
+      
+      &:hover {
+        background-color: #333333 !important;
+        color: #ffffff !important;
+        border-color: #666666 !important;
+      }
+    }
+
+    .clear-history-text {
+      color: #aaaaaa !important;
+      opacity: 0.8 !important;
+      
+      &:hover {
+        color: #ff6b6b !important;
+        opacity: 1 !important;
+      }
+    }
+  }
+
+  /* Empty State / Illustration */
+  .state-container {
+    color: #cccccc !important;
+    
+    /* Replaced with a more subtle premium look, or removed logo if needed */
+    .illustration {
+      display: none !important; /* Hide default emoji logo as per "if necessary, can not show logo" */
+    }
+    
+    .icon-muted {
+      color: #818cf8 !important; /* Premium Indigo */
+      opacity: 0.8 !important;
+      filter: drop-shadow(0 0 15px rgba(129, 140, 248, 0.4)); /* Premium Glow */
+      transform: scale(1.2);
+    }
+
+    h3 {
+      color: #ffffff !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.5px;
+    }
+
+    p {
+      color: #aaaaaa !important;
+    }
+  }
+  
+  /* Pagination */
+  .pagination {
+    border-top-color: #333333 !important;
+    
+    .page-btn {
+      background-color: #1e1e1e !important;
+      border-color: #444444 !important;
+      color: #eeeeee !important;
+      
+      &:hover:not(:disabled) {
+        border-color: #818cf8 !important;
+        color: #818cf8 !important;
+      }
+      
+      &:disabled {
+        opacity: 0.3 !important;
+      }
+    }
+    
+    .page-info {
+      color: #aaaaaa !important;
+    }
+  }
 }
 </style>

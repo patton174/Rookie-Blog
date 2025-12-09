@@ -8,8 +8,6 @@ import { publishArticle, saveDraft, getArticleBySlug, getArticleContent, getArti
 // import { useUserStore } from '../store/user';
 import { useTheme } from '../composables/useTheme';
 
-import { marked } from 'marked';
-
 const router = useRouter();
 const route = useRoute();
 const { t } = useI18n();
@@ -18,6 +16,7 @@ const { theme } = useTheme();
 
 const title = ref('');
 const content = ref('');
+const contentHtml = ref('');
 const isSubmitting = ref(false);
 const isSavingDraft = ref(false);
 const showPublishModal = ref(false);
@@ -83,15 +82,8 @@ const handlePublishClick = () => {
   showPublishModal.value = true;
 };
 
-// Helper for markdown
-const renderMarkdown = (text: string) => {
-  // Handle both function and object exports for marked
-  if (typeof marked === 'function') {
-     return (marked as any)(text);
-  } else if (marked && typeof (marked as any).parse === 'function') {
-     return (marked as any).parse(text);
-  }
-  return text; // Fallback
+const handleHtmlChanged = (html: string) => {
+  contentHtml.value = html;
 };
 
 const handleSaveDraft = async () => {
@@ -104,11 +96,10 @@ const handleSaveDraft = async () => {
 
   isSavingDraft.value = true;
   try {
-    const contentHtml = await renderMarkdown(content.value);
     const res = await saveDraft({
       title: title.value,
       contentMd: content.value,
-      contentHtml: contentHtml,
+      contentHtml: contentHtml.value,
       summary: publishForm.summary,
       coverUrl: publishForm.coverUrl,
       tags: getTagsArray()
@@ -246,12 +237,11 @@ const submitArticle = async () => {
   
   isSubmitting.value = true;
   try {
-    const contentHtml = await renderMarkdown(content.value);
     const res = await publishArticle({
       id: route.query.id as string, // Pass ID for update
       title: title.value,
       contentMd: content.value,
-      contentHtml: contentHtml,
+      contentHtml: contentHtml.value,
       summary: publishForm.summary,
       coverUrl: publishForm.coverUrl,
       tags: getTagsArray()
@@ -327,7 +317,10 @@ const submitArticle = async () => {
           :no-img-zoom-in="true"
           :code-foldable="false"
           :placeholder="t('editor.requiredContent')"
+          :preview-debounce="500"
+          :show-code-row-number="false"
           @onUploadImg="handleUploadImage"
+          @onHtmlChanged="handleHtmlChanged"
         />
       </div>
     </main>

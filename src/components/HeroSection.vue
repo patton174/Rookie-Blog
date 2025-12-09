@@ -55,15 +55,21 @@ onUnmounted(() => {
   if (timer) clearInterval(timer);
   window.removeEventListener('scroll', handleScroll);
 });
+
+const emit = defineEmits(['title-ready']);
+
+const handleTitleReady = () => {
+  emit('title-ready');
+};
 </script>
 
 <template>
   <section class="hero">
     <div class="container hero__content">
       
-      <h1 class="hero__title fade-in-up stagger-delay-2">
+      <h1 class="hero__title">
         <div ref="titleRef" style="will-change: transform, opacity;">
-          <HandwrittenTitle :locale="locale" />
+          <HandwrittenTitle :locale="locale" @ready="handleTitleReady" />
         </div>
       </h1>
       

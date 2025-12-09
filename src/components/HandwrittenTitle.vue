@@ -29,7 +29,11 @@ const content = computed(() => {
 });
 
 const isVisible = ref(false);
-const { init: init3dEffect, destroy: destroy3dEffect } = useText3dEffect('.main-title');
+const { init: init3dEffect, destroy: destroy3dEffect, playEntrance } = useText3dEffect('.main-title');
+const { isLoading } = useAppStore();
+import { useAppStore } from '../store/app';
+
+const emit = defineEmits(['ready']);
 
 const getEffectConfig = () => {
   const text = content.value.title;
@@ -46,11 +50,36 @@ const getEffectConfig = () => {
   };
 };
 
-onMounted(() => {
-  // Removed setTimeout for immediate rendering
+onMounted(async () => {
+  // Wait for fonts to load before initializing effect
+  const config = getEffectConfig();
+  const fontToLoad = config.fontFamily?.split(',')[0].replace(/['"]/g, '') || 'Luckiest Guy';
+  
+  try {
+    await document.fonts.load(`1em "${fontToLoad}"`);
+  } catch (e) {
+    console.warn('Font load failed or timeout', e);
+  }
+
+  // Ensure immediate visibility without transition delay
   isVisible.value = true;
-  // Initialize 3D Text Effect
-  init3dEffect(getEffectConfig());
+  
+  // Initialize 3D Text Effect (this will hide the text spans initially)
+  init3dEffect(config);
+  
+  // Ensure DOM update before signaling ready
+  await nextTick();
+  
+  // Signal ready to parent
+  emit('ready');
+});
+
+// Watch for loading state to play animation
+watch(isLoading, (val) => {
+  if (!val) {
+    // Play entrance animation immediately when loading stops
+    playEntrance();
+  }
 });
 
 onUnmounted(() => {
@@ -109,12 +138,9 @@ watch(() => content.value.title, async () => {
   justify-content: center;
   align-items: center;
   opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-
+  
   &.is-visible {
     opacity: 1;
-    transform: scale(1);
   }
 }
 

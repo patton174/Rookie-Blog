@@ -29,6 +29,9 @@ export class Text3dEffect {
     private currentX: number = 0;
     private currentY: number = 0;
     private animationId: number | null = null;
+    
+    // Hover state
+    private hoveredIndex: number = -1;
 
     constructor(config: ElementConfig, _options: CharSpanOptions = {}) {
         this.config = {
@@ -54,6 +57,10 @@ export class Text3dEffect {
         this.injectGlobalStyles();
         this.bindEvents();
         this.startAnimationLoop();
+        // Entrance animation is now triggered manually via playEntrance()
+    }
+
+    public playEntrance(): void {
         this.triggerEntranceAnimation();
     }
 
@@ -78,6 +85,15 @@ export class Text3dEffect {
             }
 
             this.applySpanStyles(span, index);
+            
+            // Add hover listeners
+            span.addEventListener('mouseenter', () => {
+                this.hoveredIndex = index;
+            });
+            span.addEventListener('mouseleave', () => {
+                this.hoveredIndex = -1;
+            });
+
             this.element!.appendChild(span);
             this.spans.push(span);
         });
@@ -238,9 +254,16 @@ export class Text3dEffect {
             
             const rotateY = -15 + (this.currentX * 20 * factor);
             const rotateX = -(this.currentY * 20 * factor);
-            const translateZ = Math.abs(this.currentX * 30); // Slightly reduced pop-out
+            let translateZ = Math.abs(this.currentX * 30); // Slightly reduced pop-out
+            let scale = 1;
+
+            // Hover effect
+            if (index === this.hoveredIndex) {
+                scale = 1.3;
+                translateZ += 20; // Pop out more
+            }
             
-            const transform = `perspective(500px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) translateZ(${translateZ}px)`;
+            const transform = `perspective(500px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) translateZ(${translateZ}px) scale(${scale})`;
             
             span.style.transform = transform;
             this.applyPrefix(span, 'transform', transform);
@@ -275,10 +298,16 @@ export function useText3dEffect(selector: string, defaultConfig: Partial<Element
         effect.init();
     };
 
+    const playEntrance = () => {
+        if (effect) {
+            effect.playEntrance();
+        }
+    };
+
     const destroy = () => {
         if (effect) effect.destroy();
         effect = null;
     };
 
-    return { init, destroy };
+    return { init, destroy, playEntrance };
 }
