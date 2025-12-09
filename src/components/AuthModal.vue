@@ -145,7 +145,8 @@ const handleClose = () => {
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="isOpen" class="modal-backdrop" @click="handleClose">
+      <div v-if="isOpen" class="modal-backdrop" ><!-- 点击遮罩层外面时不会关闭模态框 -->
+      <!-- <div v-if="isOpen" class="modal-backdrop" @click="handleClose"> -->
         <div class="modal-container glass-panel" @click.stop>
           
           <!-- Close Button -->
