@@ -154,11 +154,15 @@ watch(showContent, (val) => {
 
 // Skeleton Styles
 .skeleton-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.1); // Visible gray for Light Mode
   border-radius: 16px;
   width: 100%;
   height: 480px; // Match ArticleCard min-height
   animation: pulse 1.5s infinite ease-in-out;
+
+  :global(.dark) & {
+    background: rgba(255, 255, 255, 0.05); // White overlay for Dark Mode
+  }
 }
 
 .featured-skeleton {

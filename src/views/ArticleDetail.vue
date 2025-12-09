@@ -417,6 +417,28 @@ watch(() => props.id, (newId) => {
   }
 }, { immediate: true });
 
+// Watch for login state changes to update ownership and interaction status
+watch(isLoggedIn, (newVal) => {
+  if (newVal && article.value) {
+    // Check ownership
+    checkArticleOwnership(article.value.id).then(res => {
+         if (res.isSuccess) isOwner.value = res.data;
+    });
+    // Check interactions
+    checkIsLiked(article.value.id).then(res => {
+        if (res.isSuccess) isLiked.value = res.data;
+    });
+    checkIsFavorited(article.value.id).then(res => {
+        if (res.isSuccess) isFavorited.value = res.data;
+    });
+  } else if (!newVal) {
+    // Reset states on logout
+    isOwner.value = false;
+    isLiked.value = false;
+    isFavorited.value = false;
+  }
+});
+
 const handleFetchReplies = async (commentId: number) => {
   const comment = findCommentById(comments.value, commentId);
   if (!comment) return;
@@ -897,7 +919,12 @@ const handleEdit = () => {
   height: 100%; 
   
   @media (max-width: $breakpoint-desktop) {
-    display: none; // Hide sidebar on smaller screens or move to bottom
+    // Mobile Adaptation: Show sidebar at bottom instead of hiding
+    display: block;
+    grid-column: 1;
+    grid-row: auto;
+    margin-top: 2rem;
+    height: auto;
   }
 }
 
@@ -922,10 +949,18 @@ const handleEdit = () => {
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
+
+  @media (max-width: $breakpoint-desktop) {
+    position: static; // Disable sticky on mobile
+  }
 }
 
 .toc-card {
   flex-shrink: 0; // Prevent TOC from shrinking
+
+  @media (max-width: $breakpoint-desktop) {
+    display: none; // Hide TOC on mobile as it's at the bottom
+  }
 }
 
 .tags-card, .series-card, .recommended-card {
@@ -1446,16 +1481,18 @@ const handleEdit = () => {
 .skeleton-meta {
   width: 200px;
   height: 14px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 4px;
+  :global(.dark) & { background: rgba(255, 255, 255, 0.05); }
 }
 
 .skeleton-title {
   width: 60%;
   height: 40px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 8px;
   margin: 1rem 0;
+  :global(.dark) & { background: rgba(255, 255, 255, 0.08); }
 }
 
 .skeleton-user {
@@ -1468,14 +1505,16 @@ const handleEdit = () => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.1);
+  :global(.dark) & { background: rgba(255, 255, 255, 0.05); }
 }
 
 .skeleton-info {
   width: 120px;
   height: 14px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 4px;
+  :global(.dark) & { background: rgba(255, 255, 255, 0.05); }
 }
 
 .skeleton-body {
@@ -1487,9 +1526,10 @@ const handleEdit = () => {
 
 .skeleton-line {
   height: 16px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   animation: pulse 1.5s infinite ease-in-out;
+  :global(.dark) & { background: rgba(255, 255, 255, 0.05); }
 }
 
 @keyframes pulse {

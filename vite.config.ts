@@ -19,8 +19,8 @@ export default defineConfig({
     host: '0.0.0.0',
     proxy: {
       '/api': {
-        target: 'https://api.lxsweb.top',
-        // target: 'http://localhost:8080',
+        // target: 'https://api.lxsweb.top',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         // The backend might be seeing the request as Cross-Origin because of the headers sent by the proxy.
         // Sa-Token often blocks requests that don't look "local" or trusted if not configured for CORS.

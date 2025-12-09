@@ -98,10 +98,10 @@
     --shadow-card: 0 10px 40px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
 
     /* Forms */
-    --color-input-bg: rgba(24, 24, 27, 0.6); /* Zinc-900 */
-    --color-input-border: rgba(255, 255, 255, 0.1);
+    --color-input-bg: rgba(0, 0, 0, 0.5); /* Darker and more opaque for contrast */
+    --color-input-border: rgba(255, 255, 255, 0.25); /* Stronger border */
     --color-input-text: #f4f4f5;
-    --color-input-placeholder: #52525b;
+    --color-input-placeholder: #a1a1aa; /* Lighter placeholder for readability */
     --color-input-focus-ring: rgba(129, 140, 248, 0.3);
     --color-dropdown-bg: #18181b;
     --color-selection-bg: rgba(129, 140, 248, 0.2);
@@ -162,10 +162,10 @@ html.dark {
   --shadow-color: rgba(0, 0, 0, 0.8);
   --shadow-card: 0 10px 40px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
 
-  --color-input-bg: rgba(24, 24, 27, 0.6);
-  --color-input-border: rgba(255, 255, 255, 0.1);
+  --color-input-bg: rgba(0, 0, 0, 0.5);
+  --color-input-border: rgba(255, 255, 255, 0.25);
   --color-input-text: #f4f4f5;
-  --color-input-placeholder: #52525b;
+  --color-input-placeholder: #a1a1aa;
   --color-input-focus-ring: rgba(129, 140, 248, 0.3);
   --color-dropdown-bg: #18181b;
   --color-selection-bg: rgba(129, 140, 248, 0.2);

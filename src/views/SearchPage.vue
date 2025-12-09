@@ -307,7 +307,6 @@ onMounted(() => {
                    <p>Try different keywords or filters.</p>
                 </div>
                 <div v-else class="start-search">
-                   <div class="illustration">🔍</div>
                    <h3>Ready to explore?</h3>
                    <p>Select a topic from the sidebar or type to search.</p>
                 </div>
@@ -612,6 +611,7 @@ onMounted(() => {
     color: var(--color-text-primary);
     font-size: 1.1rem;
     outline: none;
+    box-shadow: none; /* Ensure no shadow */
     font-weight: 500;
     
     :global(.dark) &,
@@ -795,12 +795,6 @@ onMounted(() => {
   &.empty-state {
     opacity: 0.7;
     
-    .illustration {
-      font-size: 4rem;
-      margin-bottom: $spacing-md;
-      opacity: 0.5;
-    }
-    
     .icon-muted {
       margin-bottom: $spacing-md;
       opacity: 0.3;
@@ -980,11 +974,6 @@ onMounted(() => {
   /* Empty State / Illustration */
   .state-container {
     color: #cccccc !important;
-    
-    /* Replaced with a more subtle premium look, or removed logo if needed */
-    .illustration {
-      display: none !important; /* Hide default emoji logo as per "if necessary, can not show logo" */
-    }
     
     .icon-muted {
       color: #818cf8 !important; /* Premium Indigo */

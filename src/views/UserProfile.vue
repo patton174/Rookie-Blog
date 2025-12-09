@@ -61,7 +61,16 @@ const tabs = computed(() => [
 
 const tabOrder = ['favorites', 'history', 'settings'];
 
+const settingTabOrder = ['profile', 'security', 'appearance', 'notifications'];
+const settingsTransitionName = ref('slide-up');
 const activeSettingTab = ref('profile');
+
+const changeSettingTab = (tabId: string) => {
+  const oldIndex = settingTabOrder.indexOf(activeSettingTab.value);
+  const newIndex = settingTabOrder.indexOf(tabId);
+  settingsTransitionName.value = newIndex > oldIndex ? 'slide-up' : 'slide-down';
+  activeSettingTab.value = tabId;
+};
 const settingTabs = computed(() => [
   { id: 'profile', label: t('profile.profileInfo'), icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z' },
   { id: 'security', label: t('profile.accountSecurity'), icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
@@ -95,12 +104,71 @@ watchEffect(() => {
   }
 });
 
-const changeTab = (newTab: string) => {
+const tabsContainerRef = ref<HTMLElement | null>(null);
+
+const changeTab = async (newTab: string) => {
   const oldIndex = tabOrder.indexOf(activeTab.value);
   const newIndex = tabOrder.indexOf(newTab);
   transitionName.value = newIndex > oldIndex ? 'slide-left' : 'slide-right';
   activeTab.value = newTab;
+  
+  await nextTick();
+  if (tabsContainerRef.value) {
+    const headerOffset = 100; // Adjust based on your sticky header height
+    const elementPosition = tabsContainerRef.value.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
+  }
 };
+
+// Smooth Height Transition Logic
+const useSmoothHeight = (elementRef: import('vue').Ref<HTMLElement | null>) => {
+  const onBeforeLeave = () => {
+    if (elementRef.value) {
+      elementRef.value.style.height = `${elementRef.value.offsetHeight}px`;
+      elementRef.value.offsetHeight; // Force reflow
+    }
+  };
+
+  const onEnter = () => {
+    if (elementRef.value) {
+      const currentHeight = elementRef.value.offsetHeight;
+      elementRef.value.style.height = 'auto';
+      const targetHeight = elementRef.value.offsetHeight;
+      
+      elementRef.value.style.height = `${currentHeight}px`;
+      elementRef.value.offsetHeight; // Force reflow
+      
+      elementRef.value.style.height = `${targetHeight}px`;
+    }
+  };
+
+  const onAfterEnter = () => {
+    if (elementRef.value) {
+      elementRef.value.style.height = 'auto';
+    }
+  };
+
+  return { onBeforeLeave, onEnter, onAfterEnter };
+};
+
+const contentWrapperRef = ref<HTMLElement | null>(null);
+const { 
+  onBeforeLeave: onMainBeforeLeave, 
+  onEnter: onMainEnter, 
+  onAfterEnter: onMainAfterEnter 
+} = useSmoothHeight(contentWrapperRef);
+
+const settingsContentRef = ref<HTMLElement | null>(null);
+const {
+  onBeforeLeave: onSettingsBeforeLeave,
+  onEnter: onSettingsEnter,
+  onAfterEnter: onSettingsAfterEnter
+} = useSmoothHeight(settingsContentRef);
 
 // Heatmap Data (Static generation to prevent re-render flickering)
 const generateHeatmapData = () => {
@@ -298,14 +366,9 @@ const updatePassword = async () => {
   }, 1500);
 };
 
-const tabsRef = ref<HTMLElement | null>(null);
-
 const handleEditProfile = async () => {
-  activeTab.value = 'settings';
-  await nextTick();
-  if (tabsRef.value) {
-    tabsRef.value.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  changeSettingTab('profile');
+  await changeTab('settings');
 };
 
 onUnmounted(() => {
@@ -424,7 +487,7 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <nav class="profile-tabs glass-panel">
+        <nav class="profile-tabs glass-panel" ref="tabsContainerRef">
           <div class="tab-indicator" :style="tabIndicatorStyle"></div>
           <button 
             v-for="(tab, index) in tabs" 
@@ -438,284 +501,298 @@ onUnmounted(() => {
           </button>
         </nav>
 
-        <Transition :name="transitionName" mode="out-in">
-          <div class="tab-content" v-if="activeTab === 'favorites'" key="favorites">
-            <div class="articles-grid" v-if="mockArticles.length">
-              <ArticleCard v-for="article in mockArticles" :key="article.id" v-bind="article" />
-            </div>
-            <div v-else class="empty-state glass-panel">
-              <p>{{ t('profile.noFavorites') }}</p>
-            </div>
-          </div>
-
-          <div class="tab-content" v-else-if="activeTab === 'history'" key="history">
-            <div class="history-list" v-if="mockArticles.length">
-              <div v-for="article in mockArticles" :key="article.id" class="history-item glass-panel">
-                <div class="history-info">
-                  <span class="history-date">{{ t('profile.viewedOn') }} {{ article.date }}</span>
-                  <h3>{{ article.title }}</h3>
-                </div>
-                <button class="view-btn">{{ t('profile.readAgain') }}</button>
+        <div class="content-wrapper" ref="contentWrapperRef">
+          <Transition 
+            :name="transitionName" 
+            mode="out-in"
+            @before-leave="onMainBeforeLeave"
+            @enter="onMainEnter"
+            @after-enter="onMainAfterEnter"
+          >
+            <div class="tab-content" v-if="activeTab === 'favorites'" key="favorites">
+              <div class="articles-grid" v-if="mockArticles.length">
+                <ArticleCard v-for="article in mockArticles" :key="article.id" v-bind="article" />
+              </div>
+              <div v-else class="empty-state glass-panel">
+                <p>{{ t('profile.noFavorites') }}</p>
               </div>
             </div>
-            <div v-else class="empty-state glass-panel">
-              <p>{{ t('profile.noHistory') }}</p>
-            </div>
-          </div>
 
-          <div class="tab-content settings-panel glass-panel" v-else-if="activeTab === 'settings'" key="settings" ref="tabsRef">
-            <div class="settings-layout">
-              <!-- Sidebar -->
-              <aside class="settings-sidebar">
-                <button 
+            <div class="tab-content" v-else-if="activeTab === 'history'" key="history">
+              <div class="history-list" v-if="mockArticles.length">
+                <div v-for="article in mockArticles" :key="article.id" class="history-item glass-panel">
+                  <div class="history-info">
+                    <span class="history-date">{{ t('profile.viewedOn') }} {{ article.date }}</span>
+                    <h3>{{ article.title }}</h3>
+                  </div>
+                  <button class="view-btn">{{ t('profile.readAgain') }}</button>
+                </div>
+              </div>
+              <div v-else class="empty-state glass-panel">
+                <p>{{ t('profile.noHistory') }}</p>
+              </div>
+            </div>
+
+            <div class="tab-content settings-panel glass-panel" v-else-if="activeTab === 'settings'" key="settings">
+              <div class="settings-layout">
+                <!-- Sidebar -->
+                <aside class="settings-sidebar">
+                  <button 
                   v-for="tab in settingTabs" 
                   :key="tab.id"
                   class="setting-tab-btn"
                   :class="{ active: activeSettingTab === tab.id }"
-                  @click="activeSettingTab = tab.id"
+                  @click="changeSettingTab(tab.id)"
                 >
-                  <svg viewBox="0 0 24 24" class="tab-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path :d="tab.icon" />
-                  </svg>
-                  <span>{{ tab.label }}</span>
-                </button>
-              </aside>
+                    <svg viewBox="0 0 24 24" class="tab-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path :d="tab.icon" />
+                    </svg>
+                    <span>{{ tab.label }}</span>
+                  </button>
+                </aside>
 
-              <!-- Content -->
-              <div class="settings-content">
-                <Transition name="fade" mode="out-in">
-                  <!-- Profile Info -->
-                  <div v-if="activeSettingTab === 'profile'" key="profile" class="setting-view">
-                    <h3>{{ t('profile.profileInfo') }}</h3>
-                    <div class="form-grid">
-                      <!-- Avatar URL -->
-                      <div class="form-group avatar-group">
-                        <label>{{ t('profile.avatarUrl') }}</label>
-                        <div class="input-with-preview">
+                <!-- Content -->
+                <div class="settings-content" ref="settingsContentRef">
+                  <Transition 
+                    :name="settingsTransitionName" 
+                    mode="out-in"
+                    @before-leave="onSettingsBeforeLeave"
+                    @enter="onSettingsEnter"
+                    @after-enter="onSettingsAfterEnter"
+                  >
+                    <!-- Profile Info -->
+                    <div v-if="activeSettingTab === 'profile'" key="profile" class="setting-view">
+                      <h3>{{ t('profile.profileInfo') }}</h3>
+                      <div class="form-grid">
+                        <!-- Avatar URL -->
+                        <div class="form-group avatar-group">
+                          <label>{{ t('profile.avatarUrl') }}</label>
+                          <div class="input-with-preview">
+                            <div class="input-wrapper">
+                              <input 
+                                type="text" 
+                                v-model="profileForm.avatarUrl"
+                                :placeholder="t('profile.enterAvatarUrl')"
+                              />
+                            </div>
+                            <div class="avatar-preview-small" v-if="profileForm.avatarUrl">
+                              <img :src="profileForm.avatarUrl" alt="Preview" @error="(e) => (e.target as HTMLImageElement).style.display = 'none'" />
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Username -->
+                        <div class="form-group username-group">
+                          <label>{{ t('profile.username') }}</label>
                           <div class="input-wrapper">
                             <input 
                               type="text" 
-                              v-model="profileForm.avatarUrl"
-                              :placeholder="t('profile.enterAvatarUrl')"
+                              v-model="profileForm.username"
+                              :placeholder="t('profile.enterUsername')"
                             />
                           </div>
-                          <div class="avatar-preview-small" v-if="profileForm.avatarUrl">
-                            <img :src="profileForm.avatarUrl" alt="Preview" @error="(e) => (e.target as HTMLImageElement).style.display = 'none'" />
+                        </div>
+
+                        <!-- Bio -->
+                        <div class="form-group bio-group">
+                          <label>{{ t('profile.bio') }}</label>
+                          <div class="input-wrapper">
+                            <textarea 
+                              v-model="profileForm.bio"
+                              :placeholder="t('profile.enterBio')"
+                              class="bio-input"
+                              rows="2"
+                            ></textarea>
                           </div>
                         </div>
-                      </div>
 
-                      <!-- Username -->
-                      <div class="form-group username-group">
-                        <label>{{ t('profile.username') }}</label>
-                        <div class="input-wrapper">
-                          <input 
-                            type="text" 
-                            v-model="profileForm.username"
-                            :placeholder="t('profile.enterUsername')"
-                          />
-                        </div>
-                      </div>
-
-                      <!-- Bio -->
-                      <div class="form-group bio-group">
-                        <label>{{ t('profile.bio') }}</label>
-                        <div class="input-wrapper">
-                          <textarea 
-                            v-model="profileForm.bio"
-                            :placeholder="t('profile.enterBio')"
-                            class="bio-input"
-                            rows="2"
-                          ></textarea>
-                        </div>
-                      </div>
-
-                      <div class="form-actions">
-                        <button 
-                          class="btn-primary" 
-                          @click="handleUpdateProfile" 
-                          :disabled="isProfileUpdating"
-                        >
-                          {{ isProfileUpdating ? t('common.saving', 'Saving...') : t('common.saveChanges', 'Save Changes') }}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Security -->
-                  <div v-else-if="activeSettingTab === 'security'" key="security" class="setting-view">
-                    <h3>{{ t('profile.accountSecurity') }}</h3>
-                    <!-- Email Verification -->
-                    <div class="security-card">
-                      <div class="card-header">
-                        <span class="label">{{ t('profile.emailAddress') }}</span>
-                        <span 
-                          class="status-badge" 
-                          :class="emailStatus === 'verified' ? 'verified' : 'unverified'"
-                        >
-                          {{ emailStatus === 'verified' ? t('profile.verified') : t('profile.unverified') }}
-                        </span>
-                      </div>
-                      <div class="card-body">
-                        <div class="current-email">{{ user.email }}</div>
-                        <div class="action-row" v-if="emailStatus !== 'verified'">
+                        <div class="form-actions">
                           <button 
                             class="btn-primary" 
-                            @click="sendVerificationEmail" 
-                            :disabled="emailStatus === 'sending' || emailTimer > 0"
+                            @click="handleUpdateProfile" 
+                            :disabled="isProfileUpdating"
                           >
-                            {{ emailStatus === 'sending' ? t('profile.sending') : (emailTimer > 0 ? t('profile.resendIn', { seconds: emailTimer }) : t('profile.sendVerification')) }}
+                            {{ isProfileUpdating ? t('common.saving', 'Saving...') : t('common.saveChanges', 'Save Changes') }}
                           </button>
-                          <p class="helper-text" v-if="emailStatus === 'sent'">
-                            {{ t('profile.verificationSent') }}
-                          </p>
                         </div>
                       </div>
                     </div>
 
-                    <!-- Password Change -->
-                    <div class="security-card">
-                      <div class="card-header">
-                        <span class="label">{{ t('profile.changePassword') }}</span>
+                    <!-- Security -->
+                    <div v-else-if="activeSettingTab === 'security'" key="security" class="setting-view">
+                      <h3>{{ t('profile.accountSecurity') }}</h3>
+                      <!-- Email Verification -->
+                      <div class="security-card">
+                        <div class="card-header">
+                          <span class="label">{{ t('profile.emailAddress') }}</span>
+                          <span 
+                            class="status-badge" 
+                            :class="emailStatus === 'verified' ? 'verified' : 'unverified'"
+                          >
+                            {{ emailStatus === 'verified' ? t('profile.verified') : t('profile.unverified') }}
+                          </span>
+                        </div>
+                        <div class="card-body">
+                          <div class="current-email">{{ user.email }}</div>
+                          <div class="action-row" v-if="emailStatus !== 'verified'">
+                            <button 
+                              class="btn-primary" 
+                              @click="sendVerificationEmail" 
+                              :disabled="emailStatus === 'sending' || emailTimer > 0"
+                            >
+                              {{ emailStatus === 'sending' ? t('profile.sending') : (emailTimer > 0 ? t('profile.resendIn', { seconds: emailTimer }) : t('profile.sendVerification')) }}
+                            </button>
+                            <p class="helper-text" v-if="emailStatus === 'sent'">
+                              {{ t('profile.verificationSent') }}
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <div class="card-body form-stack">
-                        <!-- Current Password -->
-                        <div class="form-group span-full">
-                          <label>{{ t('profile.currentPassword') }}</label>
-                          <div class="input-wrapper">
-                            <input 
-                              :type="showPassword.current ? 'text' : 'password'" 
-                              v-model="passwordForm.current"
-                              :placeholder="t('profile.enterCurrentPassword')"
-                            />
-                            <button class="toggle-visibility" @click="showPassword.current = !showPassword.current">
-                              {{ showPassword.current ? t('profile.hide') : t('profile.show') }}
-                            </button>
-                          </div>
-                          <span class="error-msg" v-if="passwordErrors.current">{{ passwordErrors.current }}</span>
-                        </div>
 
-                        <!-- New Password -->
-                        <div class="form-group">
-                          <label>{{ t('profile.newPassword') }}</label>
-                          <div class="input-wrapper">
-                            <input 
-                              :type="showPassword.new ? 'text' : 'password'" 
-                              v-model="passwordForm.new"
-                              :placeholder="t('profile.enterNewPassword')"
-                            />
-                            <button class="toggle-visibility" @click="showPassword.new = !showPassword.new">
-                              {{ showPassword.new ? t('profile.hide') : t('profile.show') }}
-                            </button>
-                          </div>
-                          <span class="error-msg" v-if="passwordErrors.new">{{ passwordErrors.new }}</span>
-                          <ul class="password-requirements">
-                            <li :class="{ met: /[A-Z]/.test(passwordForm.new) }">{{ t('profile.uppercase') }}</li>
-                            <li :class="{ met: /[a-z]/.test(passwordForm.new) }">{{ t('profile.lowercase') }}</li>
-                            <li :class="{ met: /[0-9]/.test(passwordForm.new) }">{{ t('profile.number') }}</li>
-                            <li :class="{ met: passwordForm.new.length >= 8 }">{{ t('profile.minChars') }}</li>
-                          </ul>
+                      <!-- Password Change -->
+                      <div class="security-card">
+                        <div class="card-header">
+                          <span class="label">{{ t('profile.changePassword') }}</span>
                         </div>
-
-                        <!-- Confirm Password -->
-                        <div class="form-group">
-                          <label>{{ t('profile.confirmNewPassword') }}</label>
-                          <div class="input-wrapper">
-                            <input 
-                              :type="showPassword.confirm ? 'text' : 'password'" 
-                              v-model="passwordForm.confirm"
-                              :placeholder="t('profile.confirmNewPasswordPlaceholder')"
-                            />
-                            <button class="toggle-visibility" @click="showPassword.confirm = !showPassword.confirm">
-                              {{ showPassword.confirm ? t('profile.hide') : t('profile.show') }}
-                            </button>
+                        <div class="card-body form-stack">
+                          <!-- Current Password -->
+                          <div class="form-group span-full">
+                            <label>{{ t('profile.currentPassword') }}</label>
+                            <div class="input-wrapper">
+                              <input 
+                                :type="showPassword.current ? 'text' : 'password'" 
+                                v-model="passwordForm.current"
+                                :placeholder="t('profile.enterCurrentPassword')"
+                              />
+                              <button class="toggle-visibility" @click="showPassword.current = !showPassword.current">
+                                {{ showPassword.current ? t('profile.hide') : t('profile.show') }}
+                              </button>
+                            </div>
+                            <span class="error-msg" v-if="passwordErrors.current">{{ passwordErrors.current }}</span>
                           </div>
-                          <span class="error-msg" v-if="passwordErrors.confirm">{{ passwordErrors.confirm }}</span>
-                        </div>
 
-                        <button class="btn-primary full-width" @click="updatePassword">{{ t('profile.updatePassword') }}</button>
+                          <!-- New Password -->
+                          <div class="form-group">
+                            <label>{{ t('profile.newPassword') }}</label>
+                            <div class="input-wrapper">
+                              <input 
+                                :type="showPassword.new ? 'text' : 'password'" 
+                                v-model="passwordForm.new"
+                                :placeholder="t('profile.enterNewPassword')"
+                              />
+                              <button class="toggle-visibility" @click="showPassword.new = !showPassword.new">
+                                {{ showPassword.new ? t('profile.hide') : t('profile.show') }}
+                              </button>
+                            </div>
+                            <span class="error-msg" v-if="passwordErrors.new">{{ passwordErrors.new }}</span>
+                            <ul class="password-requirements">
+                              <li :class="{ met: /[A-Z]/.test(passwordForm.new) }">{{ t('profile.uppercase') }}</li>
+                              <li :class="{ met: /[a-z]/.test(passwordForm.new) }">{{ t('profile.lowercase') }}</li>
+                              <li :class="{ met: /[0-9]/.test(passwordForm.new) }">{{ t('profile.number') }}</li>
+                              <li :class="{ met: passwordForm.new.length >= 8 }">{{ t('profile.minChars') }}</li>
+                            </ul>
+                          </div>
+
+                          <!-- Confirm Password -->
+                          <div class="form-group">
+                            <label>{{ t('profile.confirmNewPassword') }}</label>
+                            <div class="input-wrapper">
+                              <input 
+                                :type="showPassword.confirm ? 'text' : 'password'" 
+                                v-model="passwordForm.confirm"
+                                :placeholder="t('profile.confirmNewPasswordPlaceholder')"
+                              />
+                              <button class="toggle-visibility" @click="showPassword.confirm = !showPassword.confirm">
+                                {{ showPassword.confirm ? t('profile.hide') : t('profile.show') }}
+                              </button>
+                            </div>
+                            <span class="error-msg" v-if="passwordErrors.confirm">{{ passwordErrors.confirm }}</span>
+                          </div>
+
+                          <button class="btn-primary full-width" @click="updatePassword">{{ t('profile.updatePassword') }}</button>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <!-- Appearance -->
-                  <div v-else-if="activeSettingTab === 'appearance'" key="appearance" class="setting-view">
-                    <h3>{{ t('profile.appearance') }}</h3>
-                    <div class="theme-selector">
-                      <label class="theme-option">
-                        <input 
-                          type="radio" 
-                          name="theme" 
-                          value="light" 
-                          :checked="themePreference === 'light'"
-                          @change="setThemePreference('light')"
-                        />
-                        <span class="theme-label">
-                          <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="5"></circle>
-                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
-                          </svg>
-                          {{ t('profile.themeLight') }}
-                        </span>
-                      </label>
-                      
-                      <label class="theme-option">
-                        <input 
-                          type="radio" 
-                          name="theme" 
-                          value="dark" 
-                          :checked="themePreference === 'dark'"
-                          @change="setThemePreference('dark')"
-                        />
-                        <span class="theme-label">
-                          <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                          </svg>
-                          {{ t('profile.themeDark') }}
-                        </span>
-                      </label>
-                      
-                      <label class="theme-option">
-                        <input 
-                          type="radio" 
-                          name="theme" 
-                          value="auto" 
-                          :checked="themePreference === 'auto'"
-                          @change="setThemePreference('auto')"
-                        />
-                        <span class="theme-label">
-                          <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                            <line x1="8" y1="21" x2="16" y2="21"></line>
-                            <line x1="12" y1="17" x2="12" y2="21"></line>
-                          </svg>
-                          {{ t('profile.themeSystem') }}
-                        </span>
+                    <!-- Appearance -->
+                    <div v-else-if="activeSettingTab === 'appearance'" key="appearance" class="setting-view">
+                      <h3>{{ t('profile.appearance') }}</h3>
+                      <div class="theme-selector">
+                        <label class="theme-option">
+                          <input 
+                            type="radio" 
+                            name="theme" 
+                            value="light" 
+                            :checked="themePreference === 'light'"
+                            @change="setThemePreference('light')"
+                          />
+                          <span class="theme-label">
+                            <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <circle cx="12" cy="12" r="5"></circle>
+                              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                            </svg>
+                            {{ t('profile.themeLight') }}
+                          </span>
+                        </label>
+                        
+                        <label class="theme-option">
+                          <input 
+                            type="radio" 
+                            name="theme" 
+                            value="dark" 
+                            :checked="themePreference === 'dark'"
+                            @change="setThemePreference('dark')"
+                          />
+                          <span class="theme-label">
+                            <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                            </svg>
+                            {{ t('profile.themeDark') }}
+                          </span>
+                        </label>
+                        
+                        <label class="theme-option">
+                          <input 
+                            type="radio" 
+                            name="theme" 
+                            value="auto" 
+                            :checked="themePreference === 'auto'"
+                            @change="setThemePreference('auto')"
+                          />
+                          <span class="theme-label">
+                            <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                              <line x1="8" y1="21" x2="16" y2="21"></line>
+                              <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                            {{ t('profile.themeSystem') }}
+                          </span>
+                        </label>
+                      </div>
+                      <label class="toggle-row">
+                        <span>{{ t('profile.reducedMotion') }}</span>
+                        <input type="checkbox" />
                       </label>
                     </div>
-                    <label class="toggle-row">
-                      <span>{{ t('profile.reducedMotion') }}</span>
-                      <input type="checkbox" />
-                    </label>
-                  </div>
 
-                  <!-- Notifications -->
-                  <div v-else-if="activeSettingTab === 'notifications'" key="notifications" class="setting-view">
-                    <h3>{{ t('profile.notifications') }}</h3>
-                    <label class="toggle-row">
-                      <span>{{ t('profile.emailDigest') }}</span>
-                      <input type="checkbox" checked />
-                    </label>
-                    <label class="toggle-row">
-                      <span>{{ t('profile.newComments') }}</span>
-                      <input type="checkbox" checked />
-                    </label>
-                  </div>
-                </Transition>
+                    <!-- Notifications -->
+                    <div v-else-if="activeSettingTab === 'notifications'" key="notifications" class="setting-view">
+                      <h3>{{ t('profile.notifications') }}</h3>
+                      <label class="toggle-row">
+                        <span>{{ t('profile.emailDigest') }}</span>
+                        <input type="checkbox" checked />
+                      </label>
+                      <label class="toggle-row">
+                        <span>{{ t('profile.newComments') }}</span>
+                        <input type="checkbox" checked />
+                      </label>
+                    </div>
+                  </Transition>
+                </div>
               </div>
             </div>
-          </div>
-        </Transition>
+          </Transition>
+        </div>
       </main>
     </div>
   </div>
@@ -753,6 +830,13 @@ onUnmounted(() => {
   /* Fix for rendering artifacts during theme switch */
   transform: translate3d(0, 0, 0);
   will-change: transform, background-color;
+}
+
+.content-wrapper {
+  overflow: hidden;
+  transition: height 0.3s ease-out;
+  /* Ensure it has layout */
+  position: relative;
 }
 
 /* Sidebar Styles */
@@ -1224,6 +1308,9 @@ onUnmounted(() => {
 
   .settings-content {
     padding: 2rem;
+    overflow: hidden;
+    transition: height 0.3s ease-out;
+    position: relative;
     
     h3 {
       margin-top: 0;
@@ -1268,10 +1355,10 @@ onUnmounted(() => {
     input, textarea {
       width: 100%;
       padding: 10px 14px;
-      background: $color-bg-secondary;
-      border: 1px solid $color-border;
+      background: $color-input-bg;
+      border: 1px solid $color-input-border;
       border-radius: 8px;
-      color: $color-text-primary;
+      color: $color-input-text;
       font-size: 0.95rem;
       transition: all 0.3s;
 
@@ -1282,12 +1369,8 @@ onUnmounted(() => {
       }
       
       &::placeholder {
-        color: rgba($color-text-secondary-rgb, 0.7);
+        color: $color-input-placeholder;
         opacity: 1;
-      }
-      
-      :global(.dark) &::placeholder {
-        color: rgba(255, 255, 255, 0.5);
       }
     }
     
@@ -1422,11 +1505,12 @@ onUnmounted(() => {
   .card-body {
     .current-email {
       font-family: monospace;
-      background: rgba(0,0,0,0.2);
+      background: $color-input-bg;
+      border: 1px solid $color-input-border;
       padding: 8px 12px;
       border-radius: 6px;
       margin-bottom: 1rem;
-      color: $color-text-primary;
+      color: $color-input-text;
     }
     
     .action-row {
@@ -1599,5 +1683,32 @@ onUnmounted(() => {
 .slide-right-leave-to {
   opacity: 0;
   transform: translateX(30px);
+}
+/* Slide Up/Down Transitions for Settings Sub-tabs */
+.slide-up-enter-active,
+.slide-up-leave-active,
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.slide-down-enter-from {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
 }
 </style>

@@ -202,7 +202,14 @@ const loadArticleForEdit = async (id: string) => {
   }
 };
 
+const isMobile = ref(false);
+
 onMounted(() => {
+  if (window.innerWidth < 768) {
+    isMobile.value = true;
+    return;
+  }
+  
   window.addEventListener('keydown', handleKeydown);
   const id = route.query.id as string;
   if (id) {

@@ -87,8 +87,13 @@ onUnmounted(() => {
 });
 
 watch(() => content.value.title, async () => {
+  // Destroy previous effect first
+  destroy3dEffect();
+  // Wait for DOM update
   await nextTick();
+  // Re-initialize and play
   init3dEffect(getEffectConfig());
+  playEntrance();
 });
 </script>
 
