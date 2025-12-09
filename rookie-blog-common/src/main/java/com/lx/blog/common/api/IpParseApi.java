@@ -22,18 +22,19 @@ public class IpParseApi {
         if (isPrivateOrLoopback(ipAddress)) {
             return new IpDomain(null, null, null, "局域网/本机");
         }
-        String reqUrl = "http://ip-api.com/json/" + ipAddress + "?lang=zh-CN&fields=status,country,regionName,city,isp";
+        String reqUrl = "https://ip9.com.cn/get?ip=" + ipAddress;
         String body = HttpUtils.doGet(reqUrl);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.readTree(body);
-        String status = text(node, "status");
-        if (!"success".equalsIgnoreCase(status)) {
+        String status = text(node, "ret");
+        if (!"200".equalsIgnoreCase(status)) {
             return new IpDomain(null, null, null, "未知");
         }
-        String country = text(node, "country");
-        String regionName = text(node, "regionName");
-        String city = text(node, "city");
-        String isp = text(node, "isp");
+        JsonNode data = node.get("data");
+        String country = text(data, "country");
+        String regionName = text(data, "prov");
+        String city = text(data, "city");
+        String isp = text(data, "isp");
         String region = joinRegion(country, regionName, city);
         return new IpDomain(null, null, isp, region);
     }
@@ -80,10 +81,10 @@ public class IpParseApi {
             sb.append(country);
         }
         if (region != null && !region.isEmpty()) {
-            sb.append(region);
+            sb.append(" ").append(region);
         }
         if (city != null && !city.isEmpty()) {
-            sb.append(city);
+            sb.append(" ").append(city);
         }
         String r = sb.toString();
         return r.isEmpty() ? "未知" : r;
