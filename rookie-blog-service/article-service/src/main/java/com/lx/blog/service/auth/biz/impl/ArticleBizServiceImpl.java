@@ -10,7 +10,7 @@ import com.lx.blog.repository.dao.impl.mapper.ArticleCategoryMapper;
 import com.lx.blog.repository.dao.impl.mapper.ArticleTagMapper;
 import com.lx.blog.repository.dao.impl.mapper.entity.*;
 import com.lx.blog.service.auth.biz.ArticleBizService;
-import com.lx.blog.service.biz.BaseBizService;
+import com.lx.blog.service.biz.ArticleBaseBizService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  */
 @Service
 @RequiredArgsConstructor
-public class ArticleBizServiceImpl extends BaseBizService implements ArticleBizService {
+public class ArticleBizServiceImpl extends ArticleBaseBizService implements ArticleBizService {
 
     @NotNull private final ArticleDao articleDao;
     @NotNull private final ArticleRevisionDao revisionDao;

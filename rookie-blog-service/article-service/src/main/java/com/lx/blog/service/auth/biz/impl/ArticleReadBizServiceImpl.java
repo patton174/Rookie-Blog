@@ -13,7 +13,7 @@ import com.lx.blog.repository.dao.TagDao;
 import com.lx.blog.repository.dao.impl.mapper.entity.Article;
 import com.lx.blog.repository.dao.impl.mapper.entity.Tag;
 import com.lx.blog.service.auth.biz.ArticleReadBizService;
-import com.lx.blog.service.biz.BaseBizService;
+import com.lx.blog.service.biz.ArticleBaseBizService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class ArticleReadBizServiceImpl extends BaseBizService implements ArticleReadBizService {
+public class ArticleReadBizServiceImpl extends ArticleBaseBizService implements ArticleReadBizService {
 
     @NotNull private final ArticleDao articleDao;
     @NotNull private final ArticleContentDao contentDao;

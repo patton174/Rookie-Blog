@@ -9,14 +9,12 @@ import com.lx.blog.domain.dto.UpdatePasswordDto;
 import com.lx.blog.repository.dao.UserDao;
 import com.lx.blog.repository.dao.impl.mapper.entity.User;
 import com.lx.blog.service.auth.biz.UserAuthBizService;
-import com.lx.blog.common.base.BaseException;
 import com.lx.blog.common.exception.ForbiddenException;
 import com.lx.blog.common.exception.NotFoundException;
-import com.lx.blog.common.base.ResultCode;
 import com.lx.blog.common.utils.BCryptUtils;
 import com.lx.blog.domain.dto.LoginDto;
 import com.lx.blog.domain.dto.RegisterDto;
-import com.lx.blog.service.biz.BaseBizService;
+import com.lx.blog.service.biz.UserBaseBizService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,9 +25,9 @@ import java.time.LocalDateTime;
  * @description 用户认证业务服务实现类
  */
 @Service
-public class UserAuthBizServiceImpl extends BaseBizService implements UserAuthBizService {
+public class UserAuthBizServiceImplUser extends UserBaseBizService implements UserAuthBizService {
 
-    public UserAuthBizServiceImpl(UserDao userDao) {
+    public UserAuthBizServiceImplUser(UserDao userDao) {
         super(userDao);
     }
 

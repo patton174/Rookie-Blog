@@ -1,9 +1,6 @@
 package com.lx.blog.service.auth.biz.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.lx.blog.common.base.Result;
-import com.lx.blog.common.utils.BeanCopyUtils;
-import com.lx.blog.common.utils.PageUtils;
 import com.lx.blog.domain.dto.CommentReactionDto;
 import com.lx.blog.domain.dto.CommentReplySaveDto;
 import com.lx.blog.domain.dto.CommentSaveDto;
@@ -15,7 +12,7 @@ import com.lx.blog.repository.dao.CommentReplyDao;
 import com.lx.blog.repository.dao.impl.mapper.entity.Comment;
 import com.lx.blog.repository.dao.impl.mapper.entity.CommentReply;
 import com.lx.blog.service.auth.biz.ArticleCommentBizService;
-import com.lx.blog.service.biz.BaseBizService;
+import com.lx.blog.service.biz.ArticleBaseBizService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,7 +31,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class ArticleCommentBizServiceImpl extends BaseBizService implements ArticleCommentBizService {
+public class ArticleCommentBizServiceImpl extends ArticleBaseBizService implements ArticleCommentBizService {
 
     @NotNull private final CommentDao commentDao;
     @NotNull private final CommentReplyDao replyDao;
@@ -60,44 +57,32 @@ public class ArticleCommentBizServiceImpl extends BaseBizService implements Arti
      */
     @Override
     public Result<List<CommentVo>> listComments(String articleId) {
-        PageUtils.startPage();
-        List<Comment> list = commentDao.listByArticle(articleId);
-        PageUtils.clearPage();
-        
-        if (list.isEmpty()) {
+        List<Comment> commentList = getPage(() -> commentDao.listByArticle(articleId), Comment.class);
+        if (commentList.isEmpty()) {
             return Result.ok(new ArrayList<>());
         }
-
         // 获取当前用户ID
         String userId = null;
-        try { userId = StpUtil.getLoginIdAsString(); } catch (Exception ignored) {}
-        
-        // 批量查询当前用户对这些评论及回复的 reaction (dislike)
-        // 优化：如果 userId 为空，不需要查
+        try { userId = getUserId(); } catch (Exception ignored) {}
+
         Set<String> dislikedCommentIds = new java.util.HashSet<>();
         Set<String> dislikedReplyIds = new java.util.HashSet<>();
         
         if (userId != null) {
-            List<String> commentIds = list.stream().map(Comment::getId).collect(Collectors.toList());
+            List<String> commentIds = commentList.stream().map(Comment::getId).collect(Collectors.toList());
             if (!commentIds.isEmpty()) {
                 dislikedCommentIds = reactionDao.getCommentIdsByReaction(commentIds, userId, "dislike");
             }
-            // 预先查询回复ID有点复杂，因为回复是嵌套查询的。
-            // 方案A: 循环中查 (简单，N+1) -> 暂且使用，因为分页后评论数不多
-            // 方案B: 收集所有回复ID再查 -> 更好
         }
-
         final String currentUserId = userId;
         final Set<String> finalDislikedCommentIds = dislikedCommentIds;
 
         // 转换为DTO
-        List<CommentVo> voList = list.stream().map(comment -> {
-            CommentVo vo = BeanCopyUtils.copyProperties(comment, CommentVo.class);
+        List<CommentVo> voList = commentList.stream().map(comment -> {
+            CommentVo vo = copyProperties(comment, CommentVo.class);
             
             // 设置 isShow
             vo.setIsShow(currentUserId == null || !finalDislikedCommentIds.contains(comment.getId()));
-
-            // TODO: 填充用户信息 (username, avatar)
             vo.setUsername("User-" + comment.getUserId()); // 模拟
             
             // 填充回复数量
@@ -106,13 +91,8 @@ public class ArticleCommentBizServiceImpl extends BaseBizService implements Arti
             } else {
                 vo.setReplyCount(0L);
             }
-            
-            // 移除嵌套查询回复的逻辑
-            // 前端根据 hasReply 字段判断是否需要调用 listReplies 接口
-            
             return vo;
         }).collect(Collectors.toList());
-
         return Result.ok(voList);
     }
 
@@ -144,17 +124,13 @@ public class ArticleCommentBizServiceImpl extends BaseBizService implements Arti
         final Set<String> finalDislikedReplyIds = dislikedReplyIds;
 
         List<CommentReplyVo> voList = replies.stream().map(r -> {
-            CommentReplyVo vo = BeanCopyUtils.copyProperties(r, CommentReplyVo.class);
-            vo.setUsername("User-" + r.getUserId()); // 模拟
+            CommentReplyVo vo = copyProperties(r, CommentReplyVo.class);
+            vo.setUsername("User-" + r.getUserId());
             if (r.getReplyToUserId() != null) {
-                vo.setReplyToUsername("User-" + r.getReplyToUserId()); // 模拟
+                vo.setReplyToUsername("User-" + r.getReplyToUserId());
             }
             // 设置 isShow
-            if (currentUserId != null && finalDislikedReplyIds.contains(r.getId())) {
-                vo.setIsShow(false);
-            } else {
-                vo.setIsShow(true);
-            }
+            vo.setIsShow(currentUserId == null || !finalDislikedReplyIds.contains(r.getId()));
             return vo;
         }).collect(Collectors.toList());
 
@@ -169,7 +145,7 @@ public class ArticleCommentBizServiceImpl extends BaseBizService implements Arti
      */
     @Override
     public Result<Object> addComment(CommentSaveDto dto) {
-        Comment comment = BeanCopyUtils.copyProperties(dto, Comment.class);
+        Comment comment = copyProperties(dto, Comment.class);
         comment.setId(getId());
         comment.setUserId(getUserId());
         comment.setCommentAt(LocalDateTime.now());
@@ -192,7 +168,7 @@ public class ArticleCommentBizServiceImpl extends BaseBizService implements Arti
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> addReply(CommentReplySaveDto dto) {
 
-        CommentReply commentReply = BeanCopyUtils.copyProperties(dto, CommentReply.class);
+        CommentReply commentReply = copyProperties(dto, CommentReply.class);
         commentReply.setId(getId());
         commentReply.setUserId(getUserId());
         commentReply.setReplyAt(LocalDateTime.now());

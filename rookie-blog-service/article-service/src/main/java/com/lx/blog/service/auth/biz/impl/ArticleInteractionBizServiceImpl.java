@@ -6,7 +6,7 @@ import com.lx.blog.repository.dao.ArticleLikeDao;
 import com.lx.blog.repository.dao.ArticleStatsDao;
 import com.lx.blog.repository.dao.ArticleLogDao;
 import com.lx.blog.service.auth.biz.ArticleInteractionBizService;
-import com.lx.blog.service.biz.BaseBizService;
+import com.lx.blog.service.biz.ArticleBaseBizService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
-public class ArticleInteractionBizServiceImpl extends BaseBizService implements ArticleInteractionBizService {
+public class ArticleInteractionBizServiceImpl extends ArticleBaseBizService implements ArticleInteractionBizService {
 
     @NotNull private final ArticleLogDao viewDao;
     @NotNull private final ArticleStatsDao statsDao;

@@ -38,7 +38,7 @@ public class CommentReactionDaoImpl extends ServiceImpl<CommentReactionMapper, C
                 .eq(CommentReaction::getCommentId, commentId)
                 .eq(CommentReaction::getUserId, userId));
         CommentReaction r = CommentReaction.builder()
-                .id(UUIDUtils.signatureUuid(UUID.randomUUID()))
+                .id(UUIDUtils.getId())
                 .commentId(commentId)
                 .userId(userId)
                 .reactionType(type)
@@ -59,7 +59,7 @@ public class CommentReactionDaoImpl extends ServiceImpl<CommentReactionMapper, C
                 .eq(CommentReaction::getReplyId, replyId)
                 .eq(CommentReaction::getUserId, userId));
         CommentReaction r = CommentReaction.builder()
-                .id(UUIDUtils.signatureUuid(UUID.randomUUID()))
+                .id(UUIDUtils.getId())
                 .replyId(replyId)
                 .userId(userId)
                 .reactionType(type)

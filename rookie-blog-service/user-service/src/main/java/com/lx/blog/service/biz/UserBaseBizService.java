@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
  */
 @Getter
 @RequiredArgsConstructor
-public class BaseBizService extends BaseBiz {
+public class UserBaseBizService extends BaseBiz {
 
     /**
      * 暴露给子类使用，减少重复注入

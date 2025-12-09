@@ -1,18 +1,15 @@
 package com.lx.blog.service.auth.biz.impl;
 
 import cn.dev33.satoken.temp.SaTempUtil;
-import com.lx.blog.common.base.ResultCode;
-import com.lx.blog.common.base.BaseException;
 import com.lx.blog.common.exception.NotFoundException;
 import com.lx.blog.common.base.Result;
 import com.lx.blog.common.exception.ValidationException;
 import com.lx.blog.repository.dao.UserDao;
 import com.lx.blog.repository.dao.impl.mapper.entity.User;
 import com.lx.blog.service.auth.biz.UserEmailBizService;
-import com.lx.blog.service.biz.BaseBizService;
+import com.lx.blog.service.biz.UserBaseBizService;
 import com.lx.blog.service.email.EmailService;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,11 +18,11 @@ import org.springframework.stereotype.Service;
  * @description 邮箱业务服务实现类
  */
 @Service
-public class UserUserEmailBizServiceImpl extends BaseBizService implements UserEmailBizService {
+public class UserUserEmailBizServiceImplUser extends UserBaseBizService implements UserEmailBizService {
 
     @NotNull private final EmailService emailService;
 
-    public UserUserEmailBizServiceImpl(UserDao userDao, EmailService emailService) {
+    public UserUserEmailBizServiceImplUser(UserDao userDao, EmailService emailService) {
         super(userDao);
         this.emailService = emailService;
     }

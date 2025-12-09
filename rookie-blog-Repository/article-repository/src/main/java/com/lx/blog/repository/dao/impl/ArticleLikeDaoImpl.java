@@ -44,7 +44,7 @@ public class ArticleLikeDaoImpl extends ServiceImpl<ArticleLikeMapper, ArticleLi
     public void like(String articleId, String userId) {
         if (!hasLiked(articleId, userId)) {
             ArticleLike like = ArticleLike.builder()
-                    .id(UUIDUtils.signatureUuid(UUID.randomUUID()))
+                    .id(UUIDUtils.getId())
                     .articleId(articleId)
                     .userId(userId)
                     .build();

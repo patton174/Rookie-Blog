@@ -114,7 +114,7 @@ public class ArticleOpLogEventListener {
         String uid = (userId == null || userId.isEmpty()) ? "visitor" : userId;
         String _class = (String) p.get("_class");
         ArticleLog v = ArticleLog.builder()
-                .id(UUIDUtils.signatureUuid(LocalDateTime.now(), _class))
+                .id(UUIDUtils.getId())
                 ._class(_class)
                 .action((String) p.get("action"))
                 .userId(uid)

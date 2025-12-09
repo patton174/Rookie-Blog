@@ -7,7 +7,7 @@ import com.lx.blog.domain.vo.UserVo;
 import com.lx.blog.repository.dao.UserDao;
 import com.lx.blog.repository.dao.impl.mapper.entity.User;
 import com.lx.blog.service.auth.biz.UserProfileBizService;
-import com.lx.blog.service.biz.BaseBizService;
+import com.lx.blog.service.biz.UserBaseBizService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +20,11 @@ import java.util.Map;
  * @description 用户个人信息业务服务实现类
  */
 @Service
-public class UserProfileBizServiceImpl extends BaseBizService implements UserProfileBizService {
+public class UserProfileBizServiceImplUser extends UserBaseBizService implements UserProfileBizService {
 
     @NotNull private final IpParseApi ipParseApi;
 
-    public UserProfileBizServiceImpl(UserDao userDao, IpParseApi ipParseApi) {
+    public UserProfileBizServiceImplUser(UserDao userDao, IpParseApi ipParseApi) {
         super(userDao);
         this.ipParseApi = ipParseApi;
     }

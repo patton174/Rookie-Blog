@@ -29,7 +29,7 @@ public class UserOpLogEventListener {
         Map<String, Object> p = event.getPayload();
         String _class = (String) p.get("_class");
         UserLog log = UserLog.builder()
-                .id(UUIDUtils.signatureUuid(LocalDateTime.now(), _class))
+                .id(UUIDUtils.getId())
                 ._class(_class)
                 .action((String) p.get("action"))
                 .userId((String) p.get("userId"))
