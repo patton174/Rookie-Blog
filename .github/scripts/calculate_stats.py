@@ -68,8 +68,9 @@ def generate_contributor_html(contributors):
         
         # 纯流式布局
         # margin-right: 15px 确保右侧间距，第一行左对齐
+        # vertical-align: middle 消除图片底部幽灵空白（小黑线）
         html_content += f"""<a href="{profile_url}" title="{contributor} ({count} contributions)">
-    <img src="{avatar_url}" width="60" height="60" alt="{contributor}" style="margin-right: 15px; margin-bottom: 15px; display: inline-block;" />
+    <img src="{avatar_url}" width="60" height="60" alt="{contributor}" style="margin-right: 15px; margin-bottom: 15px; display: inline-block; vertical-align: middle;" />
 </a>"""
             
     html_content += "\n</p>\n<br/>\n</div>"

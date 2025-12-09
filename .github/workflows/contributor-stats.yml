@@ -14,7 +14,10 @@ on:
 
 jobs:
   update-contributor-stats:
-    if: (github.event_name == 'pull_request' && github.event.pull_request.merged == true) || (github.event_name == 'push' && github.actor == 'patton174')
+    # 触发条件优化：
+    # 1. PR 被合并关闭时触发 (merged == true)
+    # 2. 直接推送到指定分支时触发 (push 事件)
+    if: (github.event_name == 'pull_request' && github.event.pull_request.merged == true) || github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
