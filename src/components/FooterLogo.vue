@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import Logo from './Logo.vue';
 import TextLogo from './TextLogo.vue';
+import { useTheme } from '../composables/useTheme';
 
 interface Props {
   variant?: 'horizontal' | 'vertical' | 'minimal';
@@ -10,6 +11,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   variant: 'horizontal'
 });
+
+const { theme } = useTheme();
 
 const emit = defineEmits(['click']);
 
@@ -30,7 +33,7 @@ const containerClass = computed(() => `footer-logo footer-logo--${props.variant}
         <div class="logo-glow"></div>
       </div>
       <div class="logo-text-wrapper">
-        <TextLogo width="160" height="32" variant="light" idSuffix="footer_h" />
+        <TextLogo width="160" height="32" :variant="theme" idSuffix="footer_h" />
         <span class="logo-slogan">Tech • Code • Future</span>
       </div>
     </template>
@@ -41,7 +44,7 @@ const containerClass = computed(() => `footer-logo footer-logo--${props.variant}
         <Logo width="64" height="64" />
         <div class="logo-glow"></div>
       </div>
-      <TextLogo width="180" height="36" variant="light" class="mt-4" idSuffix="footer_v" />
+      <TextLogo width="180" height="36" :variant="theme" class="mt-4" idSuffix="footer_v" />
       <div class="logo-divider"></div>
       <span class="logo-slogan">Exploring the Tech Frontier</span>
     </template>

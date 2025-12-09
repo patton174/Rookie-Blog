@@ -33,8 +33,10 @@ const acceptCookies = () => {
       </div>
       
       <div class="content">
-            <h3 class="title">{{ t('cookie.title') }}</h3>
-            <p class="text">{{ t('cookie.text') }}</p>
+            <div class="text-group">
+              <h3 class="title">{{ t('cookie.title') }}</h3>
+              <p class="text">{{ t('cookie.text') }}</p>
+            </div>
             <div class="actions">
               <router-link to="/privacy" class="policy-link">{{ t('cookie.policy') }}</router-link>
               <button class="accept-btn" @click="acceptCookies">
@@ -52,9 +54,10 @@ const acceptCookies = () => {
 .cookie-card {
   position: fixed;
   bottom: 24px;
-  right: 24px;
-  width: 380px;
-  max-width: calc(100vw - 48px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  max-width: none; /* Limit width on very large screens for better readability */
   z-index: 9999;
   
   padding: 24px;
@@ -71,8 +74,9 @@ const acceptCookies = () => {
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
     
   display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  gap: 24px;
+  align-items: flex-start; /* Align top since we are stacking */
+  justify-content: flex-start;
   
   :global(.light) & {
     background: rgba(255, 255, 255, 0.9);
@@ -84,11 +88,11 @@ const acceptCookies = () => {
 
   @media (max-width: $breakpoint-mobile) {
     bottom: 16px;
-    right: 16px;
-    left: 16px;
-    width: auto;
+    width: calc(100% - 32px); // 16px padding on each side
+    max-width: none;
     flex-direction: column;
     gap: 16px;
+    align-items: flex-start;
   }
 }
 
@@ -112,8 +116,15 @@ const acceptCookies = () => {
 .content {
   flex: 1;
   display: flex;
+  flex-direction: column; /* Changed to column to stack text and actions */
+  gap: 16px;
+  justify-content: center;
+}
+
+.text-group {
+  display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .title {
@@ -129,11 +140,11 @@ const acceptCookies = () => {
 }
 
 .text {
-  font-size: 0.85rem;
-  line-height: 1.6;
+  font-size: 0.9rem;
+  line-height: 1.5;
   color: rgba(255, 255, 255, 0.7);
-  margin: 0 0 16px 0;
-  text-align: justify;
+  margin: 0;
+  max-width: 100%; /* Allow full width */
   
   :global(.light) & {
     color: $color-text-secondary;
@@ -143,9 +154,10 @@ const acceptCookies = () => {
 .actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
-  margin-top: auto;
+  flex-shrink: 0;
+  justify-content: flex-end; /* Align actions to the right */
+  width: 100%;
 }
 
 .policy-link {
@@ -215,6 +227,6 @@ const acceptCookies = () => {
 .slide-up-enter-from,
 .slide-up-leave-to {
   opacity: 0;
-  transform: translateY(40px) scale(0.95);
+  transform: translate(-50%, 40px) scale(0.95);
 }
 </style>

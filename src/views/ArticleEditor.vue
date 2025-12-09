@@ -342,68 +342,63 @@ const submitArticle = async () => {
           </div>
           
           <div class="modal-body">
-            <div class="grid-layout">
-              <!-- Left Column: Cover Image -->
-              <div class="grid-col left-col">
-                <div class="form-group">
-                  <label>{{ t('editor.coverImage') }}</label>
-                  <div class="cover-uploader">
-                    <!-- Preview / Click Area -->
-                    <div 
-                      class="cover-preview-area"
-                      :class="{ dragging: isDragging, 'has-image': !!publishForm.coverUrl }"
-                      @click="triggerFileUpload"
-                      @dragover.prevent="isDragging = true" 
-                      @dragleave.prevent="isDragging = false" 
-                      @drop.prevent="handleDrop"
-                    >
-                      <img v-if="publishForm.coverUrl" :src="publishForm.coverUrl" class="cover-img" alt="Cover Preview" />
-                      
-                      <div class="placeholder-content">
-                        <div class="icon-wrapper">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                            <polyline points="21 15 16 10 5 21"></polyline>
-                          </svg>
+            <div class="publish-form">
+              <!-- Top Row: Cover Image + Summary -->
+              <div class="form-row top-row">
+                <!-- Cover Image -->
+                <div class="form-col cover-col">
+                  <div class="form-group">
+                    <label>{{ t('editor.coverImage') }}</label>
+                    <div class="cover-uploader">
+                      <div 
+                        class="cover-preview-area"
+                        :class="{ dragging: isDragging, 'has-image': !!publishForm.coverUrl }"
+                        @click="triggerFileUpload"
+                        @dragover.prevent="isDragging = true" 
+                        @dragleave.prevent="isDragging = false" 
+                        @drop.prevent="handleDrop"
+                      >
+                        <img v-if="publishForm.coverUrl" :src="publishForm.coverUrl" class="cover-img" alt="Cover Preview" />
+                        
+                        <div class="placeholder-content">
+                          <div class="icon-wrapper">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                              <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                          </div>
+                          <span v-if="publishForm.coverUrl">{{ t('editor.dragDrop') }}</span>
+                          <span v-else>{{ t('editor.dragDrop') }}</span>
                         </div>
-                        <span v-if="publishForm.coverUrl">{{ t('editor.dragDrop') }}</span>
-                        <span v-else>{{ t('editor.dragDrop') }}</span>
                       </div>
+                      <input 
+                        type="file" 
+                        ref="fileInputRef" 
+                        accept="image/*" 
+                        class="hidden-input"
+                        @change="handleFileSelect"
+                      />
                     </div>
+                  </div>
+                </div>
 
-                    <!-- URL Input -->
-                    <input 
-                      v-model="publishForm.coverUrl" 
-                      type="text" 
-                      placeholder="Or paste image URL..." 
-                      class="custom-input url-input"
-                    />
-                    
-                    <!-- Hidden File Input -->
-                    <input 
-                      type="file" 
-                      ref="fileInputRef" 
-                      accept="image/*" 
-                      class="hidden-input"
-                      @change="handleFileSelect"
-                    />
+                <!-- Summary -->
+                <div class="form-col summary-col">
+                  <div class="form-group full-height">
+                    <label>{{ t('editor.summary') }}</label>
+                    <textarea 
+                      v-model="publishForm.summary" 
+                      rows="4" 
+                      :placeholder="t('editor.summary')"
+                      class="custom-input summary-input"
+                    ></textarea>
                   </div>
                 </div>
               </div>
 
-              <!-- Right Column: Metadata -->
-              <div class="grid-col right-col">
-                <div class="form-group">
-                  <label>{{ t('editor.summary') }}</label>
-                  <textarea 
-                    v-model="publishForm.summary" 
-                    rows="4" 
-                    :placeholder="t('editor.summary')"
-                    class="custom-input"
-                  ></textarea>
-                </div>
-                
+              <!-- Bottom Row: Tags -->
+              <div class="form-row bottom-row">
                 <div class="form-group">
                   <label>{{ t('editor.tags') }}</label>
                   <input 
@@ -513,7 +508,8 @@ const submitArticle = async () => {
     transition: all 0.3s ease;
 
     :global(.dark) & {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.1); /* Increased contrast */
+      color: #fff;
     }
 
     &:focus {
@@ -521,13 +517,17 @@ const submitArticle = async () => {
       box-shadow: none; // Ensure no blue glow/border
       
       :global(.dark) & {
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.15);
       }
     }
 
     &::placeholder {
-      color: rgba($color-text-primary, 0.2); 
+      color: rgba($color-text-primary, 0.4); /* Increased contrast */
       font-style: normal;
+      
+      :global(.dark) & {
+        color: rgba(255, 255, 255, 0.5);
+      }
     }
 
     @media (max-width: $breakpoint-mobile) {
@@ -573,12 +573,17 @@ const submitArticle = async () => {
     cursor: pointer;
     transition: all 0.2s ease;
 
+    :global(.dark) & {
+      color: rgba(255, 255, 255, 0.8); /* Brighter icon in dark mode */
+    }
+
     &:hover {
       color: $color-text-primary;
       background: rgba(0,0,0,0.03);
       
       :global(.dark) & {
-        background: rgba(255,255,255,0.05);
+        background: rgba(255,255,255,0.15); /* More visible hover */
+        color: #fff;
       }
     }
   }
@@ -596,12 +601,17 @@ const submitArticle = async () => {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 
+    :global(.dark) & {
+      color: rgba(255, 255, 255, 0.8); /* Brighter text */
+    }
+
     &:hover {
       color: $color-text-primary;
       background: rgba(0,0,0,0.03);
       
       :global(.dark) & {
-        background: rgba(255,255,255,0.05);
+        background: rgba(255,255,255,0.15);
+        color: #fff;
       }
     }
 
@@ -630,13 +640,21 @@ const submitArticle = async () => {
     min-width: 80px;
 
     :global(.dark) & {
-       background: #fff;
-       color: #000;
+       background: #ffffff !important;
+       color: #000000 !important;
+       border: 1px solid #ffffff !important;
+       font-weight: 700;
     }
 
     &:hover {
       opacity: 0.8;
       transform: translateY(-1px);
+      
+      :global(.dark) & {
+        background: #e6e6e6 !important;
+        border-color: #e6e6e6 !important;
+        opacity: 1;
+      }
     }
 
     &:active {
@@ -681,7 +699,7 @@ const submitArticle = async () => {
     margin-bottom: 1rem;
 
     :global(.dark) & {
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.15); /* More visible border */
     }
   }
   
@@ -764,28 +782,61 @@ const submitArticle = async () => {
   padding: 1.5rem;
 }
 
-.grid-layout {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr; // Left column slightly larger
+.publish-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-row {
+  display: flex;
   gap: 2rem;
   
-  @media (max-width: $breakpoint-tablet) {
-    grid-template-columns: 1fr; // Stack on mobile
-    gap: 1rem;
+  &.top-row {
+    align-items: stretch; // Ensure equal height
+    
+    @media (max-width: $breakpoint-tablet) {
+      flex-direction: column;
+    }
+  }
+
+  &.bottom-row {
+    flex-direction: column; // Or just block
   }
 }
 
-.grid-col {
+.form-col {
+  flex: 1;
   display: flex;
   flex-direction: column;
   
-  &.right-col {
-    gap: 1rem; // Spacing between summary and tags
+  &.cover-col {
+    flex: 1.2; // Slightly wider for image if needed, or keep 1:1
+  }
+  
+  &.summary-col {
+    flex: 1;
+  }
+}
+
+.full-height {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: auto; /* Allow flex to control height */
+  
+  .custom-input {
+    flex: 1;
+    height: 100% !important; /* Force fill */
+    resize: none; 
   }
 }
 
 .form-group {
-  margin-bottom: 0; // Remove default margin as grid handles it or we handle it in right-col
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Ensure form-group fills the column */
   
   &:last-child {
     margin-bottom: 0;
@@ -802,13 +853,15 @@ const submitArticle = async () => {
   .cover-uploader {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    flex: 1; /* Ensure uploader fills form-group */
   }
 
   .cover-preview-area {
     position: relative;
     width: 100%;
-    height: 160px;
+    flex: 1; /* Ensure preview fills uploader */
+    min-height: 220px; 
+    height: auto !important; /* Allow flex to control */
     border: 2px dashed rgba(0,0,0,0.1);
     border-radius: 12px;
     display: flex;
@@ -909,7 +962,8 @@ const submitArticle = async () => {
     transition: all 0.3s;
     
     :global(.dark) & {
-      background: rgba(0, 0, 0, 0.2);
+      background: rgba(0, 0, 0, 0.4); /* Darker background for contrast */
+      border-color: rgba(255, 255, 255, 0.2);
     }
     
     &:focus {
@@ -919,14 +973,18 @@ const submitArticle = async () => {
       box-shadow: 0 0 0 1px rgba(0,0,0, 0.1);
 
       :global(.dark) & {
-         background: rgba(0, 0, 0, 0.3);
+         background: rgba(0, 0, 0, 0.6);
          border-color: #fff;
-         box-shadow: 0 0 0 1px rgba(255,255,255, 0.1);
+         box-shadow: 0 0 0 1px rgba(255,255,255, 0.2);
       }
     }
     
     &::placeholder {
-      color: rgba($color-text-primary, 0.2);
+      color: rgba($color-text-primary, 0.4);
+      
+      :global(.dark) & {
+        color: rgba(255, 255, 255, 0.5);
+      }
     }
   }
   
@@ -990,12 +1048,12 @@ const submitArticle = async () => {
     }
 
     &:hover {
-      opacity: 0.8;
+      opacity: 0.9;
       transform: translateY(-1px);
     }
     
     &:disabled {
-      opacity: 0.5;
+      opacity: 0.6;
       cursor: not-allowed;
       transform: none;
     }
@@ -1006,10 +1064,15 @@ const submitArticle = async () => {
 .spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(0,0,0,0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  border-top-color: #000;
+  border-top-color: #fff;
   animation: spin 0.8s linear infinite;
+  
+  :global(.dark) & {
+    border-color: rgba(0, 0, 0, 0.3);
+    border-top-color: #000;
+  }
 }
 
 @keyframes spin {
@@ -1017,9 +1080,9 @@ const submitArticle = async () => {
 }
 
 @keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }
 
 /* Transitions */
@@ -1038,6 +1101,95 @@ const submitArticle = async () => {
   
   .modal-content {
     transform: scale(0.9) translateY(20px);
+  }
+}
+</style>
+
+<style lang="scss">
+/* Force override for dark mode publish button to resolve scoped CSS issues */
+html.dark .editor-header .publish-btn {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #ffffff !important;
+  font-weight: 700 !important;
+  
+  &:hover {
+    background-color: #e6e6e6 !important;
+    border-color: #e6e6e6 !important;
+    opacity: 1 !important;
+  }
+}
+
+/* 
+  Global overrides for Dark Mode Contrast 
+  (100% Success Solution as requested)
+*/
+html.dark {
+  /* Title Input Placeholder */
+  .editor-header .title-input::placeholder {
+    color: rgba(255, 255, 255, 0.7) !important; /* Gray-white prompt */
+  }
+
+  /* Publish Settings Modal Card */
+  .modal-content {
+    background-color: #18181b !important; /* Solid dark background */
+    border: 1px solid rgba(255, 255, 255, 0.2) !important; /* Distinct border */
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8) !important; /* Strong shadow */
+  }
+
+  .modal-header, .modal-footer {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    background-color: #18181b !important; /* Match modal bg */
+  }
+
+  .modal-header h3 {
+    color: #ffffff !important;
+  }
+
+  /* Modal Form Inputs */
+  .modal-body .custom-input {
+    background-color: #27272a !important; /* Lighter than modal bg */
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+
+    &:focus {
+      border-color: #ffffff !important;
+      background-color: #3f3f46 !important;
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+  }
+
+  /* Modal Labels */
+  .modal-body label {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  /* Cover Upload Area */
+  .cover-preview-area {
+    background-color: #27272a !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    
+    &:hover {
+      background-color: #3f3f46 !important;
+      border-color: #ffffff !important;
+    }
+  }
+
+  /* Modal Confirm Button (Publish Now) - 100% Success Scheme */
+  .modal-footer .confirm-btn {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #ffffff !important;
+    font-weight: 700 !important;
+    
+    &:hover {
+      background-color: #e6e6e6 !important;
+      border-color: #e6e6e6 !important;
+      opacity: 1 !important;
+    }
   }
 }
 </style>

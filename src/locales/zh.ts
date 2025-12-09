@@ -81,6 +81,9 @@ export default {
     passwordPlaceholder: '输入密码',
     guest: '访客',
     bio: '全栈开发者 | Vue.js 爱好者',
+    themeLight: '浅色',
+    themeDark: '深色',
+    themeSystem: '跟随系统',
     appearance: '外观',
     darkMode: '深色模式',
     reducedMotion: '减弱动态效果',
@@ -102,7 +105,7 @@ export default {
     enterAvatarUrl: '输入图片链接',
     username: '用户名',
     enterUsername: '输入用户名',
-    bio: '个人简介',
+    bioText: '个人简介', // Renamed to avoid duplicate 'bio' key
     enterBio: '介绍一下你自己',
     updateSuccess: '个人资料更新成功',
   },
@@ -154,7 +157,7 @@ export default {
     helpCenter: '帮助中心',
   },
   editor: {
-    titlePlaceholder: '无标题故事...',
+    titlePlaceholder: '请输入标题',
     saving: '保存中...',
     words: '字',
     publish: '发布',

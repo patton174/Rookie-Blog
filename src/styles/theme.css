@@ -7,6 +7,7 @@
   /* Text Colors */
   --color-text-primary: #1e293b; /* Slate-800 - Deep Gray instead of harsh black */
   --color-text-secondary: #475569; /* Slate-600 */
+  --color-text-secondary-rgb: 71, 85, 105;
   --color-text-tertiary: #94a3b8; /* Slate-400 */
   
   --color-border: #e2e8f0; /* Slate-200 */
@@ -77,6 +78,7 @@
     /* Text */
     --color-text-primary: #fafafa; /* Zinc-50 */
     --color-text-secondary: #a1a1aa; /* Zinc-400 */
+    --color-text-secondary-rgb: 161, 161, 170;
     --color-text-tertiary: #52525b; /* Zinc-600 */
     
     --color-border: rgba(255, 255, 255, 0.08);
@@ -200,8 +202,12 @@ body {
 }
 
 /* Global Transition for Theme Elements */
-*, *::before, *::after {
-  transition-property: background-color, border-color, color, fill, stroke;
-  transition-duration: 0.3s;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+/* Optimization: Removed universal selector transition which causes severe lag */
+/* Only transition specific global properties */
+body {
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+a, button, input, textarea, select, .card, .glass-panel {
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
 }

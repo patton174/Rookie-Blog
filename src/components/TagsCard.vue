@@ -12,7 +12,7 @@ interface Tag {
 }
 
 // Mock data - normally fetched from API
-const tags: Tag[] = [
+const tags: Tag[] = ([
   { name: 'Java', count: 128, category: 'backend' },
   { name: 'Spring Boot', count: 85, category: 'backend' },
   { name: 'Vue.js', count: 64, category: 'frontend' },
@@ -23,7 +23,7 @@ const tags: Tag[] = [
   { name: 'AWS', count: 18, category: 'cloud' },
   { name: 'Redis', count: 28, category: 'database' },
   { name: 'MySQL', count: 32, category: 'database' }
-].slice(0, 5); // Limit to 5 tags as requested
+] as const).slice(0, 5) as unknown as Tag[]; // Limit to 5 tags as requested
 </script>
 
 <template>
@@ -31,7 +31,7 @@ const tags: Tag[] = [
     <div class="card-header">
       <h3 class="card-title">
         <HotTagIcon class="icon" />
-        <span>热门标签</span>
+        <span>{{ t('sidebar.hotTags') }}</span>
       </h3>
     </div>
     

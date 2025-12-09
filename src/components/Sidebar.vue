@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { ref } from 'vue';
 import TechIcon from './icons/TechIcon.vue';
 import HotTagIcon from './icons/HotTagIcon.vue';
 import { useUserStore } from '../store/user';
@@ -14,7 +13,7 @@ interface Tag {
   category: 'backend' | 'frontend' | 'devops' | 'cloud' | 'database' | 'architecture';
 }
 
-const tags: Tag[] = [
+const tags: Tag[] = ([
   { name: 'Java', count: 128, category: 'backend' },
   { name: 'Spring Boot', count: 85, category: 'backend' },
   { name: 'Vue.js', count: 64, category: 'frontend' },
@@ -25,7 +24,7 @@ const tags: Tag[] = [
   { name: 'AWS', count: 18, category: 'cloud' },
   { name: 'Redis', count: 28, category: 'database' },
   { name: 'MySQL', count: 32, category: 'database' }
-].slice(0, 5);
+] as const).slice(0, 5) as unknown as Tag[];
 </script>
 
 <template>

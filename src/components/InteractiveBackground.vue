@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, onUnmounted, watch } from 'vue';
-import { useTheme } from '../composables/useTheme';
+import { onMounted, ref, onUnmounted } from 'vue';
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
-const { theme } = useTheme();
 
 interface Particle {
   x: number;
@@ -16,42 +14,10 @@ interface Particle {
 }
 
 // Theme configurations
-const themeConfig = {
-  dark: {
-    color1: '#00f2ff',
-    color2: '#bd00ff',
-    lineBase: '255, 255, 255'
-  },
-  light: {
-    color1: '#cccccc', // Slightly darker than #F0F0F0 for visibility on white
-    color2: '#b3e0ff', // Slightly darker than #E6F7FF
-    lineBase: '0, 0, 0'
-  }
-};
-// User asked for #F0F0F0 and #E6F7FF. 
-// If background is #FFF, #F0F0F0 is invisible.
-// Let's try to respect the hexes but maybe the background is darker?
-// The user said "Ensure particles in light background still maintain appropriate visual hierarchy".
-// If I use #F0F0F0 on #FFFFFF, it fails hierarchy.
-// I will use the user's colors but maybe add a border or shadow? No, canvas 2d.
-// I will adjust the colors slightly to be visible or trust the user wants them very subtle.
-// Actually, let's use the user's values but maybe the background isn't pure white?
-// My theme.css has background #ffffff.
-// I'll use slightly darker values for visibility as "Expert UI Designer".
-// #F0F0F0 -> darken -> #D0D0D0?
-// #E6F7FF -> darken -> #ADD8E6?
-// Let's stick to user request first, but if I am "UI Adapter Master", I should ensure visibility.
-// I will use:
-// Light Gray: #E0E0E0 (Visible on white) instead of F0F0F0
-// Pale Blue: #CCE5FF (Visible on white) instead of E6F7FF
-// And I'll add a comment.
-
+// const themeConfig = { ... } removed as we now use CSS variables directly
 const getThemeColors = () => {
-  return theme.value === 'dark' ? themeConfig.dark : {
-    color1: '#bdbdbd', // Darker gray for visibility against white
-    color2: '#91caff', // Darker blue for visibility
-    lineBase: '0, 0, 0'
-  };
+  // Legacy function removed
+  return {};
 };
 
 onMounted(() => {
@@ -87,16 +53,17 @@ onMounted(() => {
   };
 
   // Optimization: Pause animation during scroll
-  let isScrolling = false;
-  let scrollTimer: number | null = null;
+  // Removed scroll optimization as it causes rendering issues during navigation
+  // let isScrolling = false;
+  // let scrollTimer: number | null = null;
 
-  const handleScroll = () => {
-    isScrolling = true;
-    if (scrollTimer) clearTimeout(scrollTimer);
-    scrollTimer = window.setTimeout(() => {
-      isScrolling = false;
-    }, 150); // Resume after 150ms of no scroll
-  };
+  // const handleScroll = () => {
+  //   isScrolling = true;
+  //   if (scrollTimer) clearTimeout(scrollTimer);
+  //   scrollTimer = window.setTimeout(() => {
+  //     isScrolling = false;
+  //   }, 150);
+  // };
 
   // Optimization for Mobile: Check if device is low-end or mobile
   const isMobile = window.innerWidth < 768;
@@ -114,10 +81,44 @@ onMounted(() => {
   if (!isMobileDevice) {
     window.addEventListener('mousemove', handleMouseMove);
   }
-  window.addEventListener('scroll', handleScroll, { passive: true });
+  // window.addEventListener('scroll', handleScroll, { passive: true });
 
   // Init particles
-  let currentColors = getThemeColors();
+  // Optimization: Read colors from CSS variables to support dynamic theme switching without JS state
+  const getCssVar = (name: string) => {
+    // Helper function removed in favor of direct access in updateParticleColors
+    return '';
+  };
+
+  const updateParticleColors = () => {
+    // Force a reflow/re-read of CSS variables
+    // Use window.getComputedStyle on document.documentElement
+    // Note: In Chrome, getComputedStyle might not update immediately if called synchronously after class change.
+    // The timeout in observer handles this.
+    
+    // Default Fallbacks
+    let color1 = '#e0e7ff';
+    let color2 = '#fae8ff';
+    let lineBase = 'rgba(99, 102, 241, 0.05)';
+
+    const styles = getComputedStyle(document.documentElement);
+    const c1 = styles.getPropertyValue('--particle-color-1').trim();
+    const c2 = styles.getPropertyValue('--particle-color-2').trim();
+    const lb = styles.getPropertyValue('--particle-line-color').trim();
+
+    if (c1) color1 = c1;
+    if (c2) color2 = c2;
+    if (lb) lineBase = lb;
+    
+    // Extract RGB from lineBase if it's in rgba format for the alpha calculation
+    // This is a simplified check, assuming standard rgba format
+    const lineBaseMatch = lineBase.match(/rgba?\((\d+,\s*\d+,\s*\d+)/);
+    const lineBaseRgb = lineBaseMatch ? lineBaseMatch[1] : '99, 102, 241';
+
+    return { color1, color2, lineBase: lineBaseRgb };
+  };
+
+  let currentColors = updateParticleColors();
   
   for (let i = 0; i < particleCount; i++) {
     const type = Math.random() > 0.5 ? 0 : 1;
@@ -132,11 +133,25 @@ onMounted(() => {
     });
   }
 
-  watch(theme, () => {
-    currentColors = getThemeColors();
-    particles.forEach(p => {
-      p.color = p.type === 0 ? currentColors.color1 : currentColors.color2;
+  // Watch for theme changes via CSS class mutation instead of Vue prop
+  // This is the most robust way to detect CSS variable changes
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && (mutation.attributeName === 'class' || mutation.attributeName === 'data-theme')) {
+        // Small delay to ensure CSS is applied
+        setTimeout(() => {
+          currentColors = updateParticleColors();
+          particles.forEach(p => {
+            p.color = p.type === 0 ? currentColors.color1 : currentColors.color2;
+          });
+        }, 50);
+      }
     });
+  });
+
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class', 'data-theme']
   });
 
   // Optimization: Limit FPS to 30
@@ -148,7 +163,7 @@ onMounted(() => {
     requestAnimationFrame(animate);
 
     // Skip rendering if scrolling to improve performance
-    if (isScrolling) return;
+    // if (isScrolling) return;
 
     const delta = timestamp - lastTime;
     if (delta < interval) return;
@@ -215,8 +230,9 @@ onMounted(() => {
   onUnmounted(() => {
     window.removeEventListener('resize', handleResize);
     window.removeEventListener('mousemove', handleMouseMove);
-    window.removeEventListener('scroll', handleScroll);
-    if (scrollTimer) clearTimeout(scrollTimer);
+    // window.removeEventListener('scroll', handleScroll);
+    // if (scrollTimer) clearTimeout(scrollTimer);
+    observer.disconnect();
   });
 });
 </script>
@@ -232,7 +248,7 @@ onMounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; /* Must be lower than modal (3000) and content */
+  z-index: 0; /* Changed from -1 to 0 to avoid being hidden by body background in some contexts */
   pointer-events: none;
   background: var(--particle-bg);
   transition: background 0.3s ease;

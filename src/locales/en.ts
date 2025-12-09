@@ -81,6 +81,9 @@ export default {
     passwordPlaceholder: 'Enter password',
     guest: 'Guest',
     bio: 'Full Stack Developer | Vue.js Enthusiast',
+    themeLight: 'Light',
+    themeDark: 'Dark',
+    themeSystem: 'System',
     appearance: 'Appearance',
     darkMode: 'Dark Mode',
     reducedMotion: 'Reduced Motion',
@@ -102,7 +105,7 @@ export default {
     enterAvatarUrl: 'Enter image URL',
     username: 'Username',
     enterUsername: 'Enter username',
-    bio: 'Bio',
+    bioText: 'Bio', // Renamed to avoid duplicate 'bio' key
     enterBio: 'Tell us about yourself',
     updateSuccess: 'Profile updated successfully',
   },
@@ -154,7 +157,7 @@ export default {
     helpCenter: 'Help Center',
   },
   editor: {
-    titlePlaceholder: 'Untitled Story...',
+    titlePlaceholder: 'Please enter title',
     saving: 'Saving...',
     words: 'words',
     publish: 'Publish',

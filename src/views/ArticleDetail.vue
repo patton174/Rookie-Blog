@@ -45,7 +45,7 @@ import { useUserStore } from '../store/user';
 // import { MdPreview } from 'md-editor-v3'; // Removed, using MarkdownViewer
 // import 'md-editor-v3/lib/preview.css'; // Removed
 import MarkdownViewer from '../components/MarkdownViewer.vue';
-import { useTheme } from '../composables/useTheme';
+// import { useTheme } from '../composables/useTheme'; // unused
 
 const { t } = useI18n();
 // Performance Monitoring
@@ -88,7 +88,7 @@ const router = useRouter();
 const { d } = useI18n();
 const userStore = useUserStore();
 const { isLoggedIn, user } = userStore; // Destructure for reactive access
-const { theme } = useTheme();
+// const { theme } = useTheme(); // unused
 const { addToast } = useToast();
 
 // Article Data

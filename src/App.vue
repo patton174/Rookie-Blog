@@ -41,28 +41,40 @@ watch(locale, (newLocale) => {
 
 <template>
   <div class="app-layout">
-    <SvgSprite />
-    <Toast />
-    <CookieNotice />
-    <transition name="fade">
-      <JavaHelloLoader v-if="isLoading" />
-    </transition>
     <InteractiveBackground />
-    <ScrollProgress />
-    <NavBar />
-
-    <router-view v-slot="{ Component }">
-      <transition name="fade" mode="out-in">
-        <component :is="Component" />
+    <div class="app-content">
+      <SvgSprite />
+      <Toast />
+      <CookieNotice />
+      <transition name="fade">
+        <JavaHelloLoader v-if="isLoading" />
       </transition>
-    </router-view>
+      <ScrollProgress />
+      <NavBar />
 
-    <Footer />
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
+
+      <Footer />
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 @use './styles/variables' as *;
+
+.app-layout {
+  position: relative; /* Create stacking context for InteractiveBackground */
+  min-height: 100vh;
+}
+
+.app-content {
+  position: relative;
+  z-index: 1; /* Ensure content sits above the background */
+}
 
 .content-layout {
   display: grid;

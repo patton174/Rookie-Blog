@@ -9,7 +9,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           'md-editor': ['md-editor-v3'],
-          'vue-vendor': ['vue', 'vue-router', 'pinia', 'vue-i18n'],
+          'vue-vendor': ['vue', 'vue-router', 'vue-i18n'],
         }
       }
     },
@@ -19,7 +19,8 @@ export default defineConfig({
     host: '0.0.0.0',
     proxy: {
       '/api': {
-        target: 'http://localhost:12345',
+        target: 'https://api.lxsweb.top',
+        // target: 'http://localhost:8080',
         changeOrigin: true,
         // The backend might be seeing the request as Cross-Origin because of the headers sent by the proxy.
         // Sa-Token often blocks requests that don't look "local" or trusted if not configured for CORS.

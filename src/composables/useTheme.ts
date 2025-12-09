@@ -1,78 +1,83 @@
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 
-const getSystemTheme = () => {
-  if (typeof window === 'undefined') return 'light';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-};
+type Theme = 'light' | 'dark';
+type ThemePreference = 'light' | 'dark' | 'auto';
 
-const theme = ref<'light' | 'dark'>(getSystemTheme());
+const STORAGE_KEY = 'theme-preference';
 
-// Apply theme immediately upon import to avoid flicker
+// Global state to share across components
+const themePreference = ref<ThemePreference>('auto');
+const systemTheme = ref<Theme>('light');
+
+// Initialize system detection
 if (typeof window !== 'undefined') {
-  const initialTheme = getSystemTheme();
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  systemTheme.value = mediaQuery.matches ? 'dark' : 'light';
+  
+  mediaQuery.addEventListener('change', (e) => {
+    systemTheme.value = e.matches ? 'dark' : 'light';
+  });
+
+  // Load stored preference
+  const stored = localStorage.getItem(STORAGE_KEY) as ThemePreference;
+  if (stored && ['light', 'dark', 'auto'].includes(stored)) {
+    themePreference.value = stored;
+  }
+}
+
+// Computed applied theme
+const currentTheme = computed(() => {
+  if (themePreference.value === 'auto') {
+    return systemTheme.value;
+  }
+  return themePreference.value;
+});
+
+// Apply theme side effects
+const applyTheme = (newTheme: Theme) => {
+  if (typeof window === 'undefined') return;
+
   const root = document.documentElement;
-  if (initialTheme === 'dark') {
+  if (newTheme === 'dark') {
     root.classList.add('dark');
     root.setAttribute('data-theme', 'dark');
   } else {
     root.classList.remove('dark');
     root.setAttribute('data-theme', 'light');
   }
-}
 
-const updateMetaThemeColor = (newTheme: 'light' | 'dark') => {
+  // Update meta theme-color
   const themeColor = newTheme === 'dark' ? '#0f172a' : '#ffffff';
-  const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-  if (metaThemeColor) {
-    metaThemeColor.setAttribute('content', themeColor);
-  } else {
-    const meta = document.createElement('meta');
-    meta.name = 'theme-color';
-    meta.content = themeColor;
+  let meta = document.querySelector('meta[name="theme-color"]');
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.setAttribute('name', 'theme-color');
     document.head.appendChild(meta);
   }
+  meta.setAttribute('content', themeColor);
 };
 
+// Watch for changes and apply
+watch(currentTheme, (newVal) => {
+  applyTheme(newVal);
+}, { immediate: true });
+
 export function useTheme() {
-  const applyTheme = (newTheme: 'light' | 'dark') => {
-    const root = document.documentElement;
-    if (newTheme === 'dark') {
-      root.classList.add('dark');
-      root.setAttribute('data-theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      root.setAttribute('data-theme', 'light');
-    }
-    updateMetaThemeColor(newTheme);
-    theme.value = newTheme;
+  const setThemePreference = (pref: ThemePreference) => {
+    themePreference.value = pref;
+    localStorage.setItem(STORAGE_KEY, pref);
   };
 
+  // Legacy support for initTheme (no-op now as we use reactive watch)
   const initTheme = () => {
-    applyTheme(getSystemTheme());
+    applyTheme(currentTheme.value);
   };
-
-  // Apply immediately upon import if possible to avoid flicker
-  // (But safe to call initTheme in App.vue)
-  
-  // System preference listener
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  const handleSystemChange = (e: MediaQueryListEvent) => {
-    applyTheme(e.matches ? 'dark' : 'light');
-  };
-
-  onMounted(() => {
-    // Initialize and start listening
-    initTheme();
-    mediaQuery.addEventListener('change', handleSystemChange);
-  });
-
-  onUnmounted(() => {
-    mediaQuery.removeEventListener('change', handleSystemChange);
-  });
 
   return {
-    theme,
-    // toggleTheme removed as requested
-    initTheme
+    theme: currentTheme,
+    themePreference,
+    setThemePreference,
+    initTheme,
+    isDark: computed(() => currentTheme.value === 'dark')
   };
 }

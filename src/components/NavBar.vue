@@ -12,17 +12,14 @@ import IconLangEn from './icons/IconLangEn.vue';
 import IconLangZh from './icons/IconLangZh.vue';
 // IconSun and IconMoon removed as manual toggle is removed
 import { useUserStore } from '../store/user';
-// import { useTheme } from '../composables/useTheme';
+import { useTheme } from '../composables/useTheme';
 import AvatarGenerator from './AvatarGenerator.vue';
 
 const { t, locale } = useI18n();
 const router = useRouter();
 const { isLoggedIn, user, logoutUser } = useUserStore();
 
-const navigateToEditor = () => {
-  router.push('/editor');
-};
-// const { theme } = useTheme(); // toggleTheme removed
+const { theme } = useTheme();
 
 const menuItems = computed(() => {
   const items = [
@@ -166,7 +163,7 @@ const handleKeydown = (e: KeyboardEvent) => {
       <div class="navbar__logo">
         <router-link to="/" class="navbar__logo-link">
           <Logo width="36" height="36" class="navbar__logo-icon" />
-          <TextLogo width="140" height="24" class="navbar__logo-text" variant="light" idSuffix="navbar" />
+          <TextLogo width="140" height="24" class="navbar__logo-text" :variant="theme" idSuffix="navbar" />
         </router-link>
       </div>
 
