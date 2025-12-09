@@ -1,7 +1,6 @@
 package com.lx.blog.common.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lx.blog.common.exception.BaseException;
+import com.lx.blog.common.base.BaseException;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,8 +1,8 @@
 package com.lx.blog.common.utils;
 
 import com.github.pagehelper.PageHelper;
-import com.lx.blog.common.model.PageDomain;
-import com.lx.blog.common.model.TableSupport;
+import com.lx.blog.common.config.model.PageDomain;
+import com.lx.blog.common.config.model.TableSupport;
 
 /**
  * @author LX

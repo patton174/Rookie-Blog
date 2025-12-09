@@ -2,9 +2,8 @@ package com.lx.blog.common.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lx.blog.common.model.IpDomain;
+import com.lx.blog.common.config.model.IpDomain;
 import com.lx.blog.common.utils.HttpUtils;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

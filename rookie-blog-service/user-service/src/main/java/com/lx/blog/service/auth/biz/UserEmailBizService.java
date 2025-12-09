@@ -1,6 +1,6 @@
 package com.lx.blog.service.auth.biz;
 
-import com.lx.blog.common.response.Result;
+import com.lx.blog.common.base.Result;
 
 /**
  * @author LX

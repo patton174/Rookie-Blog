@@ -44,7 +44,7 @@ public class ArticleFavoriteDaoImpl extends ServiceImpl<ArticleFavoriteMapper, A
     public void favorite(String articleId, String userId) {
         if (!hasFavorited(articleId, userId)) {
             ArticleFavorite fav = ArticleFavorite.builder()
-                    .id(UUIDUtils.signatureUuid(UUID.randomUUID()))
+                    .id(UUIDUtils.getId())
                     .articleId(articleId)
                     .userId(userId)
                     .build();

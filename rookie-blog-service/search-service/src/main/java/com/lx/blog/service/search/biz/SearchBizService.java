@@ -1,6 +1,6 @@
 package com.lx.blog.service.search.biz;
 
-import com.lx.blog.common.response.Result;
+import com.lx.blog.common.base.Result;
 
 import java.time.LocalDateTime;
 import java.util.List;

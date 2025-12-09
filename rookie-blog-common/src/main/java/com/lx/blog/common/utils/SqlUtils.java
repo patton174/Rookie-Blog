@@ -1,6 +1,6 @@
 package com.lx.blog.common.utils;
 
-import com.lx.blog.common.exception.BaseException;
+import com.lx.blog.common.base.BaseException;
 import org.apache.commons.lang3.StringUtils;
 
 /**

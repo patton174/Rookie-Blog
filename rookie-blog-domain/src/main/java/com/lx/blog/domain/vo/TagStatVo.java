@@ -1,5 +1,6 @@
 package com.lx.blog.domain.vo;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Data;
  * @description 标签统计VO
  */
 @Data
+@Builder
 public class TagStatVo {
     private String id;
     private String name;

@@ -2,11 +2,11 @@ package com.lx.blog.web.controller.user.auth;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import com.lx.blog.domain.dto.UpdatePasswordDto;
-import com.lx.blog.common.response.Result;
+import com.lx.blog.common.base.Result;
 import com.lx.blog.domain.dto.LoginDto;
 import com.lx.blog.domain.dto.RegisterDto;
 import com.lx.blog.service.auth.biz.UserAuthBizService;
-import com.lx.blog.common.aop.log.OpLog;
+import com.lx.blog.common.base.OpLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;

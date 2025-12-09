@@ -1,7 +1,7 @@
 package com.lx.blog.repository.listener;
 
 import com.lx.blog.common.aop.log.OpLogEvent;
-import com.lx.blog.common.response.Result;
+import com.lx.blog.common.base.Result;
 import com.lx.blog.common.utils.UUIDUtils;
 import com.lx.blog.repository.dao.ArticleStatsDao;
 import com.lx.blog.repository.dao.ArticleDao;

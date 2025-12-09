@@ -1,10 +1,10 @@
 package com.lx.blog.web.controller.article.auth;
 
-import com.lx.blog.common.aop.log.OpLog;
-import com.lx.blog.common.response.Result;
+import com.lx.blog.common.base.OpLog;
+import com.lx.blog.common.base.Result;
 import com.lx.blog.domain.dto.ArticleSaveDto;
 import com.lx.blog.domain.vo.UserArticleStatsVo;
-import com.lx.blog.service.article.biz.ArticleBizService;
+import com.lx.blog.service.auth.biz.ArticleBizService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;

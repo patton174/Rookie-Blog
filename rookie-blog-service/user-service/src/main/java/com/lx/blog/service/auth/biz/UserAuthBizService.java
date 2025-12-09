@@ -1,7 +1,7 @@
 package com.lx.blog.service.auth.biz;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
-import com.lx.blog.common.response.Result;
+import com.lx.blog.common.base.Result;
 import com.lx.blog.domain.dto.LoginDto;
 import com.lx.blog.domain.dto.RegisterDto;
 import com.lx.blog.domain.dto.UpdatePasswordDto;

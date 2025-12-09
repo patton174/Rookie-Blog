@@ -1,18 +1,17 @@
 package com.lx.blog.service.auth.biz.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.temp.SaTempUtil;
-import com.lx.blog.common.constants.ResultCode;
-import com.lx.blog.common.exception.BaseException;
+import com.lx.blog.common.base.ResultCode;
+import com.lx.blog.common.base.BaseException;
 import com.lx.blog.common.exception.NotFoundException;
-import com.lx.blog.common.response.Result;
-import com.lx.blog.common.utils.I18nUtils;
+import com.lx.blog.common.base.Result;
+import com.lx.blog.common.exception.ValidationException;
 import com.lx.blog.repository.dao.UserDao;
 import com.lx.blog.repository.dao.impl.mapper.entity.User;
 import com.lx.blog.service.auth.biz.UserEmailBizService;
+import com.lx.blog.service.biz.BaseBizService;
 import com.lx.blog.service.email.EmailService;
 import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +21,14 @@ import org.springframework.stereotype.Service;
  * @description 邮箱业务服务实现类
  */
 @Service
-@RequiredArgsConstructor
-public class UserUserEmailBizServiceImpl implements UserEmailBizService {
+public class UserUserEmailBizServiceImpl extends BaseBizService implements UserEmailBizService {
 
-    @NotNull private final UserDao userDao;
     @NotNull private final EmailService emailService;
-    @Value("${app.host:http://localhost:8080}")
-    private String appHost;
+
+    public UserUserEmailBizServiceImpl(UserDao userDao, EmailService emailService) {
+        super(userDao);
+        this.emailService = emailService;
+    }
 
     /**
      * 是否已完成邮箱验证
@@ -36,7 +36,7 @@ public class UserUserEmailBizServiceImpl implements UserEmailBizService {
      */
     @Override
     public Result<Boolean> isEmailVerified() {
-        String userId = StpUtil.getLoginIdAsString();
+        String userId = getUserId();
         User user = userDao.getById(userId);
         return Result.ok(user != null && Integer.valueOf(1).equals(user.getEmailVerified()));
     }
@@ -47,16 +47,14 @@ public class UserUserEmailBizServiceImpl implements UserEmailBizService {
      */
     @Override
     public Result<Object> requestEmailVerification() {
-        String userId = StpUtil.getLoginIdAsString();
-        User user = userDao.getById(userId);
+        User user = userDao.getById(getUserId());
         if (user == null) {
-            String msg = I18nUtils.t("user.notfound");
-            throw new NotFoundException(msg);
+            throw new NotFoundException(I18n("user.notfound"));
         }
         if (Integer.valueOf(1).equals(user.getEmailVerified())) {
             return Result.ok();
         }
-        String token = SaTempUtil.createToken(userId, 24 * 60 * 60);
+        String token = SaTempUtil.createToken(getUserId(), 24 * 60 * 60);
         String verifyUrl = appHost + "/api/user/email/verification/confirm?token=" + token;
         emailService.sendVerificationEmail(user.getId(), user.getEmail(), verifyUrl);
         return Result.ok();
@@ -71,13 +69,12 @@ public class UserUserEmailBizServiceImpl implements UserEmailBizService {
     public Result<Object> confirmEmailToken(String token) {
         Object val = SaTempUtil.parseToken(token);
         if (val == null) {
-            String msg = I18nUtils.t("token.invalid");
-            throw new BaseException(ResultCode.BAD_REQUEST, msg);
+            throw new ValidationException(I18n("token.invalid"));
         }
         String userId = String.valueOf(val);
         User user = userDao.getById(userId);
         if (user == null) {
-            throw new NotFoundException(I18nUtils.t("user.notfound"));
+            throw new NotFoundException(I18n("user.notfound"));
         }
         if (Integer.valueOf(1).equals(user.getEmailVerified())) {
             return Result.ok();
@@ -87,7 +84,6 @@ public class UserUserEmailBizServiceImpl implements UserEmailBizService {
         userDao.updateById(user);
         // 令牌一次性使用：清除令牌
         SaTempUtil.deleteToken(token);
-        String msg = I18nUtils.t("email.verify.success");
-        return Result.ok(msg);
+        return Result.ok(I18n("email.verify.success"));
     }
 }

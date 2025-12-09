@@ -1,6 +1,6 @@
 package com.lx.blog.web.controller.user.auth;
 
-import com.lx.blog.common.response.Result;
+import com.lx.blog.common.base.Result;
 import com.lx.blog.domain.vo.UserVo;
 import com.lx.blog.service.auth.biz.UserProfileBizService;
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,6 +1,7 @@
 package com.lx.blog.common.exception;
 
-import com.lx.blog.common.constants.ResultCode;
+import com.lx.blog.common.base.BaseException;
+import com.lx.blog.common.base.ResultCode;
 
 /**
  * @author LX

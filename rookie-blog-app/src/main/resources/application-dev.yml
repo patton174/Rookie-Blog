@@ -14,10 +14,10 @@ spring:
       database: 0
       timeout: 2s
   mail:
-    host: ${MAIL_HOST:smtp.example.com}
+    host: ${MAIL_HOST}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:your-account@example.com}
-    password: ${MAIL_PASSWORD:your-password}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:

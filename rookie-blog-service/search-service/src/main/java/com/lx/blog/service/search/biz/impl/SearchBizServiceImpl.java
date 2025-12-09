@@ -6,7 +6,7 @@ import co.elastic.clients.elasticsearch.core.DeleteRequest;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import com.lx.blog.common.response.Result;
+import com.lx.blog.common.base.Result;
 import com.lx.blog.service.search.biz.SearchBizService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;

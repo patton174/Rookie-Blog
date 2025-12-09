@@ -1,12 +1,9 @@
 package com.lx.blog.web.controller.article.auth;
 
-import com.lx.blog.common.aop.log.OpLog;
-import com.lx.blog.common.response.Result;
-import com.lx.blog.domain.dto.ArticleViewDto;
-import com.lx.blog.service.article.biz.ArticleInteractionBizService;
+import com.lx.blog.common.base.Result;
+import com.lx.blog.service.auth.biz.ArticleInteractionBizService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

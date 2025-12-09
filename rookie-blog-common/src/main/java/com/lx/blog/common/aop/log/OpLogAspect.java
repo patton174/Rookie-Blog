@@ -1,6 +1,7 @@
 package com.lx.blog.common.aop.log;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.lx.blog.common.base.OpLog;
 import com.lx.blog.common.utils.ServletUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotNull;

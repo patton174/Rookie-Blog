@@ -1,11 +1,11 @@
-package com.lx.blog.web.controller.article.auth;import com.lx.blog.common.aop.log.OpLog;
-import com.lx.blog.common.response.Result;
+package com.lx.blog.web.controller.article.auth;import com.lx.blog.common.base.OpLog;
+import com.lx.blog.common.base.Result;
 import com.lx.blog.domain.dto.CommentReactionDto;
 import com.lx.blog.domain.dto.CommentReplySaveDto;
 import com.lx.blog.domain.dto.CommentSaveDto;
 import com.lx.blog.domain.vo.CommentReplyVo;
 import com.lx.blog.domain.vo.CommentVo;
-import com.lx.blog.service.article.biz.ArticleCommentBizService;
+import com.lx.blog.service.auth.biz.ArticleCommentBizService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

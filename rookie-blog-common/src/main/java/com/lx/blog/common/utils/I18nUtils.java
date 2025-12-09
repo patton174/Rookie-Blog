@@ -1,6 +1,6 @@
 package com.lx.blog.common.utils;
 
-import com.lx.blog.common.constants.ResultCode;
+import com.lx.blog.common.base.ResultCode;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;

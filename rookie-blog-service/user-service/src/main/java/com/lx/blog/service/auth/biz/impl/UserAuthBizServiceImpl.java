@@ -2,26 +2,24 @@ package com.lx.blog.service.auth.biz.impl;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
-import com.lx.blog.common.response.Result;
+import com.lx.blog.common.base.Result;
+import com.lx.blog.common.exception.UnAuthorizedException;
+import com.lx.blog.common.exception.ValidationException;
 import com.lx.blog.domain.dto.UpdatePasswordDto;
 import com.lx.blog.repository.dao.UserDao;
 import com.lx.blog.repository.dao.impl.mapper.entity.User;
 import com.lx.blog.service.auth.biz.UserAuthBizService;
-import com.lx.blog.common.exception.BaseException;
+import com.lx.blog.common.base.BaseException;
 import com.lx.blog.common.exception.ForbiddenException;
 import com.lx.blog.common.exception.NotFoundException;
-import com.lx.blog.common.constants.ResultCode;
+import com.lx.blog.common.base.ResultCode;
 import com.lx.blog.common.utils.BCryptUtils;
 import com.lx.blog.domain.dto.LoginDto;
 import com.lx.blog.domain.dto.RegisterDto;
-import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
-import com.lx.blog.common.utils.I18nUtils;
-import com.lx.blog.common.utils.UUIDUtils;
+import com.lx.blog.service.biz.BaseBizService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * @author LX
@@ -29,11 +27,11 @@ import java.util.UUID;
  * @description 用户认证业务服务实现类
  */
 @Service
-@RequiredArgsConstructor
-public class UserAuthBizServiceImpl implements UserAuthBizService {
+public class UserAuthBizServiceImpl extends BaseBizService implements UserAuthBizService {
 
-    @NotNull private final UserDao userDao;
-
+    public UserAuthBizServiceImpl(UserDao userDao) {
+        super(userDao);
+    }
 
     /**
      * 用户登录
@@ -43,12 +41,12 @@ public class UserAuthBizServiceImpl implements UserAuthBizService {
      */
     @Override
     public Result<SaTokenInfo> login(LoginDto req) {
-        User user = userDao.getUserByName(req.getUsername()) != null ? userDao.getUserByName(req.getUsername()) : userDao.getByEmail(req.getUsername());
+        User user = getUser(req.getUsername());
         if (user == null || !BCryptUtils.matches(req.getPassword(), user.getPassword())) {
-            throw new BaseException(ResultCode.UNAUTHORIZED, I18nUtils.t("user.login.invalid"));
+            throw new UnAuthorizedException(I18n("user.login.invalid"));
         }
         if (user.getStatus() == 0) {
-            throw new ForbiddenException(I18nUtils.t("user.disabled"));
+            throw new ForbiddenException(I18n("user.disabled"));
         }
         if (user.getLastLoginIp() != null && !user.getLastLoginIp().equals(req.getIpAddress())) {
             user.setLastLoginIp(req.getIpAddress());
@@ -68,7 +66,7 @@ public class UserAuthBizServiceImpl implements UserAuthBizService {
     @Override
     public Result<Object> register(RegisterDto req) {
         User user = User.builder()
-                .id(UUIDUtils.signatureUuid(UUID.randomUUID()))
+                .id(getId())
                 .username(req.getUsername())
                 .password(BCryptUtils.encode(req.getPassword()))
                 .email(req.getEmail())
@@ -95,24 +93,20 @@ public class UserAuthBizServiceImpl implements UserAuthBizService {
      * @param req 更新密码请求参数
      * @return 更新结果
      */
+    @Override
     public Result<Object> updatePassword(UpdatePasswordDto req) {
-        String userId = StpUtil.getTokenInfo().getLoginId().toString();
-        User user = userDao.getById(userId);
+        User user = userDao.getById(getUserId());
         if (user == null) {
-            String msg = I18nUtils.t("user.notfound");
-            throw new NotFoundException(msg);
+            throw new NotFoundException(I18n("user.notfound"));
         }
         if (!BCryptUtils.matches(req.getOldPassword(), user.getPassword())) {
-            String msg = I18nUtils.t("password.old.invalid");
-            throw new BaseException(ResultCode.BAD_REQUEST, msg);
+            throw new ValidationException(I18n("password.old.invalid"));
         }
         if (!req.getNewPassword().equals(req.getConfirmPassword())) {
-            String msg = I18nUtils.t("password.mismatch");
-            throw new BaseException(ResultCode.BAD_REQUEST, msg);
+            throw new ValidationException(I18n("password.mismatch"));
         }
         user.setPassword(BCryptUtils.encode(req.getNewPassword()));
         userDao.updateById(user);
         return Result.ok();
     }
-
 }
