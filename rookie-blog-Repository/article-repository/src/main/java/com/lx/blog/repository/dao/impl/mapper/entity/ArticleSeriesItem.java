@@ -1,6 +1,8 @@
 package com.lx.blog.repository.dao.impl.mapper.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +20,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @TableName("article_series_item")
 public class ArticleSeriesItem {
+
+    /**
+     * 关联ID
+     */
+    @TableId(value = "id", type = IdType.INPUT)
+    private String id;
 
     /**
      * 系列ID

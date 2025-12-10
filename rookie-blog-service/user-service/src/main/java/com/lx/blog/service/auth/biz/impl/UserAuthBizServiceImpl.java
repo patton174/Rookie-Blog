@@ -3,7 +3,6 @@ package com.lx.blog.service.auth.biz.impl;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import com.lx.blog.common.base.Result;
-import com.lx.blog.common.exception.UnAuthorizedException;
 import com.lx.blog.common.exception.ValidationException;
 import com.lx.blog.domain.dto.UpdatePasswordDto;
 import com.lx.blog.repository.dao.UserDao;
@@ -25,9 +24,9 @@ import java.time.LocalDateTime;
  * @description 用户认证业务服务实现类
  */
 @Service
-public class UserAuthBizServiceImplUser extends UserBaseBizService implements UserAuthBizService {
+public class UserAuthBizServiceImpl extends UserBaseBizService implements UserAuthBizService {
 
-    public UserAuthBizServiceImplUser(UserDao userDao) {
+    public UserAuthBizServiceImpl(UserDao userDao) {
         super(userDao);
     }
 
@@ -41,7 +40,7 @@ public class UserAuthBizServiceImplUser extends UserBaseBizService implements Us
     public Result<SaTokenInfo> login(LoginDto req) {
         User user = getUser(req.getUsername());
         if (user == null || !BCryptUtils.matches(req.getPassword(), user.getPassword())) {
-            throw new UnAuthorizedException(I18n("user.login.invalid"));
+            throw new ValidationException(I18n("user.login.invalid"));
         }
         if (user.getStatus() == 0) {
             throw new ForbiddenException(I18n("user.disabled"));

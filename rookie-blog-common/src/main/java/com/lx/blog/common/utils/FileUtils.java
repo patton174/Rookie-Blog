@@ -63,7 +63,7 @@ public class FileUtils {
      */
     public static String uuidName(String fileName) {
         String extension = getExtension(fileName);
-        String uuid = UUID.randomUUID().toString().replace("-", "");
+        String uuid = UUIDUtils.getId();
         return StringUtils.isEmpty(extension) ? uuid : uuid + "." + extension;
     }
 
@@ -91,11 +91,8 @@ public class FileUtils {
      */
     public static boolean checkAllowDownload(String resource) {
         // 禁止目录上跳级别
-        if (StringUtils.contains(resource, "..")) {
-            return false;
-        }
+        return !StringUtils.contains(resource, "..");
         // 检查允许下载的文件规则...
-        return true;
     }
 
     /**

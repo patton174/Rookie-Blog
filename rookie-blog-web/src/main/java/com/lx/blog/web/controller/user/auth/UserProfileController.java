@@ -3,14 +3,13 @@ package com.lx.blog.web.controller.user.auth;
 import com.lx.blog.common.base.Result;
 import com.lx.blog.domain.vo.UserVo;
 import com.lx.blog.service.auth.biz.UserProfileBizService;
+import com.lx.blog.service.auth.biz.common.UserCommonBizService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -26,6 +25,7 @@ import java.util.Map;
 public class UserProfileController {
 
     @NotNull private final UserProfileBizService profileBiz;
+    @NotNull private final UserCommonBizService commonBiz;
 
     /**
      * 获取当前登录用户信息
@@ -48,5 +48,17 @@ public class UserProfileController {
     @Operation(summary = "根据用户ID获取用户名", description = "根据用户ID查询用户名")
     public Result<Map<String, String>> getUsernameById(@PathVariable @NotNull String userId) {
         return profileBiz.getUsernameById(userId);
+    }
+
+    /**
+     * 上传用户头像
+     *
+     * @param file 头像文件
+     * @return 头像URL
+     */
+    @PostMapping("/avatar")
+    @Operation(summary = "上传用户头像", description = "上传并更新当前用户的头像")
+    public Result<String> uploadAvatar(@RequestPart("file") MultipartFile file) {
+        return commonBiz.uploadAvatar(file);
     }
 }

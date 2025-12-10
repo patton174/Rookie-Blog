@@ -4,7 +4,7 @@
     <!-- 定义属性 -->
     <property name="LOG_PATH" value="logs"/>
     <property name="LOG_FILE" value="rookie-blog"/>
-    <property name="CONSOLE_LOG_PATTERN" value="%d{HH:mm:ss.SSS} %highlight(%-5level) [%8.8thread] %cyan(%-30logger{30}): %msg%n"/>
+    <property name="CONSOLE_LOG_PATTERN" value="%d{HH:mm:ss.SSS} %highlight(%-1level) [%thread] %cyan(%-30logger{30}): %msg%n"/>
     <property name="FILE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
 
     <!-- 控制台输出 -->

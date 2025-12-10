@@ -4,6 +4,8 @@ import com.lx.blog.common.base.BaseUpload;
 import com.lx.blog.common.config.model.StorageDomain;
 import com.lx.blog.common.enums.StoragePlatformEnum;
 import com.lx.blog.common.exception.SystemErrorException;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2025/12/9
  * @description 文件服务策略分发类 (策略模式上下文)
  */
+@Service
+@Primary
 public class BaseFileService extends BaseUpload {
 
     private final Map<StoragePlatformEnum, BaseUpload> uploadStrategyMap = new ConcurrentHashMap<>();

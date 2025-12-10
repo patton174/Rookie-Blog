@@ -20,11 +20,11 @@ import java.util.Map;
  * @description 用户个人信息业务服务实现类
  */
 @Service
-public class UserProfileBizServiceImplUser extends UserBaseBizService implements UserProfileBizService {
+public class UserProfileBizServiceImpl extends UserBaseBizService implements UserProfileBizService {
 
     @NotNull private final IpParseApi ipParseApi;
 
-    public UserProfileBizServiceImplUser(UserDao userDao, IpParseApi ipParseApi) {
+    public UserProfileBizServiceImpl(UserDao userDao, IpParseApi ipParseApi) {
         super(userDao);
         this.ipParseApi = ipParseApi;
     }

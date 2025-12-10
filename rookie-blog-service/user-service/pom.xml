@@ -14,7 +14,13 @@
     <dependencies>
         <dependency>
             <groupId>com.lx</groupId>
-            <artifactId>email-service</artifactId>
+            <artifactId>message-service</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.lx</groupId>
+            <artifactId>file-service</artifactId>
             <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>

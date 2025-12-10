@@ -1,15 +1,23 @@
 package com.lx.blog.web.controller.article.auth;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.lx.blog.common.base.OpLog;
 import com.lx.blog.common.base.Result;
+import com.lx.blog.common.constant.PermissionConstants;
+import com.lx.blog.common.enums.PermissionEnum;
+import com.lx.blog.common.service.BaseController;
 import com.lx.blog.domain.dto.ArticleSaveDto;
+import com.lx.blog.domain.vo.FileVo;
 import com.lx.blog.domain.vo.UserArticleStatsVo;
 import com.lx.blog.service.auth.biz.ArticleBizService;
+import com.lx.blog.service.auth.biz.common.ArticleCommonBizService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -20,11 +28,12 @@ import java.util.Map;
  */
 @Tag(name = "文章管理控制器", description = "文章发布、草稿、删除等管理操作")
 @RestController
-@RequestMapping("/article")
 @RequiredArgsConstructor
-public class ArticleController {
+@RequestMapping("/article")
+public class ArticleController extends BaseController {
 
     @NotNull private final ArticleBizService biz;
+    @NotNull private final ArticleCommonBizService commonBiz;
 
     /**
      * 保存草稿
@@ -35,6 +44,7 @@ public class ArticleController {
     @PostMapping("/draft")
     @Operation(summary = "保存草稿", description = "保存文章为草稿")
     @OpLog(action = "save_draft", func = "article.draft")
+    @SaCheckPermission(value = PermissionConstants.ARTICLE_CREATE)
     public Result<String> saveDraft(@RequestBody ArticleSaveDto dto) {
         return biz.saveDraft(dto);
     }
@@ -50,6 +60,30 @@ public class ArticleController {
     @OpLog(action = "publish_article", func = "article.publish")
     public Result<Map<String, String>> publish(@RequestBody ArticleSaveDto dto) {
         return biz.publish(dto);
+    }
+
+    /**
+     * 上传文章封面
+     *
+     * @param file 封面文件
+     * @return 文件信息
+     */
+    @PostMapping("/cover")
+    @Operation(summary = "上传文章封面", description = "上传文章封面图片")
+    public Result<FileVo> uploadCover(@RequestPart("file") MultipartFile file) {
+        return commonBiz.uploadCover(file);
+    }
+
+    /**
+     * 上传文章内容图片
+     *
+     * @param file 图片文件
+     * @return 文件信息
+     */
+    @PostMapping("/image")
+    @Operation(summary = "上传文章内容图片", description = "上传文章正文中的图片")
+    public Result<FileVo> uploadContentImage(@RequestPart("file") MultipartFile file) {
+        return commonBiz.uploadContentImage(file);
     }
 
     /**

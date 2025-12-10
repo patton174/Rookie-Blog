@@ -9,7 +9,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>email-service</artifactId>
+    <artifactId>message-service</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

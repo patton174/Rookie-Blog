@@ -1,16 +1,21 @@
 package com.lx.blog.service.auth.biz.impl;
 
 import cn.dev33.satoken.temp.SaTempUtil;
+import com.lx.blog.common.enums.MessageTypeEnum;
 import com.lx.blog.common.exception.NotFoundException;
 import com.lx.blog.common.base.Result;
 import com.lx.blog.common.exception.ValidationException;
+import com.lx.blog.domain.dto.MessageSendDto;
 import com.lx.blog.repository.dao.UserDao;
 import com.lx.blog.repository.dao.impl.mapper.entity.User;
 import com.lx.blog.service.auth.biz.UserEmailBizService;
 import com.lx.blog.service.biz.UserBaseBizService;
-import com.lx.blog.service.email.EmailService;
+import com.lx.blog.service.msg.MessageService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author LX
@@ -18,13 +23,13 @@ import org.springframework.stereotype.Service;
  * @description 邮箱业务服务实现类
  */
 @Service
-public class UserUserEmailBizServiceImplUser extends UserBaseBizService implements UserEmailBizService {
+public class UserUserEmailBizServiceImpl extends UserBaseBizService implements UserEmailBizService {
 
-    @NotNull private final EmailService emailService;
+    @NotNull private final MessageService messageService;
 
-    public UserUserEmailBizServiceImplUser(UserDao userDao, EmailService emailService) {
+    public UserUserEmailBizServiceImpl(UserDao userDao, MessageService messageService) {
         super(userDao);
-        this.emailService = emailService;
+        this.messageService = messageService;
     }
 
     /**
@@ -53,7 +58,23 @@ public class UserUserEmailBizServiceImplUser extends UserBaseBizService implemen
         }
         String token = SaTempUtil.createToken(getUserId(), 24 * 60 * 60);
         String verifyUrl = appHost + "/api/user/email/verification/confirm?token=" + token;
-        emailService.sendVerificationEmail(user.getId(), user.getEmail(), verifyUrl);
+
+        Map<String, Object> model = new HashMap<>();
+        model.put("username", user.getUsername());
+        model.put("verifyUrl", verifyUrl);
+        model.put("expireHours", 24);
+
+        MessageSendDto sendDto = MessageSendDto.builder()
+                .messageType(MessageTypeEnum.EMAIL)
+                .to(user.getEmail())
+                .subject("邮箱验证")
+                .template("templates/mail/verify-email.html")
+                .params(model)
+                .bizId(user.getId())
+                .bizType("verify_code")
+                .build();
+
+        messageService.sendMessage(sendDto);
         return Result.ok();
     }
 

@@ -13,7 +13,7 @@
         <module>article-service</module>
         <module>file-service</module>
         <module>search-service</module>
-        <module>email-service</module>
+        <module>message-service</module>
     </modules>
 
     <modelVersion>4.0.0</modelVersion>

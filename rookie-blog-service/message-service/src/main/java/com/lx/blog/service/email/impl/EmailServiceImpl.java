@@ -1,8 +1,9 @@
 package com.lx.blog.service.email.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
-import com.lx.blog.common.utils.MailUtils;
+import com.lx.blog.common.enums.MessageTypeEnum;
+import com.lx.blog.domain.dto.MessageSendDto;
 import com.lx.blog.service.email.EmailService;
+import com.lx.blog.service.msg.MessageService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +21,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
-    @NotNull private final MailUtils mailUtils;
+    @NotNull private final MessageService messageService;
     @Value("${app.host:http://localhost:8080}")
     private String appHost;
 
@@ -35,6 +36,17 @@ public class EmailServiceImpl implements EmailService {
         model.put("username", userId);
         model.put("verifyUrl", verifyUrl);
         model.put("expireHours", 24);
-        mailUtils.sendTemplateMail(email, "邮箱验证", "templates/mail/verify-email.html", model);
+
+        MessageSendDto sendDto = MessageSendDto.builder()
+                .messageType(MessageTypeEnum.EMAIL)
+                .to(email)
+                .subject("邮箱验证")
+                .template("templates/mail/verify-email.html")
+                .params(model)
+                .bizId(userId)
+                .bizType("verify_code")
+                .build();
+
+        messageService.sendMessage(sendDto);
     }
 }
