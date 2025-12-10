@@ -28,16 +28,41 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => {
     const res = response.data;
-    // You might want to check custom error codes here
-    // For now, we just return the response data
+    
+    // Check for logical errors (e.g. isSuccess === false)
+    if (res && typeof res.isSuccess === 'boolean' && !res.isSuccess) {
+        // Construct an error with the backend message
+        const errMsg = res.errMsg || 'Unknown Error';
+        const error = new Error(errMsg);
+        // Attach the original response/code if needed
+        (error as any).code = res.errCode;
+        return Promise.reject(error);
+    }
+
     return res;
   },
   (error) => {
+    let errMsg = error.message || 'Request Failed';
+    
+    if (error.response && error.response.data) {
+       // Try to extract errMsg from the backend JSON response
+       const data = error.response.data;
+       if (data.errMsg) {
+           errMsg = data.errMsg;
+       } else if (data.message) {
+           errMsg = data.message; // Fallback to standard message field
+       }
+    }
+
+    // Create a new error with the extracted message to ensure callers get the right text
+    const customError = new Error(errMsg);
+    (customError as any).response = error.response; // Keep the response for debugging
+    
     // Only log error if it's NOT a 401 (Unauthorized) which is expected when not logged in
     if (error.response && error.response.status !== 401) {
-        console.error('API Error:', error);
+        console.error('API Error:', customError);
     }
-    return Promise.reject(error);
+    return Promise.reject(customError);
   }
 );
 

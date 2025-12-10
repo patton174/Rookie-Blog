@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { MdEditor } from 'md-editor-v3';
 import 'md-editor-v3/lib/style.css';
 import { publishArticle, saveDraft, getArticleBySlug, getArticleContent, getArticleById } from '../api/article';
+import { uploadCover, uploadContentImage } from '../api/upload';
 // import { useUserStore } from '../store/user';
 import { useTheme } from '../composables/useTheme';
 
@@ -24,13 +25,19 @@ const showPublishModal = ref(false);
 const isDragging = ref(false);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 
-const processFile = (file: File) => {
+const processFile = async (file: File) => {
   if (file.type.startsWith('image/')) {
-     const reader = new FileReader();
-     reader.onload = (ev) => {
-       publishForm.coverUrl = ev.target?.result as string;
-     };
-     reader.readAsDataURL(file);
+     try {
+       const res = await uploadCover(file);
+       if (res.isSuccess) {
+         publishForm.coverUrl = res.data;
+       } else {
+         alert(res.errMsg || 'Cover upload failed');
+       }
+     } catch (error) {
+       console.error('Cover upload error:', error);
+       alert('Cover upload failed');
+     }
   }
 };
 
@@ -222,21 +229,33 @@ onUnmounted(() => {
 });
 
 const handleUploadImage = async (files: File[], callback: (urls: string[]) => void) => {
-  const res = await Promise.all(
-    files.map((file) => {
-      return new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          resolve(e.target?.result as string);
-        };
-        reader.onerror = (e) => {
-          reject(e);
-        };
-        reader.readAsDataURL(file);
-      });
-    })
-  );
-  callback(res);
+  try {
+    const uploadPromises = files.map(file => uploadContentImage(file));
+    const results = await Promise.all(uploadPromises);
+    
+    const urls: string[] = [];
+    let hasError = false;
+
+    results.forEach(res => {
+      if (res.isSuccess) {
+        urls.push(res.data);
+      } else {
+        hasError = true;
+        console.error('Image upload failed:', res.errMsg);
+      }
+    });
+
+    if (hasError) {
+      alert('Some images failed to upload. Please check console for details.');
+    }
+
+    if (urls.length > 0) {
+      callback(urls);
+    }
+  } catch (error) {
+    console.error('Content image upload error:', error);
+    alert('An error occurred while uploading images');
+  }
 };
 
 const submitArticle = async () => {

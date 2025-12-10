@@ -364,16 +364,16 @@ const handleKeydown = (e: KeyboardEvent) => {
 }
 
 // Profile Container & Capsule Styles
-.profile-container {
-  position: relative;
-  height: 36px;
-  // Width is determined by the phantom element
-  
-  // Hide on mobile to fix whitespace issue
-  @media (max-width: $breakpoint-tablet) {
-    display: none;
+  .profile-container {
+    position: relative;
+    height: 40px; // Adjusted to match standard button height
+    // Width is determined by the phantom element
+    
+    // Hide on mobile to fix whitespace issue
+    @media (max-width: $breakpoint-tablet) {
+      display: none;
+    }
   }
-}
 
 .profile-phantom {
   opacity: 0;
@@ -381,8 +381,8 @@ const handleKeydown = (e: KeyboardEvent) => {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 8px 3px 4px;
-  height: 36px;
+  padding: 0 12px; // Adjusted to match standard button padding
+  height: 40px; // Adjusted to match standard button height
   
   .nav-avatar-wrapper {
     width: 22px;
@@ -403,12 +403,12 @@ const handleKeydown = (e: KeyboardEvent) => {
   right: auto;
   width: 100%; // Matches container initially
   min-width: 100%;
-  height: 36px;
+  height: 40px; // Adjusted to match standard button height
   overflow: hidden;
   
   background: $color-bg-secondary;
   border: 1px solid $color-border;
-  border-radius: 20px; // Capsule shape
+  border-radius: 12px; // Adjusted to match standard button radius
   
   display: flex;
   flex-direction: column;
@@ -435,8 +435,8 @@ const handleKeydown = (e: KeyboardEvent) => {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 3px 8px 3px 4px; // Match phantom padding
-    height: 36px;
+    padding: 0 12px; // Match standard button padding
+    height: 40px; // Match standard button height
     width: 100%;
     white-space: nowrap;
 
@@ -659,8 +659,8 @@ const handleKeydown = (e: KeyboardEvent) => {
 
   .lang-btn,
   .theme-btn {
-      padding: 0 4px; // Match profile capsule left padding (4px)
-      min-width: auto; // Allow tighter fit
+      // padding: 0 4px; // Removed to use default IconButton padding (12px) for consistency
+      // min-width: auto; // Removed to use default IconButton min-width (40px)
 
       // Desktop: Increase icon size to match visual weight of other icons
       :deep(.icon-btn__icon) {
@@ -1013,8 +1013,8 @@ const handleKeydown = (e: KeyboardEvent) => {
   }
 
   .search-button {
-    padding: 4px 4px; // Match profile capsule left padding (4px)
-    min-width: auto; // Allow tighter fit
+    // padding: 4px 4px; // Removed to use default IconButton padding (12px) for consistency
+    // min-width: auto; // Removed to use default IconButton min-width (40px)
 
     // Desktop: Adjust icon size for visual balance
     // Reduced to 20px to match the visual weight of the text-based language icon and avatar

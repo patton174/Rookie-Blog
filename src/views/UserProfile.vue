@@ -5,6 +5,7 @@ import ArticleCard from '../components/ArticleCard.vue';
 import AvatarGenerator from '../components/AvatarGenerator.vue';
 import { useUserStore } from '../store/user';
 import { requestEmailVerification, updateUserInfo, type UpdateProfileDto } from '../api/auth';
+import { uploadAvatar } from '../api/upload';
 import { useTheme } from '../composables/useTheme';
 
 const { t } = useI18n();
@@ -47,6 +48,26 @@ const handleUpdateProfile = async () => {
     alert('An error occurred');
   } finally {
     isProfileUpdating.value = false;
+  }
+};
+
+const handleAvatarFileChange = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files[0]) {
+    try {
+      const res = await uploadAvatar(input.files[0]);
+      if (res.isSuccess) {
+        profileForm.value.avatarUrl = res.data;
+      } else {
+        alert(res.errMsg || 'Avatar upload failed');
+      }
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      alert('Avatar upload failed');
+    } finally {
+      // Clear input so same file can be selected again
+      input.value = '';
+    }
   }
 };
 
@@ -574,6 +595,14 @@ onUnmounted(() => {
                                 v-model="profileForm.avatarUrl"
                                 :placeholder="t('profile.enterAvatarUrl')"
                               />
+                              <label class="upload-btn" title="Upload Image">
+                                <input type="file" accept="image/*" @change="handleAvatarFileChange" hidden />
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                  <polyline points="17 8 12 3 7 8"></polyline>
+                                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                              </label>
                             </div>
                             <div class="avatar-preview-small" v-if="profileForm.avatarUrl">
                               <img :src="profileForm.avatarUrl" alt="Preview" @error="(e) => (e.target as HTMLImageElement).style.display = 'none'" />
@@ -1351,9 +1380,12 @@ onUnmounted(() => {
     position: relative;
     display: flex;
     align-items: center;
+    gap: 8px;
 
     input, textarea {
-      width: 100%;
+      flex: 1;
+      width: auto; // Override 100% to allow button
+      min-width: 0; // Prevent overflow
       padding: 10px 14px;
       background: $color-input-bg;
       border: 1px solid $color-input-border;
@@ -1377,6 +1409,32 @@ onUnmounted(() => {
     .bio-input {
       resize: vertical;
       min-height: 80px;
+    }
+
+    .upload-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      background: rgba(0,0,0,0.05);
+      border-radius: 8px;
+      cursor: pointer;
+      color: $color-text-secondary;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      border: 1px solid transparent;
+      
+      &:hover {
+        background: rgba(0,0,0,0.1);
+        color: $color-text-primary;
+      }
+
+      :global(.dark) & {
+        background: rgba(255,255,255,0.05);
+        &:hover {
+          background: rgba(255,255,255,0.1);
+        }
+      }
     }
   }
   

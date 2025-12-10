@@ -47,7 +47,7 @@ export default {
     passwordsDoNotMatch: '密码不匹配',
   },
   home: {
-    title: '我的菜鸟博客',
+    title: '菜鸟博客',
     subtitle: '探索技术前沿 • 记录成长历程',
     tag: '<DEV_ZONE />',
     featured: '精选故事',
