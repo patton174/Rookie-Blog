@@ -338,6 +338,61 @@ public class HttpUtils {
         }
     }
 
+    /**
+     * 下载文件返回字节数组
+     *
+     * @param url 文件地址
+     * @return 字节数组
+     * @throws IOException 网络异常
+     */
+    public static byte[] downloadBytes(String url) throws IOException {
+        logger.debug("Download Bytes: {}", url);
+
+        HttpURLConnection connection = null;
+        InputStream inputStream = null;
+        ByteArrayOutputStream outputStream = null;
+
+        try {
+            connection = createConnection(url, "GET", DEFAULT_CONNECT_TIMEOUT, DEFAULT_READ_TIMEOUT);
+            connection.connect();
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                inputStream = connection.getInputStream();
+                outputStream = new ByteArrayOutputStream();
+
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+
+                return outputStream.toByteArray();
+            } else {
+                logger.error("Download failed. Response code: {}", responseCode);
+                throw new IOException("HTTP Error: " + responseCode);
+            }
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    logger.warn("Error closing input stream", e);
+                }
+            }
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    logger.warn("Error closing output stream", e);
+                }
+            }
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
     // 私有辅助方法
 
     private static HttpURLConnection createConnection(String url, String method,
