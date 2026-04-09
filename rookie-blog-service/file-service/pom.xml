@@ -32,6 +32,11 @@
             <artifactId>minio</artifactId>
             <version>8.5.7</version>
         </dependency>
+        <dependency>
+            <groupId>com.qiniu</groupId>
+            <artifactId>qiniu-java-sdk</artifactId>
+            <version>7.14.0</version>
+        </dependency>
     </dependencies>
 
 </project>
