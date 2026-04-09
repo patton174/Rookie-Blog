@@ -196,6 +196,11 @@ export const getReadingHistory = () => {
   return request.get<any, ResultListArticle>('/api/article/read/history');
 };
 
+// Query Favorites
+export const getFavorites = () => {
+  return request.get<any, ResultListArticle>('/api/article/read/favorites');
+};
+
 export interface UserArticleStats {
   totalViews: number;
   totalLikes: number;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useTheme } from '../composables/useTheme';
 
 const props = withDefaults(defineProps<{
