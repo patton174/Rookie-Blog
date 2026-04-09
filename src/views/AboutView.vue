@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
 import { ref, onMounted } from 'vue';
 import { useTheme } from '../composables/useTheme';
 import Logo from '../components/Logo.vue';
@@ -7,7 +6,6 @@ import TextLogo from '../components/TextLogo.vue';
 import TechBadge from '../components/TechBadge.vue';
 import TechIcon from '../components/icons/TechIcon.vue';
 
-const { t } = useI18n();
 const { theme } = useTheme();
 const activeSection = ref('intro');
 

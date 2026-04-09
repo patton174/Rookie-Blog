@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onUnmounted, watchEffect, nextTick } from 'vue';
+import { ref, computed, onUnmounted, watchEffect, nextTick, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 import ArticleCard from '../components/ArticleCard.vue';
 import AvatarGenerator from '../components/AvatarGenerator.vue';
 import { useUserStore } from '../store/user';
@@ -9,6 +10,7 @@ import { uploadAvatar } from '../api/upload';
 import { useTheme } from '../composables/useTheme';
 
 const { t } = useI18n();
+const router = useRouter();
 const { user: currentUser, fetchUserInfo } = useUserStore();
 const { theme, themePreference, setThemePreference } = useTheme();
 
@@ -248,41 +250,56 @@ const user = computed(() => {
   };
 });
 
-// Mock data for favorites/history
-const mockArticles = [
-  {
-    id: 1,
-    title: 'Mastering Vue 3 Composition API',
-    summary: 'Deep dive into the new Composition API features, script setup, and composables for better code organization.',
-    date: '2023-10-15',
-    tags: ['Vue', 'Frontend', 'JavaScript'],
-    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1080&auto=format&fit=crop'
-  },
-  {
-    id: 3,
-    title: 'Building Microservices with Kubernetes',
-    summary: 'Learn how to deploy, scale, and manage your microservices using Docker and Kubernetes clusters.',
-    date: '2023-11-20',
-    tags: ['DevOps', 'K8s', 'Docker'],
-    image: 'https://images.unsplash.com/photo-1667372393119-c85c020799a3?q=80&w=1080&auto=format&fit=crop'
-  },
-  {
-    id: 4,
-    title: 'Spring Boot 3.0 Migration Guide',
-    summary: 'A comprehensive guide to upgrading your Spring Boot applications to version 3.0 and Java 17.',
-    date: '2023-12-05',
-    tags: ['Java', 'Spring Boot', 'Backend'],
-    image: 'https://images.unsplash.com/photo-1537432376769-00f5c2f4c8d2?q=80&w=1080&auto=format&fit=crop'
-  },
-  {
-    id: 5,
-    title: 'Optimizing Web Performance',
-    summary: 'Techniques for improving LCP, FID, and CLS scores to boost your website ranking and user experience.',
-    date: '2024-01-10',
-    tags: ['Performance', 'Web', 'SEO'],
-    image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=1080&auto=format&fit=crop'
+import { getReadingHistory, getFavorites } from '../api/article';
+
+// Replace mockArticles with reactive states
+const historyArticles = ref<any[]>([]);
+const favoriteArticles = ref<any[]>([]);
+
+const loadFavorites = async () => {
+  try {
+    const res = await getFavorites();
+    if (res.isSuccess && res.data) {
+      favoriteArticles.value = res.data.map((a: any) => ({
+        id: a.slug || a.id,
+        title: a.title,
+        summary: a.summary || '',
+        date: a.publishAt || a.createdAt,
+        tags: a.tags || [],
+        image: a.coverUrl || ''
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to load favorites', error);
   }
-];
+};
+
+const loadHistory = async () => {
+  try {
+    const res = await getReadingHistory();
+    if (res.isSuccess && res.data) {
+      historyArticles.value = res.data.map((a: any) => ({
+        id: a.slug || a.id,
+        title: a.title,
+        summary: a.summary || '',
+        date: a.publishAt || a.createdAt,
+        tags: a.tags || [],
+        image: a.coverUrl || ''
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to load history', error);
+  }
+};
+
+onMounted(() => {
+  loadFavorites();
+  loadHistory();
+});
+
+// Mock data for favorites/history
+// Removed mockArticles
+
 
 // --- Email Verification Logic ---
 const emailStatus = ref<'unverified' | 'sending' | 'sent' | 'verified'>('unverified');
@@ -511,7 +528,7 @@ onUnmounted(() => {
         <nav class="profile-tabs glass-panel" ref="tabsContainerRef">
           <div class="tab-indicator" :style="tabIndicatorStyle"></div>
           <button 
-            v-for="(tab, index) in tabs" 
+            v-for="tab in tabs" 
             :key="tab.id"
             ref="tabRefs"
             class="tab-btn"
@@ -531,8 +548,8 @@ onUnmounted(() => {
             @after-enter="onMainAfterEnter"
           >
             <div class="tab-content" v-if="activeTab === 'favorites'" key="favorites">
-              <div class="articles-grid" v-if="mockArticles.length">
-                <ArticleCard v-for="article in mockArticles" :key="article.id" v-bind="article" />
+              <div class="articles-grid" v-if="favoriteArticles.length">
+                <ArticleCard v-for="article in favoriteArticles" :key="article.id" v-bind="article" />
               </div>
               <div v-else class="empty-state glass-panel">
                 <p>{{ t('profile.noFavorites') }}</p>
@@ -540,13 +557,13 @@ onUnmounted(() => {
             </div>
 
             <div class="tab-content" v-else-if="activeTab === 'history'" key="history">
-              <div class="history-list" v-if="mockArticles.length">
-                <div v-for="article in mockArticles" :key="article.id" class="history-item glass-panel">
+              <div class="history-list" v-if="historyArticles.length">
+                <div v-for="article in historyArticles" :key="article.id" class="history-item glass-panel">
                   <div class="history-info">
                     <span class="history-date">{{ t('profile.viewedOn') }} {{ article.date }}</span>
                     <h3>{{ article.title }}</h3>
                   </div>
-                  <button class="view-btn">{{ t('profile.readAgain') }}</button>
+                  <button class="view-btn" @click="router.push(`/article/${article.id}`)">{{ t('profile.readAgain') }}</button>
                 </div>
               </div>
               <div v-else class="empty-state glass-panel">

@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import ArticleCard from '../components/ArticleCard.vue';
 import IconSearch from '../components/icons/IconSearch.vue';
+import { getPublishedArticles } from '../api/article';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -13,7 +14,7 @@ const searchQuery = ref('');
 const activeFilter = ref('all');
 const filters = ['all', 'article', 'tag', 'author'];
 
-const isLoading = ref(false);
+const isLoading = ref(true);
 
 // Pagination
 const currentPage = ref(1);
@@ -22,44 +23,48 @@ const itemsPerPage = 10;
 const searchHistory = ref<string[]>([]);
 const hotSearches = ref(['Spring Boot 3', 'Kubernetes', 'Microservices', 'AI Tools', 'Vue 3', 'React', 'Docker']);
 
-// Mock results
-const generateMockResults = () => {
-  const results = [];
-  const topics = ['Vue 3', 'React', 'Angular', 'Spring Boot', 'Java', 'Python', 'Docker', 'Kubernetes', 'AWS', 'Azure'];
-  
-  for (let i = 1; i <= 35; i++) {
-    const topic = topics[i % topics.length];
-    results.push({
-      id: i,
-      title: `${topic} Guide Part ${Math.floor(i / 10) + 1} - Advanced Techniques`,
-      summary: `This is a detailed summary for article ${i} about ${topic}. Learn how to master ${topic} with practical examples and best practices.`,
-      date: `2025-${10 + (i % 2)}-${(i % 28) + 1}`,
-      tags: [topic, 'Tech', 'Programming'],
-      image: '',
-      views: Math.floor(Math.random() * 5000) + 100
-    });
-  }
-  return results;
-};
+const allArticles = ref<any[]>([]);
 
-const mockResults = generateMockResults();
+const loadArticles = async () => {
+  isLoading.value = true;
+  try {
+    const res = await getPublishedArticles();
+    if (res.isSuccess && res.data) {
+      allArticles.value = res.data.map(a => ({
+        id: a.slug || a.id,
+        title: a.title,
+        summary: a.summary || '',
+        date: a.publishAt || a.createdAt,
+        tags: a.tags || [],
+        image: a.coverUrl || '',
+        views: a.views || 0,
+        authorId: a.authorId || ''
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to load articles for search:', error);
+  } finally {
+    isLoading.value = false;
+  }
+};
 
 // Computed properties
 const filteredResults = computed(() => {
   if (!searchQuery.value) return [];
   
   const query = searchQuery.value.toLowerCase();
-  let results = mockResults.filter(item => {
+  let results = allArticles.value.filter(item => {
     // Text Search
     const matchTitle = item.title.toLowerCase().includes(query);
     const matchSummary = item.summary.toLowerCase().includes(query);
-    const matchTags = item.tags.some(tag => tag.toLowerCase().includes(query));
+    const matchTags = item.tags.some((tag: string) => tag.toLowerCase().includes(query));
+    const matchAuthor = item.authorId.toLowerCase().includes(query);
     
     if (activeFilter.value === 'article') return matchTitle || matchSummary;
     if (activeFilter.value === 'tag') return matchTags;
-    // if (activeFilter.value === 'author') return matchAuthor; // Add author if needed
+    if (activeFilter.value === 'author') return matchAuthor;
     
-    return matchTitle || matchSummary || matchTags;
+    return matchTitle || matchSummary || matchTags || matchAuthor;
   });
 
   return results;
@@ -156,6 +161,7 @@ watch(() => route.query.q, (newQ) => {
 
 onMounted(() => {
   loadHistory();
+  loadArticles();
 });
 </script>
 

@@ -77,7 +77,7 @@ onMounted(async () => {
           title: featured.title,
           summary: featured.summary,
           date: featured.publishAt || featured.createdAt,
-          tags: [], 
+          tags: featured.tags || [], 
           image: featured.coverUrl
         };
       }
@@ -90,7 +90,7 @@ onMounted(async () => {
           title: a.title,
           summary: a.summary,
           date: a.publishAt || a.createdAt,
-          tags: [], 
+          tags: a.tags || [], 
           image: a.coverUrl
         }));
     }
